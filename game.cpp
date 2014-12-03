@@ -1,3 +1,6 @@
+#include <thread>
+#include <math.h>
+#include <sstream>
 #include <fstream>
 #include <vector>
 #include <cursesw.h>
@@ -8,6 +11,10 @@
 #include <set>
 using namespace std;
 
+// GLOBAL VARIABLES+CONSTANTS
+int TOTAL_POINTS= 0;
+int GAME_WON = 0; // -1 is a loss, 1 is win, 0 means game in progress
+
 
 
 int wallist[] = {'#', ACS_ULCORNER, ACS_LLCORNER, ACS_URCORNER,
@@ -15,26 +22,84 @@ int wallist[] = {'#', ACS_ULCORNER, ACS_LLCORNER, ACS_URCORNER,
 				ACS_TTEE, ACS_HLINE, ACS_VLINE, ACS_PLUS};
 
 set<int> WALLS(wallist, wallist + sizeof(wallist)/sizeof(int));
-// can be abstracted for ghosts or Player
-struct avatar{
-	int x;
-	int y;
-};
+
+
+/* HELPER FUNCTIONS */
+
+char charAt(int x, int y) {
+	if(x < 0 || y < 0)
+		return 0;
+
+	int curX, curY;
+	getyx(stdscr, curY, curX);
+
+	char value = mvinch(y, x);
+	mvinch(curY, curX);
+
+	return value;
+}
+
+bool writeAt(int x, int y, char letter) {
+	if(x < 0 || y < 0)
+		return false;
+	
+	int curX, curY;
+	getyx(stdscr, curY, curX);
+
+	mvinch(y, x);
+	addch(letter);
+	mvinch(curY, curX);
+	return true;
+}
+
+void printAtBottomChar(char msg) {
+	string x = ""; x += msg;
+	mvprintw(20, 1, x.c_str());
+}
+void printAtBottom(string msg) {
+	int x, y;
+	getyx(stdscr, y, x);
+	mvprintw(20, 1, msg.c_str());
+	move(y,x);
+}
+
+
+
+
+// Game state
+void winGame() {
+	clear();
+	printAtBottom("YOU WIN THE GAME!");
+	refresh();
+	GAME_WON = 1;
+}
+
+void loseGame() {
+	clear();
+	printAtBottom("YOU LOSE THE GAME!");
+	refresh();
+	GAME_WON = -1;
+}
+
+
+
 
 
 // check to see if the player can move there
 bool isValid(int x, int y) {
+	// Within range of board
 	if(y < 0 || x < 0)
 		return false;
 	
+
+	// Move cursor, check character, move cursor back
 	int curX, curY;
 	getyx(stdscr, curY, curX);
 	char testPos= mvinch(y, x);
 	mvinch(curY, curX);
 
-//	cout << "Cur char:" << ACS_DIAMOND << endl;
-//	addch(4194400);
 
+	// Now see if it's a valid spot
 	if(WALLS.find(testPos) != WALLS.end())
 	{
 	//	cout << "NOT VALID" << endl;
@@ -43,68 +108,222 @@ bool isValid(int x, int y) {
 	return true;	
 }
 
-void onMove(avatar& unit) {
-	// delete any dots
-	char curPos = inch();
-	//cout << "OnMove.." << curPos << endl;
-	if(curPos == '~') {
-		addch(' ');
-		move(unit.y, unit.x);
-	}
-}
-void forcemove(int x, int y, avatar& unit) {
-	//move(y, x);
-	//cout << "Calling forcemove!" << endl;
-	unit.x = x;
-	unit.y = y;
-	move(y, x);
-	onMove(unit);
-	//cout << "Unit.x = " <<  unit.x <<  "..Unit.y=" << unit.y << endl;
+
+
+
+// Avatar Class -- can be a ghost or player
+class avatar {
+	public:
+		avatar();
+		avatar(int, int);
+		avatar(int, int, bool);
+	protected:
+		char letterUnder;
+		int x;
+		int y;
+		bool isPlayer;
+		int points;
+		char portrait;
+		int lives;
+	public:	
+		bool moveTo(int, int);
+		bool moveTo(int, int, bool);
+		bool moveRight();
+		bool moveLeft();
+		bool moveUp();
+		bool moveDown();
+		void parseWordForward(bool);
+		void parseWordBackward(bool);
+		void parseWordEnd(bool);
+
+		int getPoints();
+		bool getPlayer();
+		int getX();
+		int getY();
+		bool setPos(int, int);
+		char getPortrait();
+
+		void setLetterUnder(char);
+};
+	
+avatar::avatar() {
+	x = 1;
+	y = 1;
+	lives = 3;
+	points = 0;
+	portrait = 'G';
+	isPlayer = false;
 }
 
-bool moveLeft(avatar& unit) {
-	if(isValid(unit.x-1, unit.y)) {
-		forcemove(unit.x-1, unit.y, unit); 
+avatar::avatar(int a, int b) {
+	x = a;
+	y = b;
+	lives = 3;
+	points = 0;
+	portrait = 'G';
+	isPlayer = false;
+}
+
+avatar::avatar(int a, int b, bool human) {
+	x = a;
+	y = b;
+	lives = 3;
+	points = 0;
+	isPlayer = human;
+	if(human)
+		portrait = ' '; // default for player
+	else
+		portrait = 'G';
+}
+
+int avatar::getPoints() { return points; }
+bool avatar::getPlayer() { return isPlayer; }
+int avatar::getX() { return x; }
+int avatar::getY() { return y; }
+char avatar::getPortrait() { return portrait; }
+
+bool avatar::setPos(int x, int y) { 
+	if(!isValid(x, y))
+		return false;
+	moveTo(x, y);
+	return true;
+}
+
+
+bool avatar::moveTo(int a, int b) {
+	// Is it a valid spot?
+	if(!isValid(a, b)) 
+		return false;
+
+	// Update stats
+	x = a;
+	y = b;
+
+	char curChar = charAt(a, b); 
+	letterUnder = curChar;
+	writeAt(a, b, portrait);
+
+	if(isPlayer) {
+		// Check if Player hit a ghost
+		if(charAt(a, b) == 'G') {
+			loseGame();
+			return false;
+		}
+		move(b, a);
+	}
+	else {
+		// check if ghost hit a player
+		int playerX, playerY;
+		getyx(stdscr, playerY, playerX);
+		if(playerY == b && playerX == a) {
+			loseGame();
+			return false;
+		}
+	}
+		
+
+	if(curChar != ' ')
+		points++;
+	
+	if(points >= TOTAL_POINTS) {
+		winGame();
+	}
+	printAtBottom("moving player");
+	refresh();
+	return true;
+}
+
+bool avatar::moveTo(int a, int b, bool del) {
+	if(!isValid(a,b))
+		return false;
+
+	if(isPlayer) {
+		// Check if the player hit a ghost
+		if(charAt(a, b) == 'G') {
+			loseGame();
+			return false;
+		}
+
+		move(b, a);
+		x = a;
+		y = b;
+		refresh();
 		return true;
 	}
-	else { return false; }
-}
-
-bool moveRight(avatar& unit) {
-	if(isValid(unit.x+1, unit.y)) {
-		forcemove(unit.x+1, unit.y, unit);
-		return true;
+	else {	
+		// Check if Ghost hit the player
+		int playerX, playerY;
+		getyx(stdscr, playerY, playerX);
+		if(playerY == b && playerX == a) {
+			loseGame();
+			return false;
+		}
 	}
-	else { return false; } 
-}
 
-bool moveDown(avatar& unit) {
-	if(isValid(unit.x, unit.y+1)) {
-		forcemove(unit.x, unit.y+1, unit);
-		return true;
+	char curChar = charAt(a, b);
+	if(del)
+	{
+		writeAt(a, b, portrait);
+		if(curChar != ' ')
+			points++;
+		if(points >= TOTAL_POINTS) {
+			winGame();	
+		}
 	}
-	else { return false; }
-}
-
-bool moveUp(avatar& unit) {
-	if(isValid(unit.x, unit.y-1)) {
-		forcemove(unit.x, unit.y-1, unit);
-		return true;
+	else {
+		writeAt(x, y, letterUnder);
+		writeAt(a, b, portrait);
 	}
-	else { return false; }
+	x = a;
+	y = b;
+
+	letterUnder = curChar;
+	
+	refresh();
+	return true;
 }
 
-int parseWordEnd(avatar& unit, bool isWord) {
+bool avatar::moveRight() {
+	if(!isValid(x+1, y)) 
+		return false;
+	
+	moveTo(x+1, y);
+	return true;
+}
+
+bool avatar::moveLeft() {
+	if(!isValid(x-1, y))
+		return false;
+	
+	moveTo(x-1, y);
+	return true;
+}
+
+bool avatar::moveUp() {
+	if(!isValid(x,y-1)) 
+		return false;
+	
+	moveTo(x, y-1);
+	return true;
+}
+
+bool avatar::moveDown() {
+	if(!isValid(x,y+1))
+		return false;
+	moveTo(x, y+1);
+	return true;
+}
+
+void avatar::parseWordEnd(bool isWord) {
 	// Formula: Get next char, is it alphanumeric? If so, loop & break
 	//		on nonalpha-, and viceversa. 
 	// 2nd case: if you are not at the end of a word, loop until you
 	//		reach a space
 
 	// store the current character type
-	char curChar = mvinch(unit.y, unit.x);
+	char curChar = charAt(x, y);
 	bool isAlpha = isalnum(curChar);
-	char nextChar = mvinch(unit.y, unit.x+1);
-	mvinch(unit.y, unit.x);
+	char nextChar = charAt(x+1,y);
 
 	// breakOnSpace = true if the current character isn't the end of a word
 	bool breakOnSpace = (nextChar != ' ' && curChar != ' ') ? true : false;
@@ -120,27 +339,25 @@ int parseWordEnd(avatar& unit, bool isWord) {
 			break;
 		}
 		else { // iterate
-			if(!moveRight(unit))
+			if(!moveTo(x+1, y, false))
 				break;
-			if(isalnum(nextChar))
+			if(nextChar != ' ')
 				breakOnSpace = true;
-			nextChar = mvinch(unit.y, unit.x+1);
-			mvinch(unit.y, unit.x);
+			nextChar = charAt(x+1, y);
 		}
 	}
 }
 				
-void parseWordBackward(avatar& unit, bool isWord) {
+void avatar::parseWordBackward(bool isWord) {
 	// Formula: Get next char, is it alphanumeric? If so, loop & break
 	//		on nonalpha-, and viceversa. 
 	// 2nd case: if you are not at the end of a word, loop until you
 	//		reach a space
 
 	// store the current character type
-	char curChar = mvinch(unit.y, unit.x);
+	char curChar = charAt(x, y); 
 	bool isAlpha = isalnum(curChar);
-	char nextChar = mvinch(unit.y, unit.x-1);
-	mvinch(unit.y, unit.x);
+	char nextChar = charAt(x-1, y); 
 
 	// breakOnSpace = true if the current character isn't the end of a word
 	bool breakOnSpace = (nextChar != ' ' && curChar != ' ') ? true : false;
@@ -157,21 +374,19 @@ void parseWordBackward(avatar& unit, bool isWord) {
 		}
 		else { // iterate
 
-			if(!moveLeft(unit))
+			if(!moveTo(x-1, y, false))
 				break;
-			if(isalnum(nextChar))
+			if(nextChar != ' ')
 				breakOnSpace = true;
-			nextChar = mvinch(unit.y, unit.x-1);
-			mvinch(unit.y, unit.x);
+			nextChar = charAt(x-1, y); 
 		}
 	}
 }
 
-void parseWordForward(avatar& unit, bool isWord) {
-	char curChar = mvinch(unit.y, unit.x);
+void avatar::parseWordForward(bool isWord) {
+	char curChar = charAt(x, y); 
 	bool isAlpha = isalnum(curChar);
 	char lastChar= 'X';
-	mvinch(unit.y, unit.x); // move cursor back into place
 
 	bool breakOnAlpha = !isalnum(curChar);
 	
@@ -183,17 +398,86 @@ void parseWordForward(avatar& unit, bool isWord) {
 			break;
 		}
 		else if(lastChar == '#' || curChar == '#') {
-			moveLeft(unit);
+			moveTo(x-1, y, false);
 			break;
 		}
 		else {
 			lastChar = curChar;
-			if(!moveRight(unit))
+			if(!moveTo(x+1,y,false))
 				break;
-			curChar = mvinch(unit.y, unit.x);
+			curChar = charAt(x,y);
 		}
 	}
 }
+
+
+
+// GHOST
+
+class Ghost1 : public avatar {
+	private:
+		double sleepTime;
+		double eval();
+		double eval(int a, int b);
+		void think();
+	public:
+		bool spawn();
+		Ghost1(int a, int b, double c) : avatar(a, b) { sleepTime = c; }
+		Ghost1(int a, int b) : avatar(a, b) { sleepTime = 0.5; }
+		Ghost1() : avatar() { sleepTime = 0.5; }
+		Ghost1(double time) : avatar() { sleepTime = time; }
+};
+
+double Ghost1::eval() {
+	// Determine how far ghost is away from player
+	int playerX, playerY;
+	getyx(stdscr, playerY, playerX);
+
+	return sqrt( pow(playerY-y, 2.0) + pow(playerX - x, 2.0) );
+}
+
+double Ghost1::eval(int a, int b) {
+	if(!isValid(a,b))
+		return 1000;
+	int playerX, playerY;
+	getyx(stdscr, playerY, playerX);
+
+	return sqrt(pow(playerY-b, 2.0) + pow(playerX-a, 2.0));
+}
+
+void Ghost1::think() {
+	//cout << "Thinking.." << endl;
+	// evaluate the four potential paths and move accordingly
+	double up = eval(x, y-1);
+	double down = eval(x, y+1);
+	double left = eval(x-1, y);
+	double right = eval(x+1, y);
+
+	if(up <= down && up <= left && up <= right) 
+		moveTo(x, y-1, false);
+	else if(down <= left && down <= right && down <= up) 
+		moveTo(x, y+1, false);
+	else if(left <= right && left <= up && left <= down) 
+		moveTo(x-1, y, false);
+	else if(right <= up && right <= down && right <= left)
+		moveTo(x+1, y, false);	
+
+	usleep(sleepTime * 1000000);
+	if(GAME_WON == 0)
+		think();
+}
+	
+bool Ghost1::spawn() {
+	letterUnder = charAt(x, y);
+	if(!moveTo(x, y))
+		return false;
+	
+	sleep(1); // wait a second to create map, etc
+	think();
+
+	return true;
+}
+
 
 
 void gotoLine(avatar& unit, int line) {
@@ -216,16 +500,16 @@ void onKeystroke(avatar& unit, string& key) {
 		endwin();
 	}
 	else if(key == "h") {
-		moveLeft(unit);
+		unit.moveLeft();
 	}
 	else if(key == "j") {
-		moveDown(unit);
+		unit.moveDown();
 	}
 	else if(key == "k") {
-		moveUp(unit); 
+		unit.moveUp(); 
 	}
 	else if(key == "l") {
-		moveRight(unit);
+		unit.moveRight();
 	}
 	else if(key == "r") {
 		refresh();	
@@ -234,22 +518,22 @@ void onKeystroke(avatar& unit, string& key) {
 		getMore(unit, key);
 	}
 	else if(key == "w") {
-		parseWordForward(unit, true); 
+		unit.parseWordForward(true); 
 	}
 	else if(key == "W") {
-		parseWordForward(unit, false);	
+		unit.parseWordForward(false);	
 	}
 	else if(key == "b") {
-		parseWordBackward(unit, true);
+		unit.parseWordBackward(true);
 	}
 	else if(key == "B") {
-		parseWordBackward(unit, false);
+		unit.parseWordBackward(false);
 	}
 	else if(key == "E") {
-		parseWordEnd(unit, false);
+		unit.parseWordEnd(false);
 	}
 	else if(key == "e") {
-		parseWordEnd(unit, true);
+		unit.parseWordEnd(true);
 	}
 	else if(key == "gg") {
 		gotoLine(unit,1);
@@ -285,6 +569,8 @@ void drawScreen(const char* file) {
 				continue;
 			}
 		*/
+			if(maze.at(i).at(j) != ' ' &&  maze.at(i).at(j) != '#')
+				TOTAL_POINTS++;
 			addch(maze.at(i).at(j));
 			continue;
 			//cout << "Len: " << length; 
@@ -365,6 +651,28 @@ void test() {
 //	cout << "CHAR: " << (char) theChar;
 }
 
+void printIt(string msg, avatar& player) {
+	move(20, 0);
+	printf(msg.c_str());
+	//move(player.y, player.x);
+}
+
+
+
+void f1(int x) {
+	cout << "X" << flush;
+	usleep(50 * 1000);
+	if(x > 0)
+		f1(x-1);
+}
+
+void f2(int x) {
+	cout << "Y" << flush;
+	usleep(50 * 1000);
+	if(x > 0)
+		f2(x-1);
+}
+
 int main(int argc, char** argv)
 {
 	// Setup
@@ -372,39 +680,33 @@ int main(int argc, char** argv)
 	WINDOW* win = initscr();
 	noecho(); // dont print anything to the screen
 	clear();
-	refresh();
-
-	refresh();
-	move(5, 5);
-	refresh();
-
-
-	avatar player;
-	player.x = 5; player.y = 5;
-
-
 	drawScreen("map1.txt");
-	
-	printw("Horizontal LINE               "); addch(ACS_HLINE); printw("  ACS_HLINE\n");
-	
-	while(true) {
+
+	// Create Player
+	avatar player(5, 5, true);
+	player.moveRight(); 
+
+	// Create ghost1
+	Ghost1 ghost1(1, 1, .25);
+	ghost1.spawn();
+
+	Ghost1 ghost2(10, 1, .75);
+	ghost2.spawn();
+
+	while(GAME_WON == 0) {
 		string key;
 		key += getch();
 		if(key != "")
 			onKeystroke(player, key);
+		stringstream ss;
+		ss << "Points: " << player.getPoints() << "/" << TOTAL_POINTS << "\n";
+		printAtBottom(ss.str());
+//		move(player.getY(), player.getX());
 		refresh();
-		int x, y;
-		getyx(win, y, x);
-		//cout << "Y: " << y << "..X:" << x << endl;
 	}	
 
-
-	sleep(3);
+	printf("GG"); refresh();
+	sleep(1);
 	endwin();
 	return 0;
 }
-
-
-
-      
-      
