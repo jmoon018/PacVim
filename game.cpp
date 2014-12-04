@@ -15,7 +15,12 @@ using namespace std;
 int TOTAL_POINTS= 0;
 int GAME_WON = 0; // -1 is a loss, 1 is win, 0 means game in progress
 
+// THINKING
+bool THINKING = false;
 
+// DIMENSIONS
+int HEIGHT;
+int WIDTH;
 
 int wallist[] = {'#', ACS_ULCORNER, ACS_LLCORNER, ACS_URCORNER,
 				ACS_LRCORNER, ACS_LTEE, ACS_RTEE, ACS_BTEE,
@@ -39,15 +44,18 @@ char charAt(int x, int y) {
 	return value;
 }
 
-bool writeAt(int x, int y, char letter) {
+bool writeAt(int x, int y, char letter, int color = COLOR_WHITE) {
 	if(x < 0 || y < 0)
 		return false;
 	
 	int curX, curY;
 	getyx(stdscr, curY, curX);
 
+
 	mvinch(y, x);
+	attron(COLOR_PAIR(color));
 	addch(letter);
+	attroff(COLOR_PAIR(color));
 	mvinch(curY, curX);
 	return true;
 }
@@ -117,6 +125,7 @@ class avatar {
 		avatar();
 		avatar(int, int);
 		avatar(int, int, bool);
+		avatar(int, int, bool, int);
 	protected:
 		char letterUnder;
 		int x;
@@ -125,6 +134,7 @@ class avatar {
 		int points;
 		char portrait;
 		int lives;
+		int color;
 	public:	
 		bool moveTo(int, int);
 		bool moveTo(int, int, bool);
@@ -153,6 +163,7 @@ avatar::avatar() {
 	points = 0;
 	portrait = 'G';
 	isPlayer = false;
+	color = COLOR_WHITE;
 }
 
 avatar::avatar(int a, int b) {
@@ -162,7 +173,9 @@ avatar::avatar(int a, int b) {
 	points = 0;
 	portrait = 'G';
 	isPlayer = false;
+	color = COLOR_WHITE;
 }
+
 
 avatar::avatar(int a, int b, bool human) {
 	x = a;
@@ -174,6 +187,11 @@ avatar::avatar(int a, int b, bool human) {
 		portrait = ' '; // default for player
 	else
 		portrait = 'G';
+}
+
+avatar::avatar(int a, int b, bool human, int c) {
+	avatar(a, b, human);
+	color = c;
 }
 
 int avatar::getPoints() { return points; }
@@ -201,7 +219,7 @@ bool avatar::moveTo(int a, int b) {
 
 	char curChar = charAt(a, b); 
 	letterUnder = curChar;
-	writeAt(a, b, portrait);
+	writeAt(a, b, portrait, color);
 
 	if(isPlayer) {
 		// Check if Player hit a ghost
@@ -263,7 +281,7 @@ bool avatar::moveTo(int a, int b, bool del) {
 	char curChar = charAt(a, b);
 	if(del)
 	{
-		writeAt(a, b, portrait);
+		writeAt(a, b, portrait, color);
 		if(curChar != ' ')
 			points++;
 		if(points >= TOTAL_POINTS) {
@@ -271,8 +289,8 @@ bool avatar::moveTo(int a, int b, bool del) {
 		}
 	}
 	else {
-		writeAt(x, y, letterUnder);
-		writeAt(a, b, portrait);
+		writeAt(x, y, letterUnder, COLOR_WHITE);
+		writeAt(a, b, portrait, color);
 	}
 	x = a;
 	y = b;
@@ -426,6 +444,7 @@ class Ghost1 : public avatar {
 		Ghost1(int a, int b) : avatar(a, b) { sleepTime = 0.5; }
 		Ghost1() : avatar() { sleepTime = 0.5; }
 		Ghost1(double time) : avatar() { sleepTime = time; }
+		Ghost1(int a, int b, double c, int col) : avatar(a, b) { sleepTime = c; color = col; }
 };
 
 double Ghost1::eval() {
@@ -445,7 +464,63 @@ double Ghost1::eval(int a, int b) {
 	return sqrt(pow(playerY-b, 2.0) + pow(playerX-a, 2.0));
 }
 
+/*
+struct node {
+	int x;
+	int y;
+	bool dest;
+	int dist = 10000;
+};
+
+const int HEIGHT2 = 5;
+const int WIDTH2 = 5;
+node GRAPH[HEIGHT2][WIDTH2] ;
+
+void initGraph() {
+	
+	for(int i = 0; i < HEIGHT; i++) {
+		for(int x = 0; x < WIDTH; x++) {
+			node Node;
+			Node.x = i;
+			Node.y = x;
+			Node.dest = false;
+			GRAPH[i][x] = Node;
+		}
+	}
+}
+
+
+double Ghost1::AStar() {
+	// get the destination
+	int playerX, playerY;
+	getyx(stdscr, playerY, playerX);
+
+	vector<int> dist;
+	vector<node> unvisited; 
+
+	initGraph();
+	GRAPH[playerX, playerY].dest = true;
+	for(int i = 0; i < HEIGHT; i++) {
+		for(int j = 0; j < WIDTH; j++) {
+			unvisited.push_back(GRAPH[i][j]);
+			dist.push_back(10000);
+		}
+	}
+
+	node nextNode = GRAPH[x][y];
+	while(!unvisited.empty()) {
+		node n = nextNode; 
+		
+		// check up
+}
+*/
+
+
 void Ghost1::think() {
+	if(THINKING)
+		usleep(sleepTime * 1000000 * 0.5);
+
+	THINKING = true;
 	//cout << "Thinking.." << endl;
 	// evaluate the four potential paths and move accordingly
 	double up = eval(x, y-1);
@@ -462,6 +537,7 @@ void Ghost1::think() {
 	else if(right <= up && right <= down && right <= left)
 		moveTo(x+1, y, false);	
 
+	THINKING = false;
 	usleep(sleepTime * 1000000);
 	if(GAME_WON == 0)
 		think();
@@ -485,7 +561,7 @@ void gotoLine(avatar& unit, int line) {
 	char curChar = mvinch(line, 0);
 	while(wallCnt > 0) {
 		}
-	}
+}
 
 void onKeystroke(avatar& unit, string& key);
 
@@ -496,6 +572,7 @@ void getMore(avatar& unit, string& key) {
 }
 
 void onKeystroke(avatar& unit, string& key) {
+	printAtBottom("getting keystroke..");	
 	if(key == "q") {
 		endwin();
 	}
@@ -542,7 +619,6 @@ void onKeystroke(avatar& unit, string& key) {
 	key = "";
 	refresh();
 }
-//   +.x.x+x.+      
 
 void drawScreen(const char* file) {
 	clear();
@@ -556,7 +632,7 @@ void drawScreen(const char* file) {
 		fixedMaze.push_back(str + "\n");
 	}
 	in.close();
-	
+
 	for(int i = 0; i < maze.size(); i++)
 	{
 		str = maze.at(i);
@@ -640,6 +716,9 @@ void drawScreen(const char* file) {
 		refresh();
 	}
 	refresh();
+
+	HEIGHT= fixedMaze.size();
+	WIDTH = fixedMaze.at(0).size();
 }
 
 
@@ -673,11 +752,25 @@ void f2(int x) {
 		f2(x-1);
 }
 
+
+void defineColors() {
+	start_color();
+	init_pair(1, COLOR_RED	, COLOR_BLACK);
+	init_pair(2, COLOR_GREEN, COLOR_BLACK);
+	init_pair(3, COLOR_YELLOW, COLOR_BLACK);
+	init_pair(4, COLOR_BLUE	, COLOR_BLACK);
+	init_pair(5, COLOR_MAGENTA, COLOR_BLACK);
+	init_pair(6, COLOR_CYAN, COLOR_BLACK);
+	init_pair(7, COLOR_WHITE, COLOR_BLACK);
+
+}
+
 int main(int argc, char** argv)
 {
 	// Setup
 	setlocale(LC_ALL, "");
 	WINDOW* win = initscr();
+	defineColors();
 	noecho(); // dont print anything to the screen
 	clear();
 	drawScreen("map1.txt");
@@ -686,22 +779,28 @@ int main(int argc, char** argv)
 	avatar player(5, 5, true);
 	player.moveRight(); 
 
+
 	// Create ghost1
-	Ghost1 ghost1(1, 1, .25);
-	ghost1.spawn();
+	Ghost1 ghost1(1, 1, .25, COLOR_BLUE);
+	//ghost1.spawn();
+	thread ghostThread (&Ghost1::spawn, ghost1);
 
-	Ghost1 ghost2(10, 1, .75);
-	ghost2.spawn();
+	Ghost1 ghost2(1, 1, .5, COLOR_RED);
+	thread ghostThread2 (&Ghost1::spawn, ghost2);
 
+
+	printAtBottom("Spawned ghost");
 	while(GAME_WON == 0) {
 		string key;
+		printAtBottom("Trying to get key");
 		key += getch();
+		printAtBottom("Got the key..");
 		if(key != "")
 			onKeystroke(player, key);
 		stringstream ss;
 		ss << "Points: " << player.getPoints() << "/" << TOTAL_POINTS << "\n";
 		printAtBottom(ss.str());
-//		move(player.getY(), player.getX());
+		move(player.getY(), player.getX());
 		refresh();
 	}	
 
