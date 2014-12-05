@@ -1,4 +1,5 @@
 #include <thread>
+#include <string>
 #include <math.h>
 #include <sstream>
 #include <fstream>
@@ -246,7 +247,7 @@ bool avatar::moveTo(int a, int b) {
 	if(points >= TOTAL_POINTS) {
 		winGame();
 	}
-	printAtBottom("moving player");
+	//printAtBottom("moving player");
 	refresh();
 	return true;
 }
@@ -437,7 +438,6 @@ class Ghost1 : public avatar {
 		double sleepTime;
 		double eval();
 		double eval(int a, int b);
-		void think();
 	public:
 		bool spawn();
 		Ghost1(int a, int b, double c) : avatar(a, b) { sleepTime = c; }
@@ -445,6 +445,8 @@ class Ghost1 : public avatar {
 		Ghost1() : avatar() { sleepTime = 0.5; }
 		Ghost1(double time) : avatar() { sleepTime = time; }
 		Ghost1(int a, int b, double c, int col) : avatar(a, b) { sleepTime = c; color = col; }
+		void backtrack(int &a, int &b);
+		void think();
 };
 
 double Ghost1::eval() {
@@ -515,10 +517,140 @@ double Ghost1::AStar() {
 }
 */
 
+struct node { int x; int y; int val = 0; };
+
+/*
+bool hasNode(const set<node> &v, int a, int b) {
+	for(int i = 0; i < v.size(); i++) {
+		if(v.at(i).x == a && v.at(i).y == b) {
+			return true;
+		}
+	}
+	return false;
+}
+*/
+
+/*
+bool delNode(set<node> &v, int a, int b) {
+	for(int i = 0; i < v.size(); i++) {
+		if(v.at(i).x == a && v.at(i).y == b) {
+			v.erase(v.begin() + i);
+			return true;
+		}
+	}
+	return false;
+}
+*/
+
+bool hasNode(set<node> &s, int a, int b) {
+	for(set<node>::iterator it = s.begin(); it!=s.end(); it++) {
+		if(it->x == a && it->y == b) {
+			return true;
+		}
+	}
+	return false;
+}
+
+void Ghost1::backtrack(int &a, int &b) {
+	set<node> checked;
+	set<node> closed;
+
+	node xNode;
+	//checked.find(xNode);	
+	// starting position
+	int startX = x, startY = y;
+	// Get destination (player)
+	int dX, dY;
+	getyx(stdscr, dY, dX);
+	node curNode;
+	curNode.x = x;
+	curNode.y = y;
+	int count = 0;
+	
+	string print;
+	
+	while(curNode.x != dX || curNode.y != dY) {
+		//printAtBottom("searching...");
+		//cout << count << endl;
+		// tryup
+		if(isValid(x, y-1) && !hasNode(checked, x, y-1) && !hasNode(closed, x, y-1)) { 
+			y--;
+		}
+		else if(isValid(x+1, y) && !hasNode(checked, x+1, y) && !hasNode(closed, x+1, y)) { //try right
+			x++;
+		}
+		else if(isValid(x-1, y) && !hasNode(checked, x-1, y+1) && !hasNode(closed, x-1, y)) { // try left
+			x--;
+		}
+		else if(isValid(x, y+1) && !hasNode(checked, x, y+1) && !hasNode(closed, x, y+1)) { // try down
+			y++;
+		}
+		else 
+		{
+			// OK looks like there are no open nodes adjacent to this location
+			if(isValid(x, y-1) && !hasNode(closed, x, y-1)) { 
+				y--;
+			}
+			else if(isValid(x+1, y) && !hasNode(closed, x+1, y)) { //try right
+				x++;
+			}
+			else if(isValid(x-1, y) && !hasNode(closed, x-1, y)) { // try left
+				x--;
+			}
+			else if(isValid(x, y+1) && !hasNode(closed, x, y+1)) { // try down
+				y++;
+			}	
+			else { printAtBottom("CAN'T GO ANYWHERE LOL"); break; } 
+
+			if(count == 0) {
+				a = x;
+				b = y;
+			}
+			count++;
+			//if(delNode(checked, curNode.x, curNode.y)) { printAtBottom("DAMN"); }
+			set<node>::iterator it;
+			//bool exists = checked.find(curNode) != checked.end();
+			//checked.erase(checked.find(curNode));
+//			closed.insert(curNode);
+			curNode.x = x;
+			curNode.y = y;
+	//		print += "(" + to_string(x) +", " + to_string(y) + "), ";
+			continue;
+		}
+		if(count == 0) {
+			a = x;
+			b = y;
+		}
+		count++;
+//		checked.insert(curNode);	
+		curNode.x = x;
+		curNode.y = y;
+	//	print += "(" + to_string(x) +", " + to_string(y) + "), ";	
+	}	
+	
+	//a = checked.at(0).x;
+	//b = checked.at(0).y;
+
+	print += "Checked: ";
+//	for(int i = 0; i < checked.size(); i++) {
+		//print += "(" + to_string(checked.at(i).x) + ", " + to_string(checked.at(i).y) + "). ";
+//	}
+	printAtBottom("Search completed. x = " + to_string(a) + "...y = " + to_string(b)+". Count: " + 
+		to_string(count) + "\n");
+	printAtBottom(print);
+	x = startX;
+	y = startY;
+}
 
 void Ghost1::think() {
+	if(GAME_WON != 0)
+		return;
 	if(THINKING)
+	{
 		usleep(sleepTime * 1000000 * 0.5);
+		think();
+		return;
+	}
 
 	THINKING = true;
 	//cout << "Thinking.." << endl;
@@ -542,7 +674,22 @@ void Ghost1::think() {
 	if(GAME_WON == 0)
 		think();
 }
+/*
+void Ghost1::think() { 
+	if(THINKING) 
+		usleep(sleepTime * 1000000 * 0.5);
+	THINKING = true;
+	int a = x, b = y;
+//	backtrack(a, b);
+
 	
+//	moveTo(a, b, false);
+	usleep(sleepTime * 1000000);
+	if(GAME_WON == 0)
+		think();
+}
+
+*/
 bool Ghost1::spawn() {
 	letterUnder = charAt(x, y);
 	if(!moveTo(x, y))
@@ -563,15 +710,15 @@ void gotoLine(avatar& unit, int line) {
 		}
 }
 
-void onKeystroke(avatar& unit, string& key);
+void onKeystroke(avatar& unit, string& key, Ghost1 &gho);
 
-void getMore(avatar& unit, string& key) {
+void getMore(avatar& unit, string& key, Ghost1 &gho) {
 	char nextChar = getch();
 	key += nextChar;
-	onKeystroke(unit, key);
+	onKeystroke(unit, key, gho );
 }
 
-void onKeystroke(avatar& unit, string& key) {
+void onKeystroke(avatar& unit, string& key, Ghost1 &gho) {
 	printAtBottom("getting keystroke..");	
 	if(key == "q") {
 		endwin();
@@ -592,7 +739,7 @@ void onKeystroke(avatar& unit, string& key) {
 		refresh();	
 	}
 	else if(key == "g") {
-		getMore(unit, key);
+		getMore(unit, key, gho);
 	}
 	else if(key == "w") {
 		unit.parseWordForward(true); 
@@ -614,6 +761,9 @@ void onKeystroke(avatar& unit, string& key) {
 	}
 	else if(key == "gg") {
 		gotoLine(unit,1);
+	}
+	else if(key == "n") {
+		gho.think();
 	}
 
 	key = "";
@@ -781,31 +931,42 @@ int main(int argc, char** argv)
 
 
 	// Create ghost1
-	Ghost1 ghost1(1, 1, .25, COLOR_BLUE);
+	Ghost1 ghost1(1, 1, .6, COLOR_BLUE);
 	//ghost1.spawn();
 	thread ghostThread (&Ghost1::spawn, ghost1);
 
-	Ghost1 ghost2(1, 1, .5, COLOR_RED);
+	Ghost1 ghost2(8, 14, .4, COLOR_RED);
 	thread ghostThread2 (&Ghost1::spawn, ghost2);
 
+	//Ghost1 ghost3(14, 1, .4, COLOR_GREEN);
+	//thread ghostThread3 (&Ghost1::spawn, ghost3);
 
-	printAtBottom("Spawned ghost");
-	while(GAME_WON == 0) {
-		string key;
-		printAtBottom("Trying to get key");
+	//printAtBottom("Spawned ghost");
+	string key;
+	while(key != "q" && GAME_WON == 0) {
+		key = "";
+	//	printAtBottom("Trying to get key");
 		key += getch();
-		printAtBottom("Got the key..");
-		if(key != "")
-			onKeystroke(player, key);
+	//	printAtBottom("Got the key..");
+		if(key != "q")
+			onKeystroke(player, key, ghost1);
 		stringstream ss;
 		ss << "Points: " << player.getPoints() << "/" << TOTAL_POINTS << "\n";
 		printAtBottom(ss.str());
 		move(player.getY(), player.getX());
 		refresh();
 	}	
+	GAME_WON = -1;
+	printf("AHHH");
+	
+	ghostThread.join();
+	ghostThread2.join();
 
+	if(player.getPoints() >= TOTAL_POINTS) {
+		winGame();
+	}
 	printf("GG"); refresh();
-	sleep(1);
+	sleep(3);
 	endwin();
 	return 0;
 }
