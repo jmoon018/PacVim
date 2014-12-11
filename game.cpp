@@ -10,6 +10,11 @@
 #include <map>
 #include <list>
 #include <set>
+
+#include <ostream>
+#include <fstream>
+#include <mutex>
+#include <chrono>
 using namespace std;
 
 // GLOBAL VARIABLES+CONSTANTS
@@ -30,405 +35,22 @@ int wallist[] = {'#', ACS_ULCORNER, ACS_LLCORNER, ACS_URCORNER,
 set<int> WALLS(wallist, wallist + sizeof(wallist)/sizeof(int));
 
 
-/* HELPER FUNCTIONS */
+#include "helperFns.h"
+// avatar
+#include "avatar.h"
 
-char charAt(int x, int y) {
-	if(x < 0 || y < 0)
-		return 0;
+mutex mtx;
 
-	int curX, curY;
-	getyx(stdscr, curY, curX);
-
-	char value = mvinch(y, x);
-	mvinch(curY, curX);
-
-	return value;
+/* ERROR WRITING */
+void writeError(string msg) {
+//	cout << "CALLING WRITEERROR";
+	ofstream fs;
+	fs.open ("errors.log", fstream::app);
+	fs << msg;
+	fs << "\n";
+	fs << "LOL";
+	fs.close();
 }
-
-bool writeAt(int x, int y, char letter, int color = COLOR_WHITE) {
-	if(x < 0 || y < 0)
-		return false;
-	
-	int curX, curY;
-	getyx(stdscr, curY, curX);
-
-
-	mvinch(y, x);
-	attron(COLOR_PAIR(color));
-	addch(letter);
-	attroff(COLOR_PAIR(color));
-	mvinch(curY, curX);
-	return true;
-}
-
-void printAtBottomChar(char msg) {
-	string x = ""; x += msg;
-	mvprintw(20, 1, x.c_str());
-}
-void printAtBottom(string msg) {
-	int x, y;
-	getyx(stdscr, y, x);
-	mvprintw(20, 1, msg.c_str());
-	move(y,x);
-}
-
-
-
-
-// Game state
-void winGame() {
-	clear();
-	printAtBottom("YOU WIN THE GAME!");
-	refresh();
-	GAME_WON = 1;
-}
-
-void loseGame() {
-	clear();
-	printAtBottom("YOU LOSE THE GAME!");
-	refresh();
-	GAME_WON = -1;
-}
-
-
-
-
-
-// check to see if the player can move there
-bool isValid(int x, int y) {
-	// Within range of board
-	if(y < 0 || x < 0)
-		return false;
-	
-
-	// Move cursor, check character, move cursor back
-	int curX, curY;
-	getyx(stdscr, curY, curX);
-	char testPos= mvinch(y, x);
-	mvinch(curY, curX);
-
-
-	// Now see if it's a valid spot
-	if(WALLS.find(testPos) != WALLS.end())
-	{
-	//	cout << "NOT VALID" << endl;
-		return false;
-	}
-	return true;	
-}
-
-
-
-
-// Avatar Class -- can be a ghost or player
-class avatar {
-	public:
-		avatar();
-		avatar(int, int);
-		avatar(int, int, bool);
-		avatar(int, int, bool, int);
-	protected:
-		char letterUnder;
-		int x;
-		int y;
-		bool isPlayer;
-		int points;
-		char portrait;
-		int lives;
-		int color;
-	public:	
-		bool moveTo(int, int);
-		bool moveTo(int, int, bool);
-		bool moveRight();
-		bool moveLeft();
-		bool moveUp();
-		bool moveDown();
-		void parseWordForward(bool);
-		void parseWordBackward(bool);
-		void parseWordEnd(bool);
-
-		int getPoints();
-		bool getPlayer();
-		int getX();
-		int getY();
-		bool setPos(int, int);
-		char getPortrait();
-
-		void setLetterUnder(char);
-};
-	
-avatar::avatar() {
-	x = 1;
-	y = 1;
-	lives = 3;
-	points = 0;
-	portrait = 'G';
-	isPlayer = false;
-	color = COLOR_WHITE;
-}
-
-avatar::avatar(int a, int b) {
-	x = a;
-	y = b;
-	lives = 3;
-	points = 0;
-	portrait = 'G';
-	isPlayer = false;
-	color = COLOR_WHITE;
-}
-
-
-avatar::avatar(int a, int b, bool human) {
-	x = a;
-	y = b;
-	lives = 3;
-	points = 0;
-	isPlayer = human;
-	if(human)
-		portrait = ' '; // default for player
-	else
-		portrait = 'G';
-}
-
-avatar::avatar(int a, int b, bool human, int c) {
-	avatar(a, b, human);
-	color = c;
-}
-
-int avatar::getPoints() { return points; }
-bool avatar::getPlayer() { return isPlayer; }
-int avatar::getX() { return x; }
-int avatar::getY() { return y; }
-char avatar::getPortrait() { return portrait; }
-
-bool avatar::setPos(int x, int y) { 
-	if(!isValid(x, y))
-		return false;
-	moveTo(x, y);
-	return true;
-}
-
-
-bool avatar::moveTo(int a, int b) {
-	// Is it a valid spot?
-	if(!isValid(a, b)) 
-		return false;
-
-	// Update stats
-	x = a;
-	y = b;
-
-	char curChar = charAt(a, b); 
-	letterUnder = curChar;
-	writeAt(a, b, portrait, color);
-
-	if(isPlayer) {
-		// Check if Player hit a ghost
-		if(charAt(a, b) == 'G') {
-			loseGame();
-			return false;
-		}
-		move(b, a);
-	}
-	else {
-		// check if ghost hit a player
-		int playerX, playerY;
-		getyx(stdscr, playerY, playerX);
-		if(playerY == b && playerX == a) {
-			loseGame();
-			return false;
-		}
-	}
-		
-
-	if(curChar != ' ')
-		points++;
-	
-	if(points >= TOTAL_POINTS) {
-		winGame();
-	}
-	//printAtBottom("moving player");
-	refresh();
-	return true;
-}
-
-bool avatar::moveTo(int a, int b, bool del) {
-	if(!isValid(a,b))
-		return false;
-
-	if(isPlayer) {
-		// Check if the player hit a ghost
-		if(charAt(a, b) == 'G') {
-			loseGame();
-			return false;
-		}
-
-		move(b, a);
-		x = a;
-		y = b;
-		refresh();
-		return true;
-	}
-	else {	
-		// Check if Ghost hit the player
-		int playerX, playerY;
-		getyx(stdscr, playerY, playerX);
-		if(playerY == b && playerX == a) {
-			loseGame();
-			return false;
-		}
-	}
-
-	char curChar = charAt(a, b);
-	if(del)
-	{
-		writeAt(a, b, portrait, color);
-		if(curChar != ' ')
-			points++;
-		if(points >= TOTAL_POINTS) {
-			winGame();	
-		}
-	}
-	else {
-		writeAt(x, y, letterUnder, COLOR_WHITE);
-		writeAt(a, b, portrait, color);
-	}
-	x = a;
-	y = b;
-
-	letterUnder = curChar;
-	
-	refresh();
-	return true;
-}
-
-bool avatar::moveRight() {
-	if(!isValid(x+1, y)) 
-		return false;
-	
-	moveTo(x+1, y);
-	return true;
-}
-
-bool avatar::moveLeft() {
-	if(!isValid(x-1, y))
-		return false;
-	
-	moveTo(x-1, y);
-	return true;
-}
-
-bool avatar::moveUp() {
-	if(!isValid(x,y-1)) 
-		return false;
-	
-	moveTo(x, y-1);
-	return true;
-}
-
-bool avatar::moveDown() {
-	if(!isValid(x,y+1))
-		return false;
-	moveTo(x, y+1);
-	return true;
-}
-
-void avatar::parseWordEnd(bool isWord) {
-	// Formula: Get next char, is it alphanumeric? If so, loop & break
-	//		on nonalpha-, and viceversa. 
-	// 2nd case: if you are not at the end of a word, loop until you
-	//		reach a space
-
-	// store the current character type
-	char curChar = charAt(x, y);
-	bool isAlpha = isalnum(curChar);
-	char nextChar = charAt(x+1,y);
-
-	// breakOnSpace = true if the current character isn't the end of a word
-	bool breakOnSpace = (nextChar != ' ' && curChar != ' ') ? true : false;
-	bool breakOnAlpha = !isalnum(nextChar);
-	while(true) { // no definite loop #; break when we reach conditions
-		if(!breakOnAlpha == !isalnum(nextChar) && isWord) {
-			break;
-		}
-		else if(breakOnSpace && nextChar == ' ') {
-			break; 
-		}
-		else if(nextChar == '#') { // not allowed to go on # so break
-			break;
-		}
-		else { // iterate
-			if(!moveTo(x+1, y, false))
-				break;
-			if(nextChar != ' ')
-				breakOnSpace = true;
-			nextChar = charAt(x+1, y);
-		}
-	}
-}
-				
-void avatar::parseWordBackward(bool isWord) {
-	// Formula: Get next char, is it alphanumeric? If so, loop & break
-	//		on nonalpha-, and viceversa. 
-	// 2nd case: if you are not at the end of a word, loop until you
-	//		reach a space
-
-	// store the current character type
-	char curChar = charAt(x, y); 
-	bool isAlpha = isalnum(curChar);
-	char nextChar = charAt(x-1, y); 
-
-	// breakOnSpace = true if the current character isn't the end of a word
-	bool breakOnSpace = (nextChar != ' ' && curChar != ' ') ? true : false;
-	bool breakOnAlpha = !isalnum(nextChar);
-	while(true) { // no definite loop #; break when we reach conditions
-		if((!breakOnAlpha == !isalnum(nextChar)) && isWord) { 
-			break;
-		}
-		else if(breakOnSpace && nextChar == ' ') {
-			break; 
-		}
-		else if(nextChar == '#') { // not allowed to go on # so break
-			break;
-		}
-		else { // iterate
-
-			if(!moveTo(x-1, y, false))
-				break;
-			if(nextChar != ' ')
-				breakOnSpace = true;
-			nextChar = charAt(x-1, y); 
-		}
-	}
-}
-
-void avatar::parseWordForward(bool isWord) {
-	char curChar = charAt(x, y); 
-	bool isAlpha = isalnum(curChar);
-	char lastChar= 'X';
-
-	bool breakOnAlpha = !isalnum(curChar);
-	
-	while(true) {
-		if((!isalnum(curChar) == !breakOnAlpha) && isWord ) { // if they are the same
-			break;
-		}
-		else if(lastChar == ' ' && curChar != ' ') {
-			break;
-		}
-		else if(lastChar == '#' || curChar == '#') {
-			moveTo(x-1, y, false);
-			break;
-		}
-		else {
-			lastChar = curChar;
-			if(!moveTo(x+1,y,false))
-				break;
-			curChar = charAt(x,y);
-		}
-	}
-}
-
 
 
 // GHOST
@@ -439,7 +61,7 @@ class Ghost1 : public avatar {
 		double eval();
 		double eval(int a, int b);
 	public:
-		bool spawn();
+		void spawn();
 		Ghost1(int a, int b, double c) : avatar(a, b) { sleepTime = c; }
 		Ghost1(int a, int b) : avatar(a, b) { sleepTime = 0.5; }
 		Ghost1() : avatar() { sleepTime = 0.5; }
@@ -472,7 +94,8 @@ struct node {
 	int y;
 	bool dest;
 	int dist = 10000;
-};
+};:24
+
 
 const int HEIGHT2 = 5;
 const int WIDTH2 = 5;
@@ -647,12 +270,19 @@ void Ghost1::think() {
 		return;
 	if(THINKING)
 	{
+		writeError("ALREADY THINKING");
 		usleep(sleepTime * 1000000 * 0.5);
 		think();
 		return;
 	}
 
 	THINKING = true;
+	mtx.lock();
+	
+
+	stringstream msg;
+	msg << sleepTime;
+	writeError(msg.str());
 	//cout << "Thinking.." << endl;
 	// evaluate the four potential paths and move accordingly
 	double up = eval(x, y-1);
@@ -669,6 +299,7 @@ void Ghost1::think() {
 	else if(right <= up && right <= down && right <= left)
 		moveTo(x+1, y, false);	
 
+	mtx.unlock();
 	THINKING = false;
 	usleep(sleepTime * 1000000);
 	if(GAME_WON == 0)
@@ -690,15 +321,13 @@ void Ghost1::think() {
 }
 
 */
-bool Ghost1::spawn() {
+void Ghost1::spawn() {
 	letterUnder = charAt(x, y);
 	if(!moveTo(x, y))
-		return false;
+		return;
 	
 	sleep(1); // wait a second to create map, etc
 	think();
-
-	return true;
 }
 
 
@@ -710,16 +339,24 @@ void gotoLine(avatar& unit, int line) {
 		}
 }
 
-void onKeystroke(avatar& unit, string& key, Ghost1 &gho);
+void onKeystroke(avatar& unit, string& key);
 
-void getMore(avatar& unit, string& key, Ghost1 &gho) {
+void getMore(avatar& unit, string& key) {
 	char nextChar = getch();
 	key += nextChar;
-	onKeystroke(unit, key, gho );
+	onKeystroke(unit, key);
 }
 
-void onKeystroke(avatar& unit, string& key, Ghost1 &gho) {
+void onKeystroke(avatar& unit, string& key) {
 	printAtBottom("getting keystroke..");	
+	/*if(THINKING) {
+		usleep(.05 * 1000000);
+		onKeystroke(unit, key);
+		return;
+	}
+	*/
+	THINKING = true;
+	mtx.lock();
 	if(key == "q") {
 		endwin();
 	}
@@ -739,7 +376,7 @@ void onKeystroke(avatar& unit, string& key, Ghost1 &gho) {
 		refresh();	
 	}
 	else if(key == "g") {
-		getMore(unit, key, gho);
+		getMore(unit, key);
 	}
 	else if(key == "w") {
 		unit.parseWordForward(true); 
@@ -762,12 +399,14 @@ void onKeystroke(avatar& unit, string& key, Ghost1 &gho) {
 	else if(key == "gg") {
 		gotoLine(unit,1);
 	}
-	else if(key == "n") {
-		gho.think();
-	}
+	//else if(key == "n") {
+		//gho.think();
+	//}
 
 	key = "";
 	refresh();
+	mtx.unlock();
+	THINKING = false;
 }
 
 void drawScreen(const char* file) {
@@ -912,6 +551,10 @@ void defineColors() {
 	init_pair(5, COLOR_MAGENTA, COLOR_BLACK);
 	init_pair(6, COLOR_CYAN, COLOR_BLACK);
 	init_pair(7, COLOR_WHITE, COLOR_BLACK);
+}
+
+void ghostManager(Ghost1 &gho1, Ghost1 &gho2) {
+	
 
 }
 
@@ -927,29 +570,25 @@ int main(int argc, char** argv)
 
 	// Create Player
 	avatar player(5, 5, true);
-	player.moveRight(); 
-
-
+//	player.moveRight();
+	
+	writeError("LOL");
 	// Create ghost1
-	Ghost1 ghost1(1, 1, .6, COLOR_BLUE);
-	//ghost1.spawn();
-	thread ghostThread (&Ghost1::spawn, ghost1);
+	Ghost1 ghost1(1, 1, .4, COLOR_BLUE);
+	//thread ghostThread (&Ghost1::spawn, ghost1);
 
-	Ghost1 ghost2(8, 14, .4, COLOR_RED);
+	// Ghost 2
+	Ghost1 ghost2(8, 14, .3, COLOR_RED);
+
+	thread ghostThread1 (&Ghost1::spawn, ghost1);
 	thread ghostThread2 (&Ghost1::spawn, ghost2);
 
-	//Ghost1 ghost3(14, 1, .4, COLOR_GREEN);
-	//thread ghostThread3 (&Ghost1::spawn, ghost3);
-
-	//printAtBottom("Spawned ghost");
 	string key;
 	while(key != "q" && GAME_WON == 0) {
 		key = "";
-	//	printAtBottom("Trying to get key");
 		key += getch();
-	//	printAtBottom("Got the key..");
 		if(key != "q")
-			onKeystroke(player, key, ghost1);
+			onKeystroke(player, key);
 		stringstream ss;
 		ss << "Points: " << player.getPoints() << "/" << TOTAL_POINTS << "\n";
 		printAtBottom(ss.str());
@@ -959,14 +598,16 @@ int main(int argc, char** argv)
 	GAME_WON = -1;
 	printf("AHHH");
 	
-	ghostThread.join();
+	ghostThread1.join();
 	ghostThread2.join();
 
 	if(player.getPoints() >= TOTAL_POINTS) {
 		winGame();
 	}
+	//endwin();
+	clear();
 	printf("GG"); refresh();
-	sleep(3);
+	sleep(.5);
 	endwin();
 	return 0;
 }
