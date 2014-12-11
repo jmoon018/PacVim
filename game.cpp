@@ -322,7 +322,6 @@ void Ghost1::think() {
 
 */
 void Ghost1::spawn() {
-	letterUnder = charAt(x, y);
 	if(!moveTo(x, y))
 		return;
 	
@@ -436,7 +435,11 @@ void drawScreen(const char* file) {
 		*/
 			if(maze.at(i).at(j) != ' ' &&  maze.at(i).at(j) != '#')
 				TOTAL_POINTS++;
+
+			if(maze.at(i).at(j) == '#')
+				attron(COLOR_PAIR(3));
 			addch(maze.at(i).at(j));
+			attroff(COLOR_PAIR(3));
 			continue;
 			//cout << "Len: " << length; 
 			//cout << "i IS " << i << "..J is: " << j << endl;
@@ -553,10 +556,6 @@ void defineColors() {
 	init_pair(7, COLOR_WHITE, COLOR_BLACK);
 }
 
-void ghostManager(Ghost1 &gho1, Ghost1 &gho2) {
-	
-
-}
 
 int main(int argc, char** argv)
 {
@@ -574,11 +573,11 @@ int main(int argc, char** argv)
 	
 	writeError("LOL");
 	// Create ghost1
-	Ghost1 ghost1(1, 1, .4, COLOR_BLUE);
+	Ghost1 ghost1(1, 1, .5, COLOR_BLUE);
 	//thread ghostThread (&Ghost1::spawn, ghost1);
 
 	// Ghost 2
-	Ghost1 ghost2(8, 14, .3, COLOR_RED);
+	Ghost1 ghost2(8, 14, .4, COLOR_RED);
 
 	thread ghostThread1 (&Ghost1::spawn, ghost1);
 	thread ghostThread2 (&Ghost1::spawn, ghost2);

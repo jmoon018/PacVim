@@ -9,7 +9,7 @@ class avatar {
 		avatar(int, int, bool);
 		avatar(int, int, bool, int);
 	protected:
-		char letterUnder;
+		chtype letterUnder;
 		int x;
 		int y;
 		bool isPlayer;
@@ -18,8 +18,8 @@ class avatar {
 		int lives;
 		int color;
 	public:	
-		bool moveTo(int, int);
-		bool moveTo(int, int, bool);
+		bool moveTo(int, int, bool del = false); 
+		//bool moveTo(int, int, bool);
 		bool moveRight();
 		bool moveLeft();
 		bool moveUp();
@@ -94,6 +94,55 @@ bool avatar::setPos(int x, int y) {
 }
 
 
+
+bool avatar::moveTo(int a, int b, bool del) {
+	if(!isValid(a, b))
+		return false;
+
+	// Change the character the avatar currently is at
+	//writeAt(x, y, letterUnder, COLOR_GREEN);
+
+	// character at destination 
+	chtype curChar = charAt(a, b);
+	if(isPlayer) {
+		if(curChar == 'G') {
+			loseGame();
+			return false;
+		}
+		
+		// points
+		if(curChar != ' ' && !(curChar & COLOR_PAIR(2))) {
+			points++;
+		}
+		// move
+		x = a;
+		y = b;
+		writeAt(x, y, curChar, COLOR_GREEN); // make it green
+		letterUnder = charAt(x, y);
+		move(b, a);
+
+		if(points >= TOTAL_POINTS) {
+			winGame();
+		}
+	}
+	else { // it is a ghost
+		int playerX, playerY;
+		getyx(stdscr, playerY, playerX);
+		if(playerY == b && playerX == a) {
+			loseGame();
+			return false;
+		}
+		writeAt(x, y, letterUnder);
+		letterUnder = charAt(a, b);
+		writeAt(a, b, portrait,  color); 
+		x = a;
+		y = b;
+	}
+	refresh();
+	return true;
+
+}
+/*
 bool avatar::moveTo(int a, int b) {
 	// Is it a valid spot?
 	if(!isValid(a, b)) 
@@ -105,8 +154,8 @@ bool avatar::moveTo(int a, int b) {
 	y = b;
 
 	chtype curChar = charAt(a, b); 
-	letterUnder = curChar;
-	writeAt(a, b, portrait, color);
+	writeAt(a, b, curChar, COLOR_GREEN);
+	letterUnder = charAt(a, b);
 
 	if(isPlayer) {
 		// Check if Player hit a ghost
@@ -148,9 +197,21 @@ bool avatar::moveTo(int a, int b, bool del) {
 			return false;
 		}
 
+		// Make the character green 
+		chtype curChar; 
+		writeAt(x, y, letterUnder, COLOR_GREEN);
 		move(b, a);
 		x = a;
 		y = b;
+
+		// adjust for points
+		curChar = charAt(a, b);
+		writeAt(a, b, curChar, COLOR_GREEN);
+		letterUnder = curChar;
+		if(curChar != ' ' && !(curChar & COLOR_PAIR(2)))
+			points++;
+		if(points >= TOTAL_POINTS)
+			winGame();
 		refresh();
 		return true;
 	}
@@ -190,12 +251,12 @@ bool avatar::moveTo(int a, int b, bool del) {
 	refresh();
 	return true;
 }
-
+*/
 bool avatar::moveRight() {
 	if(!isValid(x+1, y)) 
 		return false;
 	
-	moveTo(x+1, y);
+	moveTo(x+1, y+0);
 	return true;
 }
 
