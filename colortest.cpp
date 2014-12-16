@@ -14,14 +14,15 @@ int main()
 
 	//init_pair(1, COLOR_RED, COLOR_BLACK);
 	init_pair(1, COLOR_GREEN, COLOR_BLACK );
-	attron(COLOR_PAIR(1) | A_UNDERLINE); //| A_UNDERLINE);
+	init_pair(6, COLOR_CYAN, COLOR_BLACK);
+	attron(COLOR_PAIR(6) | A_UNDERLINE); //| A_UNDERLINE);
 	move(5,5);
 	addch('x');
-	attroff(COLOR_PAIR(1) | A_UNDERLINE);
+	attroff(COLOR_PAIR(6) | A_UNDERLINE);
 
 	chtype ch = mvinch(5,5);
 	move(5,6);	
-	if((ch) & (COLOR_PAIR(1)))
+	if(ch & COLOR_PAIR(6))
 		addch(ch);
 
 	stringstream ss;

@@ -1,0 +1,47 @@
+#ifndef HELPERFNS_H
+#define HELPERFNS_H
+
+#include "globals.h"
+#include <fstream>
+#include <queue>
+/* HELPER FUNCTIONS */
+
+
+/* Write/Read Manager
+ When the game is being played, sometimes weird
+ characters will appear randomly. When multithreading is not
+ used, this bug disappears. I believe the characters appear
+ because the read/write methods are being used at the same time
+ (from concurrent threads), which can lead to weird behavior,
+ 
+ With WR manager, all these methods (charAt, writeAt, etc) are done
+ sequentially, the order determined by a priority queue. The player's
+ keystrokes take priority.
+ */
+
+
+// Return the character at x, y
+chtype charAt(int x, int y);
+
+bool writeAt(int x, int y, chtype letter);
+
+bool writeAt(int x, int y, chtype letter, int color);
+
+void writeError(std::string msg);
+
+void printAtBottomChar(char msg);
+void printAtBottom(std::string msg);
+
+
+
+// Game state
+void winGame();
+void loseGame();
+
+
+
+
+// check to see if the player can move there
+bool isValid(int x, int y);
+
+#endif

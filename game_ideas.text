@@ -1,0 +1,42 @@
+1. Vim Golf
+The player is given a text file with errors, and a text file 
+that has been corrected. The player must navigate through
+the messed-up text file and fix it with the least amount
+of keystrokes
+
+- calculate keystrokes
+- Make suggestions for players 
+- Can make short versions (eg a paragraph to fix), or a long (essay)
+
+
+2. Treasure Hunt
+The player must navigate his/her cursor to the X
+while avoiding (static) obstacles that prevent
+movement commands from working. Somewhat similar
+to vim-adventures
+
+- Can make maps randomly
+- Can change difficulty
+
+
+3. Vim Galaga
+The player must DESTROY the falling text before it hits
+the bottom of the screen by quickly moving the cursor over
+the text and deleting it
+
+- Can change difficulty (more words or fall faster)
+- Score is determined by how long player lasts, how many words deleted
+- Should significantly help how players navigate; player should
+	know how to move around quickly without thinking about it
+
+4. Pac-Vim
+Just like Pac-Man, but can also use the vim commands to
+move around the maze --- but more ghosts spawn
+
+- Navigation under pressure
+- Scores based on eating dots
+- allow all commands but make them all harder
+
+
+
+Find a library to handle vim movement
