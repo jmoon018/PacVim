@@ -18,124 +18,6 @@ using namespace std;
 int HEIGHT;
 int WIDTH;
 
-/*int wallist[] = {'#', ACS_ULCORNER, ACS_LLCORNER, ACS_URCORNER,
-				ACS_LRCORNER, ACS_LTEE, ACS_RTEE, ACS_BTEE,
-				ACS_TTEE, ACS_HLINE, ACS_VLINE, ACS_PLUS};
-
-set<int> WALLS(wallist, wallist + sizeof(wallist)/sizeof(int));
-*/
-
-
-
-
-
-// GHOST
-/*
-class Ghost1 : public avatar {
-	private:
-		double sleepTime;
-		double eval();
-		double eval(int a, int b);
-	public:
-		void spawn();
-		Ghost1(int a, int b, double c) : avatar(a, b) { sleepTime = c; }
-		Ghost1(int a, int b) : avatar(a, b) { sleepTime = 0.5; }
-		Ghost1() : avatar() { sleepTime = 0.5; }
-		Ghost1(double time) : avatar() { sleepTime = time; }
-		Ghost1(int a, int b, double c, int col) : avatar(a, b) { sleepTime = c; color = col; }
-		void backtrack(int &a, int &b);
-		void think();
-};
-*/
-
-/*
-struct node {
-	int x;
-	int y;
-	bool dest;
-	int dist = 10000;
-};:24
-
-
-const int HEIGHT2 = 5;
-const int WIDTH2 = 5;
-node GRAPH[HEIGHT2][WIDTH2] ;
-
-void initGraph() {
-	
-	for(int i = 0; i < HEIGHT; i++) {
-		for(int x = 0; x < WIDTH; x++) {
-			node Node;
-			Node.x = i;
-			Node.y = x;
-			Node.dest = false;
-			GRAPH[i][x] = Node;
-		}
-	}
-}
-
-
-double Ghost1::AStar() {
-	// get the destination
-	int playerX, playerY;
-	getyx(stdscr, playerY, playerX);
-
-	vector<int> dist;
-	vector<node> unvisited; 
-
-	initGraph();
-	GRAPH[playerX, playerY].dest = true;
-	for(int i = 0; i < HEIGHT; i++) {
-		for(int j = 0; j < WIDTH; j++) {
-			unvisited.push_back(GRAPH[i][j]);
-			dist.push_back(10000);
-		}
-	}
-
-	node nextNode = GRAPH[x][y];
-	while(!unvisited.empty()) {
-		node n = nextNode; 
-		
-		// check up
-}
-*/
-
-struct node { int x; int y; int val = 0; };
-
-/*
-bool hasNode(const set<node> &v, int a, int b) {
-	for(int i = 0; i < v.size(); i++) {
-		if(v.at(i).x == a && v.at(i).y == b) {
-			return true;
-		}
-	}
-	return false;
-}
-*/
-
-/*
-bool delNode(set<node> &v, int a, int b) {
-	for(int i = 0; i < v.size(); i++) {
-		if(v.at(i).x == a && v.at(i).y == b) {
-			v.erase(v.begin() + i);
-			return true;
-		}
-	}
-	return false;
-}
-*/
-
-bool hasNode(set<node> &s, int a, int b) {
-	for(set<node>::iterator it = s.begin(); it!=s.end(); it++) {
-		if(it->x == a && it->y == b) {
-			return true;
-		}
-	}
-	return false;
-}
-
-
-
 void gotoLine(avatar& unit, int line) {
 	int wallCnt = 2;
 	char curChar = mvinch(line, 0);
@@ -159,7 +41,7 @@ void onKeystroke(avatar& unit, string& key) {
 		return;
 	}
 	*/
-	mtx.lock();
+//	mtx.lock();
 	THINKING = true;
 	if(key == "q") { // allow ctrl c to exit game properly
 		endwin();
@@ -207,7 +89,7 @@ void onKeystroke(avatar& unit, string& key) {
 	key = "";
 	refresh();
 	THINKING = false;
-	mtx.unlock();
+//	mtx.unlock();
 }
 
 void drawScreen(const char* file) {
@@ -365,6 +247,45 @@ void defineColors() {
 }
 
 
+void fn1() {
+	/*
+	for(int i = 0; i < 500; i++) { 
+	//	mtx.lock();
+		x += charAt(i%6, i%3) ;		
+		writeAt(i%15, (3*i)%15, 'X'); 
+		refresh();
+	//	mtx.unlock();
+	}
+	*/
+	for(int j = 0; j < 2225; j++) {
+	for(int i = 0; i < 26; i++) {
+		chtype letter = charAt(i, 1);
+		writeAt(i, 0, letter);
+	}
+	}
+//	mtx.unlock();
+}
+
+void fn2() {
+	/*
+	for(int j = 0; j < 500; j++) { 
+	//	mtx.lock();
+		x += charAt(j%5, j%9);
+		writeAt(j%5, (3*j)%5, 'Y'); 
+		refresh();
+	//	mtx.unlock();
+	}
+	*/
+
+	for(int j = 0; j < 2225; j++ )  {
+	for(int i = 0; i < 26; i++ ) {
+		chtype letter = charAt(i, 1);
+		writeAt(i, 0, letter);
+	}
+	}
+	//mtx.unlock();
+}
+
 int main(int argc, char** argv)
 {
 	// Setup
@@ -375,20 +296,19 @@ int main(int argc, char** argv)
 	clear();
 	drawScreen("map1.txt");
 
-
 	// Create Player
-	avatar player(5, 6, true);
+	avatar player(5,6, true);
 //	player.moveRight();
 	
 	// Create ghost1
-	Ghost1 ghost1(1, 1, 5, COLOR_BLUE);
-	//thread ghostThread (&Ghost1::spawn, ghost1);
+	Ghost1 ghost1(1, 1,.7, COLOR_BLUE);
 
 	// Ghost 2
-	Ghost1 ghost2(8, 14, 4, COLOR_RED);
+	Ghost1 ghost2(8, 4,.7, COLOR_RED);
 
 	thread ghostThread1 (&Ghost1::spawn, ghost1);
 	thread ghostThread2 (&Ghost1::spawn, ghost2);
+
 
 	string key;
 	while(key != "q" && GAME_WON == 0) {
@@ -406,8 +326,8 @@ int main(int argc, char** argv)
 	GAME_WON = -1;
 	printf("AHHH");
 	
-	ghostThread1.join();
-	ghostThread2.join();
+	//ghostThread1.join();
+	//ghostThread2.join();
 
 	clear();
 	if(player.getPoints() >= TOTAL_POINTS) {

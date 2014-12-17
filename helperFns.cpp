@@ -3,6 +3,10 @@
 
 // Return the character at x, y
 chtype charAt(int x, int y) {
+	//if(!mtx.try_lock())
+	//	return false;
+	//std::lock_guard<std::mutex> lock (mtx);
+	mtx.lock();
 	// check bounds
 	if(x < 0 || y < 0)
 		return 0;
@@ -15,10 +19,15 @@ chtype charAt(int x, int y) {
 
 	// move back + return
 	mvinch(curY, curX);
+	mtx.unlock();
 	return value;
 }
 
 bool writeAt(int x, int y, chtype letter) {
+	//if(!mtx.try_lock())
+		//return false;
+	//std::lock_guard<std::mutex> lock(mtx);
+	mtx.lock();
 	// Check bounds
 	if(x < 0 || y < 0)
 		return false;
@@ -28,8 +37,10 @@ bool writeAt(int x, int y, chtype letter) {
 
 
 	mvinch(y, x);
+
 	addch(letter);
 	mvinch(curY, curX);
+	mtx.unlock();
 	return true;
 }
 
