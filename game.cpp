@@ -32,17 +32,16 @@ void getMore(avatar& unit, char key) {
 	onKeystroke(unit, key);
 }
 
-void onKeystroke(avatar& unit, char key) {
-	printAtBottom("getting keystroke..");	
-	/*if(THINKING) {
-		usleep(.05 * 1000000);
-		onKeystroke(unit, key);
-		return;
+
+bool isFullDigits(string &str) {
+	for(unsigned i = 0; i < str.size(); i++) {
+		if(!isdigit(str[i]))
+			return false;
 	}
-	*/
-//	mtx.lock();
-	THINKING = true;
-	INPUT += key;
+	return true;
+}
+
+void doKeystroke(avatar& unit) {
 	if(INPUT== "q") { // allow ctrl c to exit game properly
 		endwin();
 	}
@@ -60,9 +59,6 @@ void onKeystroke(avatar& unit, char key) {
 	}
 	else if(INPUT == "r") {
 		refresh();	
-	}
-	else if(INPUT == "g") {
-		getMore(unit, key);
 	}
 	else if(INPUT == "w") {
 		unit.parseWordForward(true); 
@@ -91,15 +87,94 @@ void onKeystroke(avatar& unit, char key) {
 	else if(INPUT == "gg") {
 		gotoLine(unit,1);
 	}
-	// check if there are any numbers 1..9
+	else if(INPUT == "^") {
+		// goes to first character after blank
+		unit.parseToBeginning();
+		unit.parseWordForward(true);
+	}
+	else if(INPUT == "&") {
+		GAME_WON = 1; // l337 cheetz
+	}
+}	
 
-	INPUT = "";
+void onKeystroke(avatar& unit, char key) {
+	printAtBottom("getting keystroke..");	
+	THINKING = true;
+
+	// there are some weird edge cases which I want to handle here:
+	// 1. #G [moves to line #]
+	// 2. 1G = same as gg
+	// 3. gg = beginning of file... it's weird bc it's two non-digit characters
+
+	// If INPUT != empty, and the user inputs a number, INPUT
+	// should reset.. eg: 3g3 dd = 1 dd, not 3 dd
+	string we = "KEYSTROKE: " + key;
+	//writeError("KEYSTROKE");
+	if(key == 'g') { 
+		//writeError("received: g");
+		if(INPUT.empty() || INPUT.size() == 1 && INPUT[0] == 'g') {	
+			INPUT += key;
+			doKeystroke(unit);
+		}
+		else {
+			INPUT = "";
+		}
+	}
+	else if(!INPUT.empty() && isdigit(key)) {
+		//writeError("resetting..");
+		// reset it.. can't enter a digit in the middle of input
+		INPUT = "";
+	}
+	// we have full digits and then enter a character
+	else if(!INPUT.empty() && isFullDigits(INPUT) && !isdigit(key)) { 
+		//writeError("num -> char");
+		int num = std::stoi(INPUT, nullptr, 0); // extracts 33 from 33dd for example
+
+		if(key == 'G') {
+			// go to line num
+			gotoLine(unit, num);
+			THINKING = false;
+			INPUT = "";
+			refresh();
+			return;
+		}
+
+		INPUT = key; 
+		for(int i = 0; i < num; i++) {
+			doKeystroke(unit);
+		}
+		INPUT = "";
+	}
+	else {
+		//writeError("doing function");
+		INPUT += key;
+		if(INPUT == "0" || !isFullDigits(INPUT)) {
+			doKeystroke(unit);
+			INPUT = "";
+		}
+	}
+
+
 	refresh();
 	THINKING = false;
 //	mtx.unlock();
 }
 
+void levelMessage() {
+	clear();
+	string msg = "LEVEL " + ('0' + CURRENT_LEVEL);
+	printAtBottom(msg);
+	sleep(1);
+	printAtBottom("");
+	usleep(500000); // .5 seconds
+	printAtBottom(msg);
+	sleep(1);
+	printAtBottom("GOOD LUCK!");
+	sleep(1);
+}
+
 void drawScreen(const char* file) {
+	levelMessage();
 	clear();
 	ifstream in(file);
 
@@ -307,14 +382,13 @@ void playGame(avatar &player) {
 		move(player.getY(), player.getX());
 		refresh();
 	}	
-	GAME_WON = -1;
 	printf("AHHH");
 	
 	//ghostThread1.join();
 	//ghostThread2.join();
 
 	clear();
-	if(player.getPoints() >= TOTAL_POINTS) {
+	if(GAME_WON == 1) {
 		winGame();
 	}
 	else {
@@ -323,7 +397,7 @@ void playGame(avatar &player) {
 }
 
 
-void init(char* mapName, int ghostCnt, double thinkMultiplier) {
+void init(const char* mapName, int ghostCnt, double thinkMultiplier) {
 	// set up map
 	clear();
 	drawScreen(mapName);
@@ -348,9 +422,7 @@ void init(char* mapName, int ghostCnt, double thinkMultiplier) {
 		thread_ptr3 = new thread(&Ghost1::spawn, ghost3);
 	}
 
-	writeError("PLAYING THE GAME");
 	playGame(player);
-	writeError("ABOUT TO JOIN THREADS");
 
 	// join threads only if they were created
 	thread_ptr->join();
@@ -360,11 +432,9 @@ void init(char* mapName, int ghostCnt, double thinkMultiplier) {
 		thread_ptr3->join();
 
 	// delete
-	writeError("sej fault!??");
 	delete thread_ptr;
 	delete thread_ptr2;
 	delete thread_ptr3;
-	writeError("after thread deletions");
 }
 
 int main(int argc, char** argv)
@@ -375,7 +445,21 @@ int main(int argc, char** argv)
 	defineColors();
 	noecho(); // dont print anything to the screen
 
-	init("map1.txt", 3, .75);
+
+	for(CURRENT_LEVEL; CURRENT_LEVEL < 3; CURRENT_LEVEL++) {	
+		string mapName = "map";
+		mapName += ((char) '0' + CURRENT_LEVEL);
+		mapName += ".txt";
+		init(mapName.c_str(), 3, .75);
+		if(GAME_WON == -1) {
+			break;
+		}
+		else {
+			GAME_WON = 0;
+			TOTAL_POINTS = 0;
+			THINKING = false;
+		}
+	}	
 	/*
 	clear();
 	drawScreen("map1.txt");

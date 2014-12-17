@@ -69,7 +69,6 @@ bool avatar::moveTo(int a, int b, bool del) {
 	if(isPlayer) {
 		chtype swag = curChar;
 		if(!(swag & COLOR_PAIR(2)) && (swag & COLOR_PAIR(6))) {
-			writeError("CYAN!");
 			loseGame();
 			printAtBottom("LOL");
 		}
@@ -271,11 +270,9 @@ bool avatar::parseWordEnd(bool isWord) {
 	bool breakOnAlpha = !isalnum(nextChar) && nextChar != ' ';
 	while(true) { // no definite loop #; break when we reach conditions
 		if((!breakOnAlpha == !isalnum(nextChar))  && isWord) {
-			writeError("ZZ");
 			break;
 		}
 		else if(breakOnSpace && (nextChar == ' ')) {
-			writeError("OMG");
 			break; 
 		}
 		else if(nextChar == '#') { // not allowed to go on # so break
@@ -313,17 +310,10 @@ bool avatar::parseWordBackward(bool isWord) {
 
 
 	while(true) { // no definite loop #; break when we reach conditions
-		//if((breakOnAlpha == !isalnum(nextChar)) && isWord && curChar != ' ') { 
-		//asdasd! sda!!
-		//if((breakOnAlpha && !isalnum(nextChar)) || (curChar != ' ' && isWord && (isalnum(nextChar) && 
-		//	!isAlpha || isalpha && !isalnum(nextChar)) && (nextChar != ' ' && !breakOnSpace))) {
-		//if(curChar != ' ' && (isalnum(nextChar) && breakOnAlpha && breakOnSpace)) { 
 		if(curChar != ' ' && ((isalnum(nextChar) && breakOnAlpha) || (!isalnum(nextChar) && breakOnNonAlpha))) {
-			writeError("break1");
 			break;
 		}
 		else if(breakOnSpace && nextChar == ' ') {
-			writeError("break2");
 			break; 
 		}
 		else if(nextChar == '#') { // not allowed to go on # so break
@@ -333,7 +323,6 @@ bool avatar::parseWordBackward(bool isWord) {
 
 			//if(!moveTo(x-1, y, false))
 			//	return false;
-			writeError("moving,.");
 			moveTo(x-1, y, false);
 			if(nextChar != ' ' && !breakOnSpace) {
 				if(isWord) {	
