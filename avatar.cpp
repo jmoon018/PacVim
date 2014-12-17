@@ -19,7 +19,7 @@ avatar::avatar(int a, int b) {
 	isPlayer = false;
 	color = COLOR_WHITE;
 	letterUnder = charAt(a, b);
-	moveTo(a, b, false);
+//	moveTo(a, b, false);
 }
 
 
@@ -100,8 +100,12 @@ bool avatar::moveTo(int a, int b, bool del) {
 			loseGame();
 			return false;
 		}
+		
 		writeAt(x, y, letterUnder);
+
+		// check if we are stepping on a ghost
 		letterUnder = charAt(a, b);
+
 		writeAt(a, b, portrait,  color); 
 		x = a;
 		y = b;
@@ -323,7 +327,7 @@ bool avatar::parseWordBackward(bool isWord) {
 			break; 
 		}
 		else if(nextChar == '#') { // not allowed to go on # so break
-			break;
+			return false;
 		}
 		else { // iterate
 
@@ -361,7 +365,7 @@ bool avatar::parseWordForward(bool isWord) {
 		}
 		else if(lastChar == '#' || curChar == '#') {
 			moveTo(x-1, y, false);
-			break;
+			return false;
 		}
 		else {
 			lastChar = curChar;
@@ -372,4 +376,15 @@ bool avatar::parseWordForward(bool isWord) {
 	}
 	return true;
 }
+
+bool avatar::parseToEnd() {
+	while(parseWordForward(false)) {}
+	return true;
+}
+
+bool avatar::parseToBeginning() { 
+	while(parseWordBackward(false)) {}
+	return true;
+}
+
 

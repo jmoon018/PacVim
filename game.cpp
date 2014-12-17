@@ -25,15 +25,14 @@ void gotoLine(avatar& unit, int line) {
 		}
 }
 
-void onKeystroke(avatar& unit, string& key);
+void onKeystroke(avatar& unit, char key);
 
-void getMore(avatar& unit, string& key) {
+void getMore(avatar& unit, char key) {
 	char nextChar = getch();
-	key += nextChar;
 	onKeystroke(unit, key);
 }
 
-void onKeystroke(avatar& unit, string& key) {
+void onKeystroke(avatar& unit, char key) {
 	printAtBottom("getting keystroke..");	
 	/*if(THINKING) {
 		usleep(.05 * 1000000);
@@ -43,50 +42,58 @@ void onKeystroke(avatar& unit, string& key) {
 	*/
 //	mtx.lock();
 	THINKING = true;
-	if(key == "q") { // allow ctrl c to exit game properly
+	INPUT += key;
+	if(INPUT== "q") { // allow ctrl c to exit game properly
 		endwin();
 	}
-	else if(key == "h") {
+	else if(INPUT == "h") {
 		unit.moveLeft();
 	}
-	else if(key == "j") {
+	else if(INPUT == "j") {
 		unit.moveDown();
 	}
-	else if(key == "k") {
+	else if(INPUT == "k") {
 		unit.moveUp(); 
 	}
-	else if(key == "l") {
+	else if(INPUT == "l") {
 		unit.moveRight();
 	}
-	else if(key == "r") {
+	else if(INPUT == "r") {
 		refresh();	
 	}
-	else if(key == "g") {
+	else if(INPUT == "g") {
 		getMore(unit, key);
 	}
-	else if(key == "w") {
+	else if(INPUT == "w") {
 		unit.parseWordForward(true); 
 	}
-	else if(key == "W") {
+	else if(INPUT == "W") {
 		unit.parseWordForward(false);	
 	}
-	else if(key == "b") {
+	else if(INPUT == "b") {
 		unit.parseWordBackward(true);
 	}
-	else if(key == "B") {
+	else if(INPUT == "B") {
 		unit.parseWordBackward(false);
 	}
-	else if(key == "E") {
+	else if(INPUT == "E") {
 		unit.parseWordEnd(false);
 	}
-	else if(key == "e") {
+	else if(INPUT == "e") {
 		unit.parseWordEnd(true);
 	}
-	else if(key == "gg") {
+	else if(INPUT == "$") { 
+		unit.parseToEnd(); 
+	}
+	else if(INPUT == "0") {
+		unit.parseToBeginning();
+	}
+	else if(INPUT == "gg") {
 		gotoLine(unit,1);
 	}
+	// check if there are any numbers 1..9
 
-	key = "";
+	INPUT = "";
 	refresh();
 	THINKING = false;
 //	mtx.unlock();
@@ -286,6 +293,80 @@ void fn2() {
 	//mtx.unlock();
 }
 
+
+void playGame(avatar &player) {
+	char key;
+	while(key != 'q' && GAME_WON == 0) {
+		key = getch();
+		if(key != 'q')
+			onKeystroke(player, key);
+		stringstream ss;
+		ss << "Points: " << player.getPoints() << "/" << TOTAL_POINTS << "\n";
+		if(GAME_WON == 0)
+			printAtBottom(ss.str());
+		move(player.getY(), player.getX());
+		refresh();
+	}	
+	GAME_WON = -1;
+	printf("AHHH");
+	
+	//ghostThread1.join();
+	//ghostThread2.join();
+
+	clear();
+	if(player.getPoints() >= TOTAL_POINTS) {
+		winGame();
+	}
+	else {
+		loseGame();
+	}
+}
+
+
+void init(char* mapName, int ghostCnt, double thinkMultiplier) {
+	// set up map
+	clear();
+	drawScreen(mapName);
+
+	// create ghosts and player
+	avatar player (5, 6, true);
+	
+	Ghost1 ghost1(1, 1, 1 * thinkMultiplier, COLOR_RED);
+	Ghost1 ghost2(10, 1, 0.8 * thinkMultiplier, COLOR_RED);
+	Ghost1 ghost3(15, 1, 0.9  * thinkMultiplier, COLOR_RED);
+
+	// spawn ghosts depending on ghostCnt
+	std::thread *thread_ptr;
+	std::thread *thread_ptr2;
+	std::thread *thread_ptr3;
+
+	thread_ptr = new thread(&Ghost1::spawn, ghost1);
+	if(ghostCnt >= 2) {
+		thread_ptr2 = new thread(&Ghost1::spawn, ghost2);
+	}
+	if (ghostCnt >= 3){ // max 3
+		thread_ptr3 = new thread(&Ghost1::spawn, ghost3);
+	}
+
+	writeError("PLAYING THE GAME");
+	playGame(player);
+	writeError("ABOUT TO JOIN THREADS");
+
+	// join threads only if they were created
+	thread_ptr->join();
+	if(ghostCnt >= 2)
+		thread_ptr2->join();
+	if(ghostCnt >= 3)
+		thread_ptr3->join();
+
+	// delete
+	writeError("sej fault!??");
+	delete thread_ptr;
+	delete thread_ptr2;
+	delete thread_ptr3;
+	writeError("after thread deletions");
+}
+
 int main(int argc, char** argv)
 {
 	// Setup
@@ -293,6 +374,9 @@ int main(int argc, char** argv)
 	WINDOW* win = initscr();
 	defineColors();
 	noecho(); // dont print anything to the screen
+
+	init("map1.txt", 3, .75);
+	/*
 	clear();
 	drawScreen("map1.txt");
 
@@ -334,6 +418,7 @@ int main(int argc, char** argv)
 		winGame();
 	}
 	else { loseGame(); }
+	*/
 	//endwin();
 	sleep(2);
 	endwin();

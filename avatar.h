@@ -32,6 +32,8 @@ class avatar {
 		bool parseWordForward(bool);
 		bool parseWordBackward(bool);
 		bool parseWordEnd(bool);
+		bool parseToBeginning();
+		bool parseToEnd();
 
 		int getPoints();
 		bool getPlayer();

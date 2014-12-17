@@ -120,7 +120,7 @@ void Ghost1::think() {
 	}
 
 	THINKING = true;
-	mtx.lock();
+	//mtx.lock();
 	
 
 	std::stringstream msg;
@@ -141,7 +141,7 @@ void Ghost1::think() {
 	else if(right <= up && right <= down && right <= left)
 		moveTo(x+1, y, false);	
 
-	mtx.unlock();
+	//mtx.unlock();
 	THINKING = false;
 	usleep(sleepTime * 1000000);
 	if(GAME_WON == 0)
@@ -166,7 +166,7 @@ void Ghost1::think() {
 void Ghost1::spawn() {
 	if(!moveTo(x, y))
 		return;
-	
+
 	sleep(1); // wait a second to create map, etc
 	think();
 }

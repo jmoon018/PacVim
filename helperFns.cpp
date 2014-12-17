@@ -45,6 +45,7 @@ bool writeAt(int x, int y, chtype letter) {
 }
 
 bool writeAt(int x, int y, chtype letter, int color) {
+	mtx.lock();
 	// Check bounds
 	if(x < 0 || y < 0)
 		return false;
@@ -58,6 +59,8 @@ bool writeAt(int x, int y, chtype letter, int color) {
 	addch(letter);
 	attroff(COLOR_PAIR(color));
 	mvinch(curY, curX);
+
+	mtx.unlock();
 	return true;
 }
 
@@ -75,10 +78,13 @@ void printAtBottomChar(char msg) {
 	mvprintw(20, 1, (x).c_str());
 }
 void printAtBottom(std::string msg) {
+	mtx.lock();
 	int x, y;
 	getyx(stdscr, y, x);
 	mvprintw(20, 1, msg.c_str());
 	move(y,x);
+
+	mtx.unlock();
 }
 
 
@@ -105,6 +111,7 @@ void loseGame() {
 
 // check to see if the player can move there
 bool isValid(int x, int y) {
+	mtx.lock();
 	// Within range of board
 	if(y < 0 || x < 0)
 		return false;
@@ -121,7 +128,9 @@ bool isValid(int x, int y) {
 	if(WALLS.find(testPos) != WALLS.end())
 	{
 	//	cout << "NOT VALID" << endl;
+		mtx.unlock();
 		return false;
 	}
+	mtx.unlock();
 	return true;	
 }
