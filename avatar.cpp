@@ -67,12 +67,12 @@ bool avatar::moveTo(int a, int b, bool del) {
 	// character at destination 
 	chtype curChar = charAt(a, b);
 	if(isPlayer) {
-		chtype swag = curChar;
 		if((curChar & COLOR_PAIR(6)) == COLOR_PAIR(6) ) {
 			loseGame();
 			printAtBottom("LOL");
 		}
-		if(curChar == 'G') { 
+		// hit a ghost.. red color
+		if((curChar & COLOR_PAIR(1)) == COLOR_PAIR(1)) {
 			loseGame();
 			return false;
 		}
@@ -158,9 +158,17 @@ bool avatar::parseWordEnd(bool isWord) {
 	bool isAlpha = isalnum(curChar);
 	char nextChar = charAt(x+1,y);
 
+	while(nextChar == ' ') {
+		if(!moveTo(x+1, y, false))
+			return false;
+		nextChar = charAt(x+1, y);
+		curChar = charAt(x, y);
+		isAlpha = isalnum(curChar);
+	}
 	// breakOnSpace = true if the current character isn't the end of a word
 	bool breakOnSpace = (nextChar != ' ' && curChar != ' ');
 	bool breakOnAlpha = !isalnum(nextChar) && nextChar != ' ';
+	bool didAnything = false;
 	while(true) { // no definite loop #; break when we reach conditions
 		if((!breakOnAlpha == !isalnum(nextChar))  && isWord) {
 			break;

@@ -14,9 +14,15 @@
 
 using namespace std;
 
-// DIMENSIONS
-int HEIGHT;
-int WIDTH;
+// ghosts
+struct ghostInfo {
+	double think;
+	int xPos;
+	int yPos;
+};
+
+vector<ghostInfo> ghostList;
+
 void gotoLine(avatar& unit, int line) {
 	int wallCnt = 2;
 	char curChar = mvinch(line, 0);
@@ -69,8 +75,7 @@ void doKeystroke(avatar& unit) {
 	else if(INPUT == "r") {
 		refresh();	
 	}
-	else if(INPUT == "w") {
-		unit.parseWordForward(true); 
+	else if(INPUT == "w") { unit.parseWordForward(true); 
 	}
 	else if(INPUT == "W") {
 		unit.parseWordForward(false);	
@@ -170,18 +175,10 @@ void onKeystroke(avatar& unit, char key) {
 
 void levelMessage() {
 	// find appropriate message
-	string msg;
-	if(CURRENT_LEVEL == 0)
-		msg = "LEVEL 0";
-	else if(CURRENT_LEVEL == 1) {
-		msg = "LEVEL 1";
-	}
-	else if(CURRENT_LEVEL == 2) {
-		msg = "LEVEL 2";
-	}
-	else if(CURRENT_LEVEL == 3) {
-		msg = "LEVEL 3";
-	}
+	stringstream ss;
+
+	ss << "LEVEL " << CURRENT_LEVEL;
+	string msg = ss.str();
 
 	printw(msg.c_str());
 	refresh();
@@ -199,8 +196,11 @@ void drawScreen(const char* file) {
 	clear();
 	ifstream in(file);
 
+	// clear ghostList because we are gonna obtain new ones
+	ghostList.clear();
+
 	vector<vector <chtype> > board;
-	vector<vector <chtype> > fixedBoard;
+	vector<string> boardStr;
 	string str;
 	vector<chtype> line;
 
@@ -208,60 +208,81 @@ void drawScreen(const char* file) {
 		for(unsigned i = 0; i < str.length(); i++) {
 			line.push_back(str[i]);
 		}
+		boardStr.push_back(str);
 		board.push_back(line);
-		fixedBoard.push_back(line);
 		line.clear();
 	}
 	in.close();
 	for(unsigned i = 0; i < board.size(); i++) {
 		unsigned length = board.size();
+		stringstream ss;
+		ss << "On row.." << i << "..." << boardStr.at(i);
+		writeError(ss.str());
+		// parse info about ghosts, add them to ghostlist
+		if(boardStr.at(i).at(0) == '/') {
+			// format: /*thinkTime* *x-position* *y-position* -- delimited by spaces ofc
+			writeError("HI!");
+			string str = boardStr.at(i);
+			str.erase(str.begin(), str.begin()+1);
+
+			string a = str.substr(0, str.find(" "));
+			str = str.substr(str.find(" ")+1, 9); // 9 is kinda arbitrary (should be > str length)
+
+			string b = str.substr(0, str.find(" "));
+			str = str.substr(str.find(" ")+1, 9);
+
+			string c = str.substr(0, str.find(" "));
+			str = str.substr(str.find(" ")+1, 9);
+		
+			writeError(a);
+			writeError(b);
+			writeError(c);
+			ghostInfo ghost;
+			ghost.think = stod(a, nullptr);
+			ghost.xPos = stoi(b, nullptr, 0);
+			ghost.yPos = stoi(c, nullptr, 0);
+			ghostList.push_back(ghost);
+			writeError("xx");
+			continue;
+		}
+
 		for(unsigned j = 0; j < board.at(i).size(); j++) {
-			
+			stringstream ss;
+			ss << board.at(i).at(j) << "..." << j;
+			writeError(ss.str());
 			if(board.at(i).at(j) != '~' && 
 				board.at(i).at(j) != ' ' &&  board.at(i).at(j) != '#') 
 				TOTAL_POINTS++;
 
-			//cout << "Len: " << length; 
-			//cout << "i IS " << i << "..J is: " << j << endl;
 			bool left = false, right = false,
 				up = false, down = false;
-			chtype* ch = &( fixedBoard.at(i).at(j));
-			//cout << *ch << flush ;	
+			chtype* ch = &( board.at(i).at(j));
 			// Check left
-			writeError("1");
-			//cout << "J: " << j << endl;
-			//cout << "LEL" << endl;
 			if(j >= 1) {
-				//cout << "doing left.. " << endl;
 				if(board.at(i).at(j-1) == '#') {
 					left = true;
 				}
 			}
 			// Check right
-			//cout << "J: " << j;
 			if((j+1) < (board.at(i).size())) {
 				if(board.at(i).at(j + 1) == '#') {
 					right = true;
 				}
 			}
-			//cout << "Up.." << endl;
 			// Check up
 			if(i >= 1) {
-				writeError("I is ... ");
 				if(board.at(i - 1).at(j) == '#') {
 					up = true;
 				}
 			}
 
-			//cout << "Down.." << endl;
 			// Check down
-			if((i+2) < (fixedBoard.size())) {
+			if((i+2) < (board.size())) {
 				if(board.at(i+1).at(j) == '#') {
 					down = true;
 				}
 			}
                                 	
-		
 			if(*ch == '#') {
 				attron(COLOR_PAIR(3));
 				if(left && right && up && down)
@@ -295,19 +316,10 @@ void drawScreen(const char* file) {
 				addch(*ch);
 				attroff(COLOR_PAIR(6));
 			}
-			
-			
-		//	addch('#');
 		}
 		addch('\n');
-		//printf(maze.at(i).c_str());
-		//cout << endl;
-		//cout << "I is: " << i << endl;
 	}
 	refresh();
-
-	HEIGHT= fixedBoard.size();
-	WIDTH = fixedBoard.at(0).size();
 }
 
 
@@ -377,15 +389,17 @@ void init(const char* mapName, int ghostCnt, double thinkMultiplier) {
 	// create ghosts and player
 	avatar player (5, 6, true);
 	
-	Ghost1 ghost1(1, 1, 1 * thinkMultiplier, COLOR_RED);
-	Ghost1 ghost2(10, 1, 0.8 * thinkMultiplier, COLOR_RED);
-	Ghost1 ghost3(15, 1, 0.9  * thinkMultiplier, COLOR_RED);
 
 	// spawn ghosts depending on ghostCnt
 	std::thread *thread_ptr;
 	std::thread *thread_ptr2;
 	std::thread *thread_ptr3;
-
+	
+	ghostCnt = ghostList.size() + 1;
+	Ghost1 ghost1 = Ghost1(ghostList.at(0).xPos, ghostList.at(0).yPos, ghostList.at(0).think, COLOR_RED); 
+	Ghost1 ghost2 = Ghost1(ghostList.at(1).xPos, ghostList.at(1).yPos, ghostList.at(1).think, COLOR_RED); 
+	Ghost1 ghost3 = Ghost1(ghostList.at(2).xPos, ghostList.at(2).yPos, ghostList.at(2).think, COLOR_RED); 
+	writeError("LLLL");
 	thread_ptr = new thread(&Ghost1::spawn, ghost1);
 	if(ghostCnt >= 2) {
 		thread_ptr2 = new thread(&Ghost1::spawn, ghost2);
@@ -434,49 +448,6 @@ int main(int argc, char** argv)
 			THINKING = false;
 		}
 	}	
-	/*
-	clear();
-	drawScreen("map1.txt");
-
-	// Create Player
-	avatar player(5,6, true);
-//	player.moveRight();
-	
-	// Create ghost1
-	Ghost1 ghost1(1, 1,.7, COLOR_BLUE);
-
-	// Ghost 2
-	Ghost1 ghost2(8, 4,.7, COLOR_RED);
-
-	thread ghostThread1 (&Ghost1::spawn, ghost1);
-	thread ghostThread2 (&Ghost1::spawn, ghost2);
-
-
-	string key;
-	while(key != "q" && GAME_WON == 0) {
-		key = "";
-		key += getch();
-		if(key != "q")
-			onKeystroke(player, key);
-		stringstream ss;
-		ss << "Points: " << player.getPoints() << "/" << TOTAL_POINTS << "\n";
-		if(GAME_WON == 0)
-			printAtBottom(ss.str());
-		move(player.getY(), player.getX());
-		refresh();
-	}	
-	GAME_WON = -1;
-	printf("AHHH");
-	
-	//ghostThread1.join();
-	//ghostThread2.join();
-
-	clear();
-	if(player.getPoints() >= TOTAL_POINTS) {
-		winGame();
-	}
-	else { loseGame(); }
-	*/
 	//endwin();
 	sleep(2);
 	endwin();
