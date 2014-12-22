@@ -22,13 +22,18 @@ int main()
 
 	chtype ch = mvinch(5,5);
 	move(5,6);	
-	if(ch & COLOR_PAIR(6))
+	if((ch | COLOR_PAIR(5) == ch))
 		addch(ch);
 
 	stringstream ss;
 	bitset<32> x (ch);
-	ss << "\n" << x;
+	bitset<32> y (COLOR_PAIR(2));
+	bitset<32> a (COLOR_PAIR(3));
+	bitset<32> z (COLOR_PAIR(6));
+	bitset<32> b (ch | COLOR_PAIR(2));
+	ss << "\n" << x << "\n" << y << "\n"<< y << "\n" << z;
 	printw ((ss.str()).c_str());	
+	cout << ((ch & COLOR_PAIR(6)) == COLOR_PAIR(2)) << endl;
 	getch();
 	endwin();
 	return 0;

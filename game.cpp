@@ -17,12 +17,21 @@ using namespace std;
 // DIMENSIONS
 int HEIGHT;
 int WIDTH;
-
 void gotoLine(avatar& unit, int line) {
 	int wallCnt = 2;
 	char curChar = mvinch(line, 0);
 	while(wallCnt > 0) {
 		}
+}
+
+void gotoLineBeginning(int line, avatar &unit) {
+	int x = 0;
+	string str = "LOL: ";
+	while(mvinch(x, line) == '#' ) {
+		x++;
+		writeError("LLLLLLL");
+	}
+	unit.moveTo(x, line);
 }
 
 void onKeystroke(avatar& unit, char key);
@@ -85,7 +94,7 @@ void doKeystroke(avatar& unit) {
 		unit.parseToBeginning();
 	}
 	else if(INPUT == "gg") {
-		gotoLine(unit,1);
+		gotoLineBeginning(1, unit);	
 	}
 	else if(INPUT == "^") {
 		// goes to first character after blank
@@ -98,7 +107,6 @@ void doKeystroke(avatar& unit) {
 }	
 
 void onKeystroke(avatar& unit, char key) {
-	printAtBottom("getting keystroke..");	
 	THINKING = true;
 
 	// there are some weird edge cases which I want to handle here:
@@ -111,8 +119,8 @@ void onKeystroke(avatar& unit, char key) {
 	string we = "KEYSTROKE: " + key;
 	//writeError("KEYSTROKE");
 	if(key == 'g') { 
-		//writeError("received: g");
 		if(INPUT.empty() || INPUT.size() == 1 && INPUT[0] == 'g') {	
+			
 			INPUT += key;
 			doKeystroke(unit);
 		}
@@ -161,16 +169,29 @@ void onKeystroke(avatar& unit, char key) {
 }
 
 void levelMessage() {
+	// find appropriate message
+	string msg;
+	if(CURRENT_LEVEL == 0)
+		msg = "LEVEL 0";
+	else if(CURRENT_LEVEL == 1) {
+		msg = "LEVEL 1";
+	}
+	else if(CURRENT_LEVEL == 2) {
+		msg = "LEVEL 2";
+	}
+	else if(CURRENT_LEVEL == 3) {
+		msg = "LEVEL 3";
+	}
+
+	printw(msg.c_str());
+	refresh();
+	usleep(1500000);
+
+	// clear and reset everything
 	clear();
-	string msg = "LEVEL " + ('0' + CURRENT_LEVEL);
-	printAtBottom(msg);
-	sleep(1);
-	printAtBottom("");
-	usleep(500000); // .5 seconds
-	printAtBottom(msg);
-	sleep(1);
-	printAtBottom("GOOD LUCK!");
-	sleep(1);
+	move(0,0);
+	usleep(100000);
+	refresh();
 }
 
 void drawScreen(const char* file) {
@@ -178,110 +199,115 @@ void drawScreen(const char* file) {
 	clear();
 	ifstream in(file);
 
-	vector<string> maze;
-	vector<string> fixedMaze;
+	vector<vector <chtype> > board;
+	vector<vector <chtype> > fixedBoard;
 	string str;
+	vector<chtype> line;
+
 	while(getline(in, str)) {
-		maze.push_back(str + "\n");
-		fixedMaze.push_back(str + "\n");
+		for(unsigned i = 0; i < str.length(); i++) {
+			line.push_back(str[i]);
+		}
+		board.push_back(line);
+		fixedBoard.push_back(line);
+		line.clear();
 	}
 	in.close();
-
-	for(int i = 0; i < maze.size(); i++)
-	{
-		str = maze.at(i);
-		int length = (int) maze.at(i).length();
-		for(int j = 0; j < length-1; j++)
-		{
-		/*	if(maze.at(i).at(j) == ' ')
-			{
-				addch(ACS_BULLET);
-				continue;
-			}
-		*/
-
-			if(maze.at(i).at(j) != ' ' &&  maze.at(i).at(j) != '#') 
+	for(unsigned i = 0; i < board.size(); i++) {
+		unsigned length = board.size();
+		for(unsigned j = 0; j < board.at(i).size(); j++) {
+			
+			if(board.at(i).at(j) != '~' && 
+				board.at(i).at(j) != ' ' &&  board.at(i).at(j) != '#') 
 				TOTAL_POINTS++;
 
-			if(maze.at(i).at(j) == '#')
-				attron(COLOR_PAIR(3));
-			else if(maze.at(i).at(j) == '~') {
-				attron(COLOR_PAIR(5));
-				TOTAL_POINTS--;
-			}
-			addch(maze.at(i).at(j));
-			attroff(COLOR_PAIR(5) | COLOR_PAIR(3));
-			continue;
 			//cout << "Len: " << length; 
 			//cout << "i IS " << i << "..J is: " << j << endl;
 			bool left = false, right = false,
 				up = false, down = false;
-			char* ch = &( fixedMaze.at(i).at(j));
+			chtype* ch = &( fixedBoard.at(i).at(j));
 			//cout << *ch << flush ;	
 			// Check left
-			if((j - 1) >= 0) {
-				if(str.at(j-1) == '#') {
+			writeError("1");
+			//cout << "J: " << j << endl;
+			//cout << "LEL" << endl;
+			if(j >= 1) {
+				//cout << "doing left.. " << endl;
+				if(board.at(i).at(j-1) == '#') {
 					left = true;
 				}
 			}
 			// Check right
-			if((j+1) < (length-1)) {
-				if(str.at(j + 1) == '#') {
+			//cout << "J: " << j;
+			if((j+1) < (board.at(i).size())) {
+				if(board.at(i).at(j + 1) == '#') {
 					right = true;
 				}
 			}
 			//cout << "Up.." << endl;
 			// Check up
-			if((i - 1) >= 0) {
-				if(maze.at(i - 1).at(j) == '#') {
+			if(i >= 1) {
+				writeError("I is ... ");
+				if(board.at(i - 1).at(j) == '#') {
 					up = true;
 				}
 			}
+
 			//cout << "Down.." << endl;
 			// Check down
-			if((i+2) < (fixedMaze.size())) {
-				if(maze.at(i+1).at(j) == '#') {
+			if((i+2) < (fixedBoard.size())) {
+				if(board.at(i+1).at(j) == '#') {
 					down = true;
 				}
 			}
                                 	
-			/*
-			if(left && right && up && down)
-				addch(ACS_PLUS); 
-			else if(left && right && up)
-				addch(ACS_BTEE); 
-			else if(left && right && down)
-				addch(ACS_TTEE); 
-			else if(left && up && down)
-				addch(ACS_RTEE); 
-			else if(right && up && down)
-				addch(ACS_LTEE); 
-			else if(up && left)
-				addch(ACS_LRCORNER); 
-			else if(up && right)
-				addch(ACS_LLCORNER); 
-			else if(down && left)
-				addch(ACS_URCORNER); 
-			else if(down && right)
-				addch(ACS_ULCORNER); 
-			else if(down || up)
-				addch(ACS_VLINE); 
-			else 
-				addch(ACS_HLINE); 
+		
+			if(*ch == '#') {
+				attron(COLOR_PAIR(3));
+				if(left && right && up && down)
+					addch(ACS_PLUS); 
+				else if(left && right && up)
+					addch(ACS_BTEE); 
+				else if(left && right && down)
+					addch(ACS_TTEE); 
+				else if(left && up && down)
+					addch(ACS_RTEE); 
+				else if(right && up && down)
+					addch(ACS_LTEE); 
+				else if(up && left)
+					addch(ACS_LRCORNER); 
+				else if(up && right)
+					addch(ACS_LLCORNER); 
+				else if(down && left)
+					addch(ACS_URCORNER); 
+				else if(down && right)
+					addch(ACS_ULCORNER); 
+				else if(down || up)
+					addch(ACS_VLINE); 
+				else 
+					addch(ACS_HLINE); 
+				attroff(COLOR_PAIR(3));
+			}
+			else {
+				if(*ch == '~') {
+					attron(COLOR_PAIR(6));
+				}
+				addch(*ch);
+				attroff(COLOR_PAIR(6));
+			}
 			
-			*/
-			addch('#');
+			
+		//	addch('#');
 		}
 		addch('\n');
 		//printf(maze.at(i).c_str());
 		//cout << endl;
 		//cout << "I is: " << i << endl;
-		refresh();
 	}
 	refresh();
 
-	HEIGHT= fixedMaze.size();
-	WIDTH = fixedMaze.at(0).size();
+	HEIGHT= fixedBoard.size();
+	WIDTH = fixedBoard.at(0).size();
 }
 
 
@@ -300,22 +326,6 @@ void printIt(string msg, avatar& player) {
 }
 
 
-
-void f1(int x) {
-	cout << "X" << flush;
-	usleep(50 * 1000);
-	if(x > 0)
-		f1(x-1);
-}
-
-void f2(int x) {
-	cout << "Y" << flush;
-	usleep(50 * 1000);
-	if(x > 0)
-		f2(x-1);
-}
-
-
 void defineColors() {
 	start_color();
 	init_color(COLOR_CYAN, 1000, 500, 500);
@@ -326,46 +336,6 @@ void defineColors() {
 	init_pair(5, COLOR_MAGENTA, COLOR_BLACK);
 	init_pair(6, COLOR_CYAN, COLOR_BLACK);
 	init_pair(7, COLOR_WHITE, COLOR_BLACK);
-}
-
-
-void fn1() {
-	/*
-	for(int i = 0; i < 500; i++) { 
-	//	mtx.lock();
-		x += charAt(i%6, i%3) ;		
-		writeAt(i%15, (3*i)%15, 'X'); 
-		refresh();
-	//	mtx.unlock();
-	}
-	*/
-	for(int j = 0; j < 2225; j++) {
-	for(int i = 0; i < 26; i++) {
-		chtype letter = charAt(i, 1);
-		writeAt(i, 0, letter);
-	}
-	}
-//	mtx.unlock();
-}
-
-void fn2() {
-	/*
-	for(int j = 0; j < 500; j++) { 
-	//	mtx.lock();
-		x += charAt(j%5, j%9);
-		writeAt(j%5, (3*j)%5, 'Y'); 
-		refresh();
-	//	mtx.unlock();
-	}
-	*/
-
-	for(int j = 0; j < 2225; j++ )  {
-	for(int i = 0; i < 26; i++ ) {
-		chtype letter = charAt(i, 1);
-		writeAt(i, 0, letter);
-	}
-	}
-	//mtx.unlock();
 }
 
 
@@ -398,9 +368,11 @@ void playGame(avatar &player) {
 
 
 void init(const char* mapName, int ghostCnt, double thinkMultiplier) {
+	mtx.lock();
 	// set up map
 	clear();
 	drawScreen(mapName);
+	mtx.unlock();
 
 	// create ghosts and player
 	avatar player (5, 6, true);
@@ -433,8 +405,10 @@ void init(const char* mapName, int ghostCnt, double thinkMultiplier) {
 
 	// delete
 	delete thread_ptr;
-	delete thread_ptr2;
-	delete thread_ptr3;
+	if(ghostCnt >= 2)
+		delete thread_ptr2;
+	if(ghostCnt >= 3)
+		delete thread_ptr3;
 }
 
 int main(int argc, char** argv)
@@ -446,11 +420,11 @@ int main(int argc, char** argv)
 	noecho(); // dont print anything to the screen
 
 
-	for(CURRENT_LEVEL; CURRENT_LEVEL < 3; CURRENT_LEVEL++) {	
+	for(CURRENT_LEVEL; CURRENT_LEVEL < 6; CURRENT_LEVEL++) {	
 		string mapName = "map";
 		mapName += ((char) '0' + CURRENT_LEVEL);
 		mapName += ".txt";
-		init(mapName.c_str(), 3, .75);
+		init(mapName.c_str(), 2, .75);
 		if(GAME_WON == -1) {
 			break;
 		}

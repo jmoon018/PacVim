@@ -1,6 +1,10 @@
 #include "globals.h"
 #include "helperFns.h"
+#include <sstream>
 
+int stuff[] = {'#', ACS_ULCORNER, ACS_LLCORNER, ACS_URCORNER, ACS_LRCORNER,
+	ACS_LTEE, ACS_RTEE, ACS_BTEE, ACS_TTEE, ACS_HLINE, ACS_VLINE, ACS_PLUS};
+std::set<int> WALLS(stuff, stuff + 12);
 // Return the character at x, y
 chtype charAt(int x, int y) {
 	//if(!mtx.try_lock())
@@ -120,12 +124,12 @@ bool isValid(int x, int y) {
 	// Move cursor, check character, move cursor back
 	int curX, curY;
 	getyx(stdscr, curY, curX);
-	char testPos= mvinch(y, x);
+	chtype testPos= mvinch(y, x);
 	mvinch(curY, curX);
 
 
 	// Now see if it's a valid spot
-	if(WALLS.find(testPos) != WALLS.end())
+	if(testPos >= 4000000 || WALLS.find(testPos) != WALLS.end())
 	{
 	//	cout << "NOT VALID" << endl;
 		mtx.unlock();

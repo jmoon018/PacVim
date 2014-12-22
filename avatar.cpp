@@ -68,7 +68,7 @@ bool avatar::moveTo(int a, int b, bool del) {
 	chtype curChar = charAt(a, b);
 	if(isPlayer) {
 		chtype swag = curChar;
-		if(!(swag & COLOR_PAIR(2)) && (swag & COLOR_PAIR(6))) {
+		if((curChar & COLOR_PAIR(6)) == COLOR_PAIR(6) ) {
 			loseGame();
 			printAtBottom("LOL");
 		}
@@ -113,116 +113,6 @@ bool avatar::moveTo(int a, int b, bool del) {
 	return true;
 
 }
-/*
-bool avatar::moveTo(int a, int b) {
-	// Is it a valid spot?
-	if(!isValid(a, b)) 
-		return false;
-
-	// Update stats
-	writeAt(x, y, letterUnder, COLOR_GREEN);
-	x = a;
-	y = b;
-
-	chtype curChar = charAt(a, b); 
-	writeAt(a, b, curChar, COLOR_GREEN);
-	letterUnder = charAt(a, b);
-
-	if(isPlayer) {
-		// Check if Player hit a ghost
-		if(charAt(a, b) == 'G') {
-			loseGame();
-			return false;
-		}
-		move(b, a);
-	}
-	else {
-		// check if ghost hit a player
-		int playerX, playerY;
-		getyx(stdscr, playerY, playerX);
-		if(playerY == b && playerX == a) {
-			loseGame();
-			return false;
-		}
-	}
-	
-	if(curChar != ' ' && !(curChar & COLOR_PAIR(2)))
-		points++;
-	
-	if(points >= TOTAL_POINTS) {
-		winGame();
-	}
-	//printAtBottom("moving player");
-	refresh();
-	return true;
-}
-
-bool avatar::moveTo(int a, int b, bool del) {
-	if(!isValid(a,b))
-		return false;
-
-	if(isPlayer) {
-		// Check if the player hit a ghost
-		if(charAt(a, b) == 'G') {
-			loseGame();
-			return false;
-		}
-
-		// Make the character green 
-		chtype curChar; 
-		writeAt(x, y, letterUnder, COLOR_GREEN);
-		move(b, a);
-		x = a;
-		y = b;
-
-		// adjust for points
-		curChar = charAt(a, b);
-		writeAt(a, b, curChar, COLOR_GREEN);
-		letterUnder = curChar;
-		if(curChar != ' ' && !(curChar & COLOR_PAIR(2)))
-			points++;
-		if(points >= TOTAL_POINTS)
-			winGame();
-		refresh();
-		return true;
-	}
-	else {	
-		// Check if Ghost hit the player
-		int playerX, playerY;
-		getyx(stdscr, playerY, playerX);
-		if(playerY == b && playerX == a) {
-			loseGame();
-			return false;
-		}
-	}
-
-	chtype curChar = charAt(a, b);
-	if(del)
-	{
-		writeAt(a, b, portrait, color);
-		writeAt(x, y, letterUnder, COLOR_BLUE);
-		move(35, 0);
-		addch(curChar);
-		move(b,a);
-		if(curChar != ' ' && !(curChar & COLOR_PAIR(2)))
-			points++;
-		if(points >= TOTAL_POINTS) {
-			winGame();	
-		}
-	}
-	else {
-		writeAt(a, b, portrait, color);
-		writeAt(x, y, letterUnder, COLOR_WHITE);
-	}
-	x = a;
-	y = b;
-
-	letterUnder = curChar;
-	
-	refresh();
-	return true;
-}
-*/
 bool avatar::moveRight() {
 	if(!isValid(x+1, y)) 
 		return false;
@@ -259,7 +149,10 @@ bool avatar::parseWordEnd(bool isWord) {
 	//		on nonalpha-, and viceversa. 
 	// 2nd case: if you are not at the end of a word, loop until you
 	//		reach a space
-
+	
+	if(charAt(x+1, y) == ' ') {
+		moveRight();
+	}
 	// store the current character type
 	char curChar = charAt(x, y);
 	bool isAlpha = isalnum(curChar);
@@ -321,9 +214,8 @@ bool avatar::parseWordBackward(bool isWord) {
 		}
 		else { // iterate
 
-			//if(!moveTo(x-1, y, false))
-			//	return false;
-			moveTo(x-1, y, false);
+			if(!moveTo(x-1, y, false))
+				return false;
 			if(nextChar != ' ' && !breakOnSpace) {
 				if(isWord) {	
 					breakOnAlpha = !isalnum(nextChar);

@@ -1,37 +1,22 @@
 #include <iostream>
-#include <thread>
 #include <unistd.h>
-
+#include <cursesw.h>
 using namespace std;
 
-void f1(int x) {
-	cout << "X" << flush;
-	usleep(50 * 1000);
-	if(x > 0)
-		f1(x-1);
-}
-
-void f2(int x) {
-	cout << "Y" << flush;
-	usleep(50 * 1000);
-	if(x > 0)
-		f2(x-1);
-}
-
 int main() {
-	thread (f1, 50).detach();
-	thread (f2, 50).detach();
+	initscr();
+	start_color();
+	init_pair(1, COLOR_CYAN, COLOR_BLACK);
 
-	cout << "Running concurrently..\n" << endl;
+	attron(COLOR_PAIR(1));
+	addch('~');
+	attroff(COLOR_PAIR(1));
 
-	//t1.join();
-	//t2.join();
+	chtype ch = mvinch(0,0);
+	move(5,5);
+	cout << ch << endl;
+	getch();
 
-	int a = 5, b = 6, c = 7, d = 8;
-	if (b <= c <= d <= a)
-		cout << "B: " << b << endl;
-	else if (a <= b <= c <= d)
-		cout << "A: " << a << endl;
-	sleep(5);
+	endwin();
 	return 0;
 }
