@@ -1,0 +1,16 @@
+####################
+#That#Terminator is#
+#out # there. It~~~#
+# can't be reasoned#
+# with. It doesn't #
+#feel ### pity or###
+# remorse ### or ###
+# fear ~ and it ~  #
+# absolutely ~ will#
+#not ## stop. Ever.#
+# Until ~ you ~ are#
+#     ~ dead ~     #
+####################
+/1.35 1 1           
+/1.45 3 10          
+/1.4 10 10          

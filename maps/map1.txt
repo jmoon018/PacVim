@@ -1,0 +1,17 @@
+#############
+#Do~  #not~ #
+# try #~and #
+#bend #the~ #
+####spoon####
+# ~Instead, #
+#####try#####
+#to realize #
+#the#truth. #
+#   ####    #
+#   There~is#
+#~no#spoon.~#
+#   #       #
+#############
+/1.2 1 1     
+/.8 8 12
+/1.4 10 1
