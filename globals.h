@@ -12,6 +12,11 @@ extern int CURRENT_LEVEL;
 extern bool THINKING; //
 extern bool READY;
 
+extern int TOP;
+extern int BOTTOM;
+extern int WIDTH;
+#define HEIGHT (TOP - BOTTOM)
+
 //extern std::set<chtype> WALLS;
 extern std::mutex mtx;
 #endif

@@ -6,8 +6,12 @@ bool THINKING = false;
 std::string INPUT = "";
 bool READY = false;
 
+int TOP = 0;
+int BOTTOM = 0;
+int WIDTH = 0;
 int CURRENT_LEVEL = 0;
 
+#define HEIGHT TOP - BOTTOM
 //int walllist[] = {'#', ACS_ULCORNER, ACS_LLCORNER, ACS_URCORNER,
 //		ACS_LRCORNER, ACS_LTEE, ACS_RTEE, ACS_BTEE, ACS_TTEE,
 //		ACS_HLINE, ACS_VLINE, ACS_PLUS};

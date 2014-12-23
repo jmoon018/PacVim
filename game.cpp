@@ -73,6 +73,7 @@ void doKeystroke(avatar& unit) {
 		unit.moveRight();
 	}
 	else if(INPUT == "r") {
+		//clear();
 		refresh();	
 	}
 	else if(INPUT == "w") { unit.parseWordForward(true); 
@@ -98,8 +99,13 @@ void doKeystroke(avatar& unit) {
 	else if(INPUT == "0") {
 		unit.parseToBeginning();
 	}
-	else if(INPUT == "gg") {
-		gotoLineBeginning(1, unit);	
+	else if(INPUT == "gg" || INPUT == "1G") {
+		unit.setPos(unit.getX(), 1); 
+		unit.parseToBeginning();
+	}
+	else if(INPUT == "G") { 
+		unit.setPos(0, HEIGHT); 
+		unit.parseToEnd();
 	}
 	else if(INPUT == "^") {
 		// goes to first character after blank
@@ -127,7 +133,10 @@ void onKeystroke(avatar& unit, char key) {
 		if(INPUT.empty() || INPUT.size() == 1 && INPUT[0] == 'g') {	
 			
 			INPUT += key;
-			doKeystroke(unit);
+			if(INPUT == "gg") {
+				doKeystroke(unit);
+				INPUT = "";
+			}
 		}
 		else {
 			INPUT = "";
@@ -211,6 +220,7 @@ void drawScreen(const char* file) {
 		boardStr.push_back(str);
 		board.push_back(line);
 		line.clear();
+		writeError(str);
 	}
 	in.close();
 	for(unsigned i = 0; i < board.size(); i++) {
@@ -275,13 +285,14 @@ void drawScreen(const char* file) {
 					up = true;
 				}
 			}
-
+			writeError("Up works");
 			// Check down
 			if((i+2) < (board.size())) {
 				if(board.at(i+1).at(j) == '#') {
 					down = true;
 				}
 			}
+			writeError("Down works.");
                                 	
 			if(*ch == '#') {
 				attron(COLOR_PAIR(3));
@@ -317,9 +328,22 @@ void drawScreen(const char* file) {
 				attroff(COLOR_PAIR(6));
 			}
 		}
+		if(board.at(i).size() > WIDTH) {
+			WIDTH = board.at(i).size();
+		}
+		writeError("eek");
+		// increment height only if there are valid spaces
+		// for the player to land on (in otherwords, they aren't all hashtags)
+		for(int j = 0; j < board.at(i).size(); j++) {
+			if(boardStr.at(i).at(j) != '#') {
+				TOP++;
+				break;
+			}
+		}
+		writeError("Height is set");	
 		addch('\n');
 	}
-	refresh();
+	//refresh();
 }
 
 
@@ -383,11 +407,14 @@ void init(const char* mapName, int ghostCnt, double thinkMultiplier) {
 	mtx.lock();
 	// set up map
 	clear();
+	TOP = 0;
+	BOTTOM = 0;
+	WIDTH = 0;
 	drawScreen(mapName);
 	mtx.unlock();
 
 	// create ghosts and player
-	avatar player (5, 6, true);
+	avatar player (WIDTH/2, HEIGHT/2, true);
 	
 
 	// spawn ghosts depending on ghostCnt
@@ -395,11 +422,21 @@ void init(const char* mapName, int ghostCnt, double thinkMultiplier) {
 	std::thread *thread_ptr2;
 	std::thread *thread_ptr3;
 	
+
 	ghostCnt = ghostList.size() + 1;
 	Ghost1 ghost1 = Ghost1(ghostList.at(0).xPos, ghostList.at(0).yPos, ghostList.at(0).think, COLOR_RED); 
 	Ghost1 ghost2 = Ghost1(ghostList.at(1).xPos, ghostList.at(1).yPos, ghostList.at(1).think, COLOR_RED); 
 	Ghost1 ghost3 = Ghost1(ghostList.at(2).xPos, ghostList.at(2).yPos, ghostList.at(2).think, COLOR_RED); 
-	writeError("LLLL");
+
+
+	printAtBottom("Press Enter to begin!"); 
+	refresh();
+	string inp;
+	char inpC;
+	while(inpC != '\n') {
+		inpC = getch();
+	}
+
 	thread_ptr = new thread(&Ghost1::spawn, ghost1);
 	if(ghostCnt >= 2) {
 		thread_ptr2 = new thread(&Ghost1::spawn, ghost2);
@@ -435,7 +472,7 @@ int main(int argc, char** argv)
 
 
 	for(CURRENT_LEVEL; CURRENT_LEVEL < 6; CURRENT_LEVEL++) {	
-		string mapName = "map";
+		string mapName = "maps/map";
 		mapName += ((char) '0' + CURRENT_LEVEL);
 		mapName += ".txt";
 		init(mapName.c_str(), 2, .75);

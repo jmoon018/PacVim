@@ -167,7 +167,7 @@ void Ghost1::spawn() {
 	if(!moveTo(x, y))
 		return;
 
-	sleep(2); // wait a second to create map, etc
+	sleep(1); // wait a second to create map, etc
 	think();
 }
 

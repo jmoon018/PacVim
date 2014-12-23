@@ -77,9 +77,11 @@ void writeError(std::string msg) {
 }
 
 void printAtBottomChar(char msg) {
+	mtx.lock();
 	std::string x;
 	x += msg;
 	mvprintw(20, 1, (x).c_str());
+	mtx.unlock();
 }
 void printAtBottom(std::string msg) {
 	mtx.lock();
