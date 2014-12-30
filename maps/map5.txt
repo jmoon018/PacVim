@@ -1,15 +1,20 @@
-#######################
-# What... is the air- #
-#  ## ####~  #### ##~ #
-#  #speed#   # of  #  #
-# ~#### ##  ~## ####  #
-# an unladen swallow? #
-#What..### do ## you  #
-#   ~## mean?   ## An #
-# African or European #
-#swallow?#####~Huh?   #
-# I... I don't know   #
-##  that.. #~*thrown*##
- ### *into*# *the* ### 
-   ### *volcano* ###   
-     #############     
+######################
+#That it should come #
+#to##### #######   ###
+# this!#    #Frailty,#
+###   ##thy #   ######
+#name~is!####   #alas#
+# poor yorick! This  #
+####above#####   #####
+   #all  ##### to    #
+####thine be~true## ~#
+#  #     #####   ## ~#
+#  #Some ###thing##is#
+#  ####   #    #######
+#rotten  ~#in  #     #
+#######   ###  #######
+      # Denmark#      
+      ##########      
+/.7 1 1               
+/.6 10 15             
+p10 3                 

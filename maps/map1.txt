@@ -1,18 +1,17 @@
-########################
-#Every #body is!#~a    #
-####   ###### ######## #
-#!genius. But if# you  #
-#not!###  #######  #####
-# judge# a fish by its #
-# ####  ~ #### ### #####
-#  ability to   #climb #
-# a  #tree,# it # will #
-#live# ### # its### ####
-#   ~#whole#life#     ~#
-###when##  ### you###  #
-  # believing that# it##
-  ######### ##### is### 
-          #  stupid   # 
-          ############# 
-/.6 1 1                 
-/.55 5 12               
+#######################
+# What... is the air- #
+#  ## ####~  #### ##~ #
+#  #speed#   # of  #  #
+# ~#### ##  ~## ####  #
+# an unladen swallow? #
+#What..### do ## you  #
+#   ~## mean?   ## An #
+# African or European #
+#swallow?#####~Huh?   #
+# I... I don't know   #
+##  that.. #~*thrown*##
+ ### *into*# *the* ### 
+   ### *volcano* ###   
+     #############     
+/.50 1 1               
+/1.0 14 10             

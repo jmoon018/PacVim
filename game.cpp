@@ -14,6 +14,10 @@
 
 using namespace std;
 
+// more globals cause i'm lazy
+int START_X = 1;
+int START_Y = 1;
+
 // ghosts
 struct ghostInfo {
 	double think;
@@ -224,6 +228,7 @@ void levelMessage() {
 void drawScreen(const char* file) {
 	levelMessage();
 	clear();
+
 	ifstream in(file);
 
 	// clear ghostList because we are gonna obtain new ones
@@ -275,7 +280,22 @@ void drawScreen(const char* file) {
 			writeError("xx");
 			continue;
 		}
+	    else if(boardStr.at(i).at(0) == 'p') {
+			string str = boardStr.at(i);
+		    str.erase(str.begin(), str.begin()+1); 
 
+			// get x position
+			string x = str.substr(0, str.find(" "));
+			str = str.substr(str.find(" ")+1, 9); // delete up to space
+
+			string y = str.substr(0, str.find(" "));
+			str = str.substr(str.find(" ")+1, 9); // delete up to space
+
+			START_X = stoi(x, nullptr, 0);
+			START_Y = stoi(y, nullptr, 0);
+
+			return; // player position should always be the last thing
+		}
 		for(unsigned j = 0; j < board.at(i).size(); j++) {
 			stringstream ss;
 			ss << board.at(i).at(j) << "..." << j;
@@ -383,7 +403,8 @@ void drawScreen(const char* file) {
 		writeError("Height is set");	
 		addch('\n');
 	}
-	//refresh();
+	START_X = WIDTH/2;
+	START_Y = HEIGHT/2;
 }
 
 
@@ -427,13 +448,15 @@ void playGame(time_t lastTime, avatar &player) {
 			}
 		}
 	}
+	printAtBottom("GO!                  ");
 	char key;
 	while(key != 'q' && GAME_WON == 0) {
 		key = getch();
 		if(key != 'q')
 			onKeystroke(player, key);
 		stringstream ss;
-		ss << "Points: " << player.getPoints() << "/" << TOTAL_POINTS << "\n";
+		ss << "Points: " << player.getPoints() << "/" 
+			<< TOTAL_POINTS << "\n" << " Lives: " << LIVES << "\n";
 		if(GAME_WON == 0)
 			printAtBottom(ss.str());
 		move(player.getY(), player.getX());
@@ -457,55 +480,58 @@ void init(const char* mapName, int ghostCnt, double thinkMultiplier) {
 	BOTTOM = 0;
 	WIDTH = 0;
 	drawScreen(mapName);
-	//mtx.unlock();
 
 	// create player
-	avatar player (WIDTH/2, HEIGHT/2, true);
+	avatar player (START_X, START_Y, true);
 	
 
+	// pointers to the ghost threads
 	std::thread *thread_ptr;
 	std::thread *thread_ptr2;
 	std::thread *thread_ptr3;
+	std::thread *thread_ptr4;
+	std::thread *thread_ptr5;
 	
 	
 	// Create ghosts if they exist in text file
+	// we can spawn 5 total at the moment, but more can be manually added below
 	ghostCnt = ghostList.size();
-	Ghost1 ghost1, ghost2, ghost3;
-	ghost1 = Ghost1(ghostList.at(0).xPos, ghostList.at(0).yPos, ghostList.at(0).think, COLOR_RED); 
+	Ghost1 ghost1, ghost2, ghost3, ghost4, ghost5; 
+	ghost1 = Ghost1(ghostList.at(0).xPos, ghostList.at(0).yPos, 
+			(THINK_MULTIPLIER * ghostList.at(0).think), COLOR_RED); 
 	if(ghostCnt >= 2) {	
-		ghost2 = Ghost1(ghostList.at(1).xPos, ghostList.at(1).yPos, ghostList.at(1).think, COLOR_RED); 
+		ghost2 = Ghost1(ghostList.at(1).xPos, ghostList.at(1).yPos, 
+			(THINK_MULTIPLIER * ghostList.at(1).think), COLOR_RED); 
 	}
-	if(ghostCnt >= 3) {
-		ghost3 = Ghost1(ghostList.at(2).xPos, ghostList.at(2).yPos, ghostList.at(2).think, COLOR_RED); 
+	if(ghostCnt >= 3) {	
+		ghost3 = Ghost1(ghostList.at(2).xPos, ghostList.at(2).yPos, 
+			(THINK_MULTIPLIER * ghostList.at(2).think), COLOR_RED); 
 	}
-
-    /*
-	time_t now = time(0);
-	sleep(1);
-	printAtBottom("Press Enter to begin!"); 
-	refresh();
-	string inp;
-	char inpC;
-	*/
-	
-	// another hack to  clear cin buffer 
-	//cout << "HACKING" << endl;
-	/*
-	while(inpC != '\n' && (time(0) > now)) {
-		inpC = getch();
-		//addch(inpC);
+	if(ghostCnt >= 4) { 
+		ghost4 = Ghost1(ghostList.at(3).xPos, ghostList.at(3).yPos, 
+			THINK_MULTIPLIER * ghostList.at(3).think, COLOR_RED); 
 	}
-	*/
-
+	if(ghostCnt >= 5) { 
+		ghost5 = Ghost1(ghostList.at(4).xPos, ghostList.at(4).yPos,
+			THINK_MULTIPLIER * ghostList.at(4).think, COLOR_RED);
+	}
+		
 	// spawn ghosts
-	thread_ptr = new thread(&Ghost1::spawn, ghost1);
+	thread_ptr = new thread(&Ghost1::spawnGhost, ghost1, false);
 	if(ghostCnt >= 2) {
-		thread_ptr2 = new thread(&Ghost1::spawn, ghost2);
+		thread_ptr2 = new thread(&Ghost1::spawnGhost, ghost2, false);
 	}
 	if (ghostCnt >= 3){ // max 3
-		thread_ptr3 = new thread(&Ghost1::spawn, ghost3);
+		thread_ptr3 = new thread(&Ghost1::spawnGhost, ghost3, false);
 	}
-
+	if (ghostCnt >= 4){ // max 4
+		thread_ptr4 = new thread(&Ghost1::spawnGhost, ghost4, false);
+	}
+	if (ghostCnt >= 5){ // max 5
+		thread_ptr5 = new thread(&Ghost1::spawnGhost, ghost5, false);
+	}
+	
+	
 	// begin game	
 	playGame(time(0), player);
 	writeError("END DAMNIT!");
@@ -516,6 +542,10 @@ void init(const char* mapName, int ghostCnt, double thinkMultiplier) {
 		thread_ptr2->join();
 	if(ghostCnt >= 3)
 		thread_ptr3->join();
+	if(ghostCnt >= 4)
+		thread_ptr4->join();
+	if(ghostCnt >= 5)
+		thread_ptr5->join();
 
 	// delete
 	delete thread_ptr;
@@ -523,6 +553,10 @@ void init(const char* mapName, int ghostCnt, double thinkMultiplier) {
 		delete thread_ptr2;
 	if(ghostCnt >= 3)
 		delete thread_ptr3;
+	if(ghostCnt >= 4)
+		delete thread_ptr4;
+	if(ghostCnt >= 5)
+		delete thread_ptr5;
 }
 
 int main(int argc, char** argv)
@@ -534,18 +568,34 @@ int main(int argc, char** argv)
 	noecho(); // dont print anything to the screen
 
 
-	for(CURRENT_LEVEL; CURRENT_LEVEL < 6; CURRENT_LEVEL++) {	
+	while(LIVES >= 0) {
 		string mapName = "maps/map";
 		mapName += ((char) '0' + CURRENT_LEVEL);
 		mapName += ".txt";
 		init(mapName.c_str(), 2, .75);
 		if(GAME_WON == -1) {
-			break;
-		}
-		else {
+			CURRENT_LEVEL--;
 			GAME_WON = 0;
 			TOTAL_POINTS = 0;
 			THINKING = false;
+		}
+		else {
+			if(GAME_WON == -1) {
+				CURRENT_LEVEL--; // lost the game, repeat the level
+			}
+			else if ((CURRENT_LEVEL % 3) == 0) {
+				LIVES++; // gain a life every 3 levels
+			}
+				
+			GAME_WON = 0;
+			TOTAL_POINTS = 0;
+			THINKING = false;
+		}
+		CURRENT_LEVEL++;
+		// Start from beginning now
+		if(CURRENT_LEVEL == 10) {
+			CURRENT_LEVEL = 0;
+			THINK_MULTIPLIER *= 0.8;
 		}
 	}	
 	//endwin();

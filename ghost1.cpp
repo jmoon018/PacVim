@@ -168,9 +168,9 @@ void Ghost1::think() {
 }
 
 */
-void Ghost1::spawn() {
+void Ghost1::spawnGhost(bool spawned = false) { 
 	mtx.lock();
-	if(!moveTo(x, y)) {
+	if(!moveTo(x, y) && !spawned) {
 		mtx.unlock();
 		return;
 	}
@@ -179,8 +179,9 @@ void Ghost1::spawn() {
 	//sleep(2); // wait a second to create map, etc
 	sleep(1);
 	writeError("TRYING TO SPAWN");
-	while(!READY) {
-		spawn();
+	if(!READY) {
+		writeError("UNREADY!");
+		spawnGhost(true);
 		return;
 	}
 	writeError("SHOULD HAVE SPAWNED");

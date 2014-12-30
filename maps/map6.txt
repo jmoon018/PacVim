@@ -1,17 +1,23 @@
-######################
-#That it should come #
-#to##### #######   ###
-# this!#    #Frailty,#
-###   ##thy #   ######
-#name~is!####   #alas#
-# poor ...ic!! This  # 
-####above#####   #####
-   #all  ##### to    #
-####thine be~true## ~#
-#  #     #####   ## ~#
-#  #Some ###thing##is#
-#  ####   #    #######
-#rotten  ~#in  #     #
-#######   ###  #######
-      # Denmark#      
-      ##########      
+##################      ##############     
+#Hey, Doc, we#   #      #   ~Roads?  #     
+# better back#up.#      #where we're #     
+# We don't have  #      # going, we ~#     
+#enough~road to  #      #don't###    #     
+# get up#to 88.  #      #~need#roads!#     
+##################      ##############     
+                                           
+                                           
+###################     ###################
+#Doc! Doc! No! No!#     # What about all  #
+# You're alive!!! #     #that talk about  #
+#Bulletproof~vest?#     #screwing up#the  #
+#How did you know?#     # space-time#######
+#  I never got a  #     #####continuum?   #
+#~chance to tell  #     # Well, I figured,#
+####### you.~######     #~what the hell?  #
+      ########          ###################
+/.45 1 1                                   
+/.45 1 11                                  
+/.45 30 1                                  
+/.45 30 11                                 
+p10 5

@@ -61,9 +61,6 @@ bool avatar::moveTo(int a, int b, bool del) {
 	if(!isValid(a, b))
 		return false;
 
-	// Change the character the avatar currently is at
-	//writeAt(x, y, letterUnder, COLOR_GREEN);
-
 	// character at destination 
 	chtype curChar = charAt(a, b);
 	if(isPlayer) {
@@ -86,26 +83,25 @@ bool avatar::moveTo(int a, int b, bool del) {
 		y = b;
 		writeAt(x, y, curChar, COLOR_GREEN); // make it green
 		letterUnder = charAt(x, y);
-		//mtx.lock();
 		move(b, a);
-		//mtx.unlock();
 
 		if(points >= TOTAL_POINTS) {
 			GAME_WON = 1;
 		}
 	}
 	else { // it is a ghost
-		int playerX, playerY;
-		//mtx.lock();
-		getyx(stdscr, playerY, playerX);
-		//mtx.unlock();
-		if(playerY == b && playerX == a) {
-			GAME_WON = -1;
-		}
-		
-		writeAt(x, y, letterUnder);
 
-		// check if we are stepping on a ghost
+		// get player position, see if we stepped on the player
+		int playerX, playerY;
+		getyx(stdscr, playerY, playerX);
+		if(playerY == b && playerX == a) {
+			GAME_WON = -1; // hit the player, end the game
+		}
+		// check if we are hitting a ghost-- if so, it's an invalid location
+		if( (curChar & COLOR_PAIR(1)) == COLOR_PAIR(1) ) {
+			return false;
+		}
+		writeAt(x, y, letterUnder);
 		letterUnder = charAt(a, b);
 
 		writeAt(a, b, portrait,  color); 

@@ -1,0 +1,10 @@
+##################
+#S~ay~~some~thing#
+#c~oo~l w~hen~you#
+#thr~ow~it!~ONE,~#
+#T~W~O!~~THR~EE !#
+#S~OM~E THI~~~NG~#
+#~~C~~O~~~O~~L! ~#
+##################
+/1 10 1           
+p1 1              

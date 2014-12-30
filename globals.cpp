@@ -5,6 +5,9 @@ int GAME_WON = 0;
 bool THINKING = false;
 std::string INPUT = "";
 bool READY = false;
+int LIVES = 3;
+
+double THINK_MULTIPLIER = 1.0;
 
 int TOP = 0;
 int BOTTOM = 0;

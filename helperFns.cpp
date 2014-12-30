@@ -1,6 +1,7 @@
 #include "globals.h"
 #include "helperFns.h"
 #include <sstream>
+#include <unistd.h>
 
 int stuff[] = {'#', ACS_ULCORNER, ACS_LLCORNER, ACS_URCORNER, ACS_LRCORNER,
 	ACS_LTEE, ACS_RTEE, ACS_BTEE, ACS_TTEE, ACS_HLINE, ACS_VLINE, ACS_PLUS};
@@ -80,7 +81,7 @@ void printAtBottomChar(char msg) {
 	//mtx.lock();
 	std::string x;
 	x += msg;
-	mvprintw(TOP+5, 1, (x).c_str());
+	mvprintw(TOP+5, 0, (x).c_str());
 	//mtx.unlock();
 }
 void printAtBottom(std::string msg) {
@@ -101,19 +102,30 @@ void printAtBottom(std::string msg) {
 void winGame() {
 	clear();
 	writeError("YOU WIN");
-	printAtBottom("YOU WIN THE GAME!");
+
+	if((CURRENT_LEVEL % 3) == 0) {
+		printAtBottom("YOU WIN THE GAME!\nGAIN A LIFE!");
+	}
+	else {
+		printAtBottom("YOU WIN THE GAME!");
+	}
+
 	refresh();
 	GAME_WON = 1;
 	READY = false;
+	sleep(1);
 }
 
 void loseGame() {
 	clear();
 	writeError("YOU LOSE");
-	printAtBottom("YOU LOSE THE GAME!");
+	printAtBottom("YOU LOSE THE GAME!\nLOST 1 LIFE");
 	refresh();
 	GAME_WON = -1;
 	READY = false;
+
+	LIVES--;
+	sleep(1);
 }
 
 
