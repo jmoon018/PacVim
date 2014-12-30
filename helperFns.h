@@ -20,8 +20,8 @@ void printAtBottom(std::string msg);
 void winGame();
 void loseGame();
 
-
-
+// 
+bool isInside(int x, int y, std::string direction);
 
 // check to see if the player can move there
 bool isValid(int x, int y);

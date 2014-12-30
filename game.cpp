@@ -32,10 +32,8 @@ void gotoLine(avatar& unit, int line) {
 
 void gotoLineBeginning(int line, avatar &unit) {
 	int x = 0;
-	string str = "LOL: ";
 	while(mvinch(x, line) == '#' ) {
 		x++;
-		writeError("LLLLLLL");
 	}
 	unit.moveTo(x, line);
 }
@@ -100,11 +98,22 @@ void doKeystroke(avatar& unit) {
 		unit.parseToBeginning();
 	}
 	else if(INPUT == "gg" || INPUT == "1G") {
-		unit.setPos(unit.getX(), 1); 
+		int i = 0;
+		while(!isInside(unit.getX(), BOTTOM+i, "omni")) {
+			i++;
+			unit.setPos(0, BOTTOM+i);
+			unit.parseToBeginning();
+		}
+		unit.setPos(unit.getX(), BOTTOM+i); 
 		unit.parseToBeginning();
 	}
 	else if(INPUT == "G") { 
-		unit.setPos(0, HEIGHT); 
+		int i = 0;
+		while(!isInside(unit.getX(), TOP-i, "omni")) {
+			i++;
+			unit.setPos(unit.getX(), TOP-i);
+			unit.parseToEnd();
+		}
 		unit.parseToEnd();
 	}
 	else if(INPUT == "^") {
@@ -118,6 +127,7 @@ void doKeystroke(avatar& unit) {
 }	
 
 void onKeystroke(avatar& unit, char key) {
+	mtx.lock();
 	THINKING = true;
 
 	// there are some weird edge cases which I want to handle here:
@@ -154,10 +164,22 @@ void onKeystroke(avatar& unit, char key) {
 
 		if(key == 'G') {
 			// go to line num
-			gotoLine(unit, num);
-			THINKING = false;
-			INPUT = "";
+			if(num == 1) {
+				INPUT = "1G";
+				doKeystroke(unit);
+			}
+			else if(num > TOP) {
+				INPUT = "G";
+				doKeystroke(unit);
+			}
+			else {
+				unit.setPos(unit.getX(), num);
+				INPUT = "^";
+				doKeystroke(unit);
+			}
 			refresh();
+			THINKING = false;
+			mtx.unlock();
 			return;
 		}
 
@@ -179,7 +201,7 @@ void onKeystroke(avatar& unit, char key) {
 
 	refresh();
 	THINKING = false;
-//	mtx.unlock();
+	mtx.unlock();
 }
 
 void levelMessage() {
@@ -196,7 +218,6 @@ void levelMessage() {
 	// clear and reset everything
 	clear();
 	move(0,0);
-	usleep(100000);
 	refresh();
 }
 
@@ -231,7 +252,6 @@ void drawScreen(const char* file) {
 		// parse info about ghosts, add them to ghostlist
 		if(boardStr.at(i).at(0) == '/') {
 			// format: /*thinkTime* *x-position* *y-position* -- delimited by spaces ofc
-			writeError("HI!");
 			string str = boardStr.at(i);
 			str.erase(str.begin(), str.begin()+1);
 
@@ -332,14 +352,34 @@ void drawScreen(const char* file) {
 			WIDTH = board.at(i).size();
 		}
 		writeError("eek");
-		// increment height only if there are valid spaces
-		// for the player to land on (in otherwords, they aren't all hashtags)
-		for(int j = 0; j < board.at(i).size(); j++) {
-			if(boardStr.at(i).at(j) != '#') {
-				TOP++;
-				break;
+		
+		// set value of BOTTOM - which is the first row
+		//	in which a player can move in
+		int size = board.at(i).size();
+		if(i != 0 && BOTTOM == 0) {	
+			bool INSIDE = false;
+			char lastChar;
+			for(int j = 0; j < size; j++) { 
+				if(board.at(i).at(j) == '#') {
+					if(lastChar != '#')
+						INSIDE = !INSIDE; // true -> false, false -> true
+				}
+				else {
+					BOTTOM = i;
+					break;
+				}
+				INSIDE = false;
+				lastChar = board.at(i).at(j);
 			}
 		}
+		// increment height only if there are valid spaces
+		// for the player to land on (in otherwords, they aren't all hashtags)
+		//for(int j = 0; j < size; j++) { 
+			//if(boardStr.at(i).at(j) != '#') {
+				TOP++;
+				//break;
+			//}
+		//}
 		writeError("Height is set");	
 		addch('\n');
 	}
@@ -375,7 +415,18 @@ void defineColors() {
 }
 
 
-void playGame(avatar &player) {
+void playGame(time_t lastTime, avatar &player) {
+	//sleep(1);
+	usleep(10000);
+	printAtBottom("PRESS ENTER TO PLAY!");
+	while(true) {
+		if(getch() == '\n') {
+			if(time(0) > (lastTime)) {
+				READY = true;
+				break;
+			}
+		}
+	}
 	char key;
 	while(key != 'q' && GAME_WON == 0) {
 		key = getch();
@@ -388,11 +439,7 @@ void playGame(avatar &player) {
 		move(player.getY(), player.getX());
 		refresh();
 	}	
-	printf("AHHH");
 	
-	//ghostThread1.join();
-	//ghostThread2.join();
-
 	clear();
 	if(GAME_WON == 1) {
 		winGame();
@@ -404,39 +451,53 @@ void playGame(avatar &player) {
 
 
 void init(const char* mapName, int ghostCnt, double thinkMultiplier) {
-	mtx.lock();
 	// set up map
 	clear();
 	TOP = 0;
 	BOTTOM = 0;
 	WIDTH = 0;
 	drawScreen(mapName);
-	mtx.unlock();
+	//mtx.unlock();
 
-	// create ghosts and player
+	// create player
 	avatar player (WIDTH/2, HEIGHT/2, true);
 	
 
-	// spawn ghosts depending on ghostCnt
 	std::thread *thread_ptr;
 	std::thread *thread_ptr2;
 	std::thread *thread_ptr3;
 	
+	
+	// Create ghosts if they exist in text file
+	ghostCnt = ghostList.size();
+	Ghost1 ghost1, ghost2, ghost3;
+	ghost1 = Ghost1(ghostList.at(0).xPos, ghostList.at(0).yPos, ghostList.at(0).think, COLOR_RED); 
+	if(ghostCnt >= 2) {	
+		ghost2 = Ghost1(ghostList.at(1).xPos, ghostList.at(1).yPos, ghostList.at(1).think, COLOR_RED); 
+	}
+	if(ghostCnt >= 3) {
+		ghost3 = Ghost1(ghostList.at(2).xPos, ghostList.at(2).yPos, ghostList.at(2).think, COLOR_RED); 
+	}
 
-	ghostCnt = ghostList.size() + 1;
-	Ghost1 ghost1 = Ghost1(ghostList.at(0).xPos, ghostList.at(0).yPos, ghostList.at(0).think, COLOR_RED); 
-	Ghost1 ghost2 = Ghost1(ghostList.at(1).xPos, ghostList.at(1).yPos, ghostList.at(1).think, COLOR_RED); 
-	Ghost1 ghost3 = Ghost1(ghostList.at(2).xPos, ghostList.at(2).yPos, ghostList.at(2).think, COLOR_RED); 
-
-
+    /*
+	time_t now = time(0);
+	sleep(1);
 	printAtBottom("Press Enter to begin!"); 
 	refresh();
 	string inp;
 	char inpC;
-	while(inpC != '\n') {
+	*/
+	
+	// another hack to  clear cin buffer 
+	//cout << "HACKING" << endl;
+	/*
+	while(inpC != '\n' && (time(0) > now)) {
 		inpC = getch();
+		//addch(inpC);
 	}
+	*/
 
+	// spawn ghosts
 	thread_ptr = new thread(&Ghost1::spawn, ghost1);
 	if(ghostCnt >= 2) {
 		thread_ptr2 = new thread(&Ghost1::spawn, ghost2);
@@ -445,7 +506,9 @@ void init(const char* mapName, int ghostCnt, double thinkMultiplier) {
 		thread_ptr3 = new thread(&Ghost1::spawn, ghost3);
 	}
 
-	playGame(player);
+	// begin game	
+	playGame(time(0), player);
+	writeError("END DAMNIT!");
 
 	// join threads only if they were created
 	thread_ptr->join();

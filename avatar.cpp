@@ -1,4 +1,5 @@
 #include "avatar.h"
+#include <sstream>
 
 avatar::avatar() {
 	x = 1;
@@ -48,10 +49,9 @@ int avatar::getX() { return x; }
 int avatar::getY() { return y; }
 char avatar::getPortrait() { return portrait; }
 
-bool avatar::setPos(int x, int y) { 
-	if(!isValid(x, y))
-		return false;
-	moveTo(x, y);
+bool avatar::setPos(int theX, int theY) { 
+	x = theX;
+	y = theY;
 	return true;
 }
 
@@ -68,12 +68,12 @@ bool avatar::moveTo(int a, int b, bool del) {
 	chtype curChar = charAt(a, b);
 	if(isPlayer) {
 		if((curChar & COLOR_PAIR(6)) == COLOR_PAIR(6) ) {
-			loseGame();
-			printAtBottom("LOL");
+			GAME_WON = -1;
+			return false;
 		}
 		// hit a ghost.. red color
 		if((curChar & COLOR_PAIR(1)) == COLOR_PAIR(1)) {
-			loseGame();
+			GAME_WON = -1;
 			return false;
 		}
 		
@@ -86,18 +86,21 @@ bool avatar::moveTo(int a, int b, bool del) {
 		y = b;
 		writeAt(x, y, curChar, COLOR_GREEN); // make it green
 		letterUnder = charAt(x, y);
+		//mtx.lock();
 		move(b, a);
+		//mtx.unlock();
 
 		if(points >= TOTAL_POINTS) {
-			winGame();
+			GAME_WON = 1;
 		}
 	}
 	else { // it is a ghost
 		int playerX, playerY;
+		//mtx.lock();
 		getyx(stdscr, playerY, playerX);
+		//mtx.unlock();
 		if(playerY == b && playerX == a) {
-			loseGame();
-			return false;
+			GAME_WON = -1;
 		}
 		
 		writeAt(x, y, letterUnder);
@@ -267,12 +270,28 @@ bool avatar::parseWordForward(bool isWord) {
 }
 
 bool avatar::parseToEnd() {
-	while(parseWordForward(false)) {}
+	// go to end of line, then move back until hash tag (wall)
+	// after that, move left once more so you are inside the board
+
+	x = WIDTH;
+	while(isValid(x, y)) {
+		x--;
+		writeError("shiet");
+	}
+	while(!isValid(x, y)) {
+		x--;
+		if(x > WIDTH || x <= 1 || y<= 1 || y > HEIGHT)
+			break;
+	}
+	moveTo(x, y);
 	return true;
 }
 
 bool avatar::parseToBeginning() { 
-	while(parseWordBackward(false)) {}
+	x = 0;
+	while(isValid(x, y)) { x++; }
+	while(!isValid(x, y)) { x++; }
+	moveTo(x, y);
 	return true;
 }
 

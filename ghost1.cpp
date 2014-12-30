@@ -110,11 +110,15 @@ void Ghost1::backtrack(int &a, int &b) {
 */
 
 void Ghost1::think() {
-	if(GAME_WON != 0)
+	mtx.lock();
+	if(GAME_WON != 0) {
+		mtx.unlock();
 		return;
+	}
 	if(THINKING)
 	{
 		usleep(sleepTime * 1000000 * 0.5);
+		mtx.unlock();
 		think();
 		return;
 	}
@@ -143,6 +147,7 @@ void Ghost1::think() {
 
 	//mtx.unlock();
 	THINKING = false;
+	mtx.unlock();
 	usleep(sleepTime * 1000000);
 	if(GAME_WON == 0)
 		think();
@@ -164,10 +169,21 @@ void Ghost1::think() {
 
 */
 void Ghost1::spawn() {
-	if(!moveTo(x, y))
+	mtx.lock();
+	if(!moveTo(x, y)) {
+		mtx.unlock();
 		return;
+	}
 
-	sleep(1); // wait a second to create map, etc
+	mtx.unlock();
+	//sleep(2); // wait a second to create map, etc
+	sleep(1);
+	writeError("TRYING TO SPAWN");
+	while(!READY) {
+		spawn();
+		return;
+	}
+	writeError("SHOULD HAVE SPAWNED");
 	think();
 }
 

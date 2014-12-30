@@ -10,7 +10,7 @@ chtype charAt(int x, int y) {
 	//if(!mtx.try_lock())
 	//	return false;
 	//std::lock_guard<std::mutex> lock (mtx);
-	mtx.lock();
+	//mtx.lock();
 	// check bounds
 	if(x < 0 || y < 0)
 		return 0;
@@ -23,7 +23,7 @@ chtype charAt(int x, int y) {
 
 	// move back + return
 	mvinch(curY, curX);
-	mtx.unlock();
+	//mtx.unlock();
 	return value;
 }
 
@@ -31,7 +31,7 @@ bool writeAt(int x, int y, chtype letter) {
 	//if(!mtx.try_lock())
 		//return false;
 	//std::lock_guard<std::mutex> lock(mtx);
-	mtx.lock();
+	//mtx.lock();
 	// Check bounds
 	if(x < 0 || y < 0)
 		return false;
@@ -44,12 +44,12 @@ bool writeAt(int x, int y, chtype letter) {
 
 	addch(letter);
 	mvinch(curY, curX);
-	mtx.unlock();
+	//mtx.unlock();
 	return true;
 }
 
 bool writeAt(int x, int y, chtype letter, int color) {
-	mtx.lock();
+	//mtx.lock();
 	// Check bounds
 	if(x < 0 || y < 0)
 		return false;
@@ -64,7 +64,7 @@ bool writeAt(int x, int y, chtype letter, int color) {
 	attroff(COLOR_PAIR(color));
 	mvinch(curY, curX);
 
-	mtx.unlock();
+	//mtx.unlock();
 	return true;
 }
 
@@ -77,20 +77,21 @@ void writeError(std::string msg) {
 }
 
 void printAtBottomChar(char msg) {
-	mtx.lock();
+	//mtx.lock();
 	std::string x;
 	x += msg;
-	mvprintw(20, 1, (x).c_str());
-	mtx.unlock();
+	mvprintw(TOP+5, 1, (x).c_str());
+	//mtx.unlock();
 }
 void printAtBottom(std::string msg) {
-	mtx.lock();
+	//mtx.lock();
 	int x, y;
 	getyx(stdscr, y, x);
-	mvprintw(20, 1, msg.c_str());
+	mvprintw(TOP+1, 1, msg.c_str());
+	mvinch(y,x);
 	move(y,x);
 
-	mtx.unlock();
+	//mtx.unlock();
 }
 
 
@@ -99,16 +100,20 @@ void printAtBottom(std::string msg) {
 // Game state
 void winGame() {
 	clear();
+	writeError("YOU WIN");
 	printAtBottom("YOU WIN THE GAME!");
 	refresh();
 	GAME_WON = 1;
+	READY = false;
 }
 
 void loseGame() {
 	clear();
+	writeError("YOU LOSE");
 	printAtBottom("YOU LOSE THE GAME!");
 	refresh();
 	GAME_WON = -1;
+	READY = false;
 }
 
 
@@ -117,7 +122,7 @@ void loseGame() {
 
 // check to see if the player can move there
 bool isValid(int x, int y) {
-	mtx.lock();
+	//mtx.lock();
 	// Within range of board
 	if(y < 0 || x < 0)
 		return false;
@@ -134,9 +139,51 @@ bool isValid(int x, int y) {
 	if(testPos >= 4000000 || WALLS.find(testPos) != WALLS.end())
 	{
 	//	cout << "NOT VALID" << endl;
-		mtx.unlock();
+		//mtx.unlock();
 		return false;
 	}
-	mtx.unlock();
+	//mtx.unlock();
 	return true;	
 }
+
+bool isInside(int x, int y, std::string direction = "omni") {
+	// we can tell if a location is bounded by the the walls
+	// if we can look up, right, left, down and find a wall before
+	// hitting the edge of the screen (eg: the far top or far
+	// left of the console) and before the width value is exceeded
+
+	// out of screen or bounds -- return false
+	if(x <  0 || y < 0 || x > WIDTH || y > HEIGHT) {
+		return false;
+	}
+	chtype value = charAt(x, y);
+
+	// found a wall
+	if(value >= 4000000) { 
+		return direction != "omni"; // can't call isInside(x,y, omni) on a wall
+	}
+
+ 	// no wall found -- continue searching in the proper direction
+	if(direction == "left") { 
+		return isInside(x-1, y, "left");
+	}
+	else if(direction == "right") {
+		return isInside(x+1, y, "right");
+	}
+	else if(direction == "up") {
+		return isInside(x, y-1, "up"); 
+	}
+	else if(direction == "down") {
+		return isInside(x, y+1, "down");
+	}
+	else {
+		return isInside(x+1, y, "right") && isInside(x-1, y, "left") &&
+			isInside(x, y-1, "up") && isInside(x, y+1, "down");
+	}
+}
+
+	
+
+
+
+	
