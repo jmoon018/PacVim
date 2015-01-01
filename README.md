@@ -4,6 +4,7 @@
 
 <ol>
 	<li><a href="#IntroductionTag">Introduction</a> </li>
+	<li><a href="#HowToInstallTag">How To Install</a></li>
 	<li><a href="#HowToPlayTag">How To Play</a> </li>
 	<li><a href="#CodeOverviewTag">Code Overview</a> </li>
 	<li><a href="#ToDoBugsTag">To-do/Bugs</a> </li>
@@ -18,6 +19,13 @@ I did not find a fun, free way to learn about the vim commands
 in-depth, and thus, Pac-Vim was born. Inspired by the the classic,
 PacMan, <b>PacVim</b> is a game that'll give anyone a ton of
 practice with the vim commands while being a ton of fun to play.
+
+![my image](https://raw.githubusercontent.com/jmoon018/Pac-Vim/master/gifs/playing3.gif)
+<h2><a name="HowToInstallTag">How To Install</a></h2>
+
+1. git clone https://github.com/jmoon018/Pac-Vim.git
+2. make
+3. ./pacvim
 
 <h2><a name="HowToPlayTag">How To Play</a></h2>
 
