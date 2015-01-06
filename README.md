@@ -1,9 +1,7 @@
-<h1>Pac-Vim</h1>
-
-<h2>Table of Contents</h2>
+# Pac-Vim
 
 PacVim is a game that teaches you vim commands.
-You must use your cursor (the pacman) to highlight each word on the gameboard while avoiding the ghosts (red G).
+You must move pacman (the green cursor) to highlight each word on the gameboard while avoiding the ghosts (in red).
 
 ![my image](https://raw.githubusercontent.com/jmoon018/Pac-Vim/master/gifs/all.gif)
 <h2><a name="HowToInstallTag"></a>Building and running</h2>
@@ -27,7 +25,8 @@ To play, run:
 $ ./pacvim
 ```
 
-<h2><a name="HowToPlayTag"></a>How To Play</h2>
+<a name="HowToPlayTag"></a>
+#How To Play
 
 The objetive of PacVim is very similar to PacMan.
 You must run over all the characters on the screen while avoiding the ghosts (red `G`).
