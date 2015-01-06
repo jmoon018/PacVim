@@ -2,16 +2,11 @@
 
 <h2>Table of Contents</h2>
 
-<ol>
-	<li><a href="#IntroductionTag">Introduction</a> </li>
-	<li><a href="#HowToInstallTag">How To Install</a></li>
-	<li><a href="#HowToPlayTag">How To Play</a> </li>
-	<li><a href="#CodeOverviewTag">Code Overview</a> </li>
-	<li><a href="#ToDoBugsTag">To-do/Bugs</a> </li>
-</ol>
+PacVim is a game that teaches you vim commands.
+You must use your cursor (the pacman) to highlight each word on the gameboard while avoiding the ghosts (red G).
 
-
-<h2><a name="IntroductionTag">Introduction</a></h2>
+![my image](https://raw.githubusercontent.com/jmoon018/Pac-Vim/master/gifs/all.gif)
+<h2><a name="HowToInstallTag"></a>Building and running</h2>
 
 Vim is a great tool to write and edit code, but many 
 people, including me, struggled with the steep learning curve. 
@@ -20,29 +15,32 @@ in-depth, and thus, Pac-Vim was born. Inspired by the the classic,
 PacMan, <b>PacVim</b> is a game that'll give anyone a ton of
 practice with the vim commands while being a ton of fun to play.
 
-![my image](https://raw.githubusercontent.com/jmoon018/Pac-Vim/master/gifs/all.gif)
-<h2><a name="HowToInstallTag">How To Install</a></h2>
+Download and build the game with:
+```
+$ git clone https://github.com/jmoon018/Pac-Vim.git
+$ cd Pac-Vim
+$ make
+```
 
-1. git clone https://github.com/jmoon018/Pac-Vim.git
-2. make
-3. ./pacvim
+To play, run:
+```
+$ ./pacvim
+```
 
-<h2><a name="HowToPlayTag">How To Play</a></h2>
+<h2><a name="HowToPlayTag"></a>How To Play</h2>
 
-This section will explain the rules of the game and the commands
-that you can use.
+The objetive of PacVim is very similar to PacMan.
+You must run over all the characters on the screen while avoiding the ghosts (red `G`).
+PacVim has two special obstacles:
 
-The objetive of PacVim is very similar to PacMan. The objective is
-to run over all the characters on the screen, while navigating
-through the walls (yellow color), avoiding the ghosts (red 'G'),
-and not stepping over the tilde character (cyan '~').
+1. You cannot move into the walls (yellow color).  You must use vim motions to jump over them.
 
-<br>
+2. If you step on a tilde character (cyan `~`), you lose!
+
 You are given three lives. You gain a life each time you beat
 level 0, 3, 6, 9, etc. There are 10 levels, 0 through 9. After
 beating the 9th level, the game is reset to the 0th levle, but
 the ghosts move faster.
-<br>
 
 <b>Winning conditions:</b> Use vim commands to move the cursor
 over the letters and highlight them. After all letters are
@@ -52,13 +50,16 @@ highlighted, you win and proceed to the next level.
 by a red 'G') or a tilde character, you lose a life. If you
 have less than 0 lives, you lose the entire game.
 
-<h4>List of Working Commands</h4>
+<h4>List of Implemented Commands</h4>
 
-<ul>
-	<li>h - move left</li>
-	<li>j - move down</li>
-	<li>k - move up</li>
-	<li>l - move right</li>
+| key | what it does |
+| --- | --- |
+| h   | move left |
+| j   | move down |
+| k   | move up |
+| l   | move right |
+| --- | ---
+
 	<li>w - move forward to the next word beginning</li>
 	<li>W - move forward to the next WORD beginning</li>
 	<li>e - move forward to the next word ending</li>
@@ -105,14 +106,12 @@ moves (up, down, right, left) and the player.
 Each ghost contains its own thread. A global mutex, called <i>mtx</i>, is
 used (in <i>'think'</i>) to ensure that resources are shared properly.
 
-<h4>helperFns.cpp</h4>
+`helperFns.cpp`
 Contains methods that allow easy changes of the screen. A few of them:
 
-<ul>
-	<li><i>chtype charAt(int x, int y)</li> - returns the chtype at the (x,y) location
-	<li><i>bool writeAt(int x, int y, chtype letter)</li> - writes the 'letter' at location (x,y). Returns false if location is invalid</li>
-	<li><i>void printAtBottom(string msg)</li> - writes a message one line below the last line</li> 
-</ul>
+* `chtype charAt(int x, int y)` returns the chtype at the (x,y) location
+* `bool writeAt(int x, int y, chtype letter)` writes the 'letter' at location (x,y). Returns false if location is invalid.
+* `void printAtBottom(string msg)`  writes a message one line below the last line
 
 <h4>game.cpp</h4>
 This contains the <i>main()</i> method among many other important ones
@@ -138,7 +137,6 @@ loop allows the player to continuously input keystrokes. When a keystroke is inp
 
 <h2><a name="ToDoBugsTag">To-dos / Bugs</a></h2>
 <ul>
-	<li>Make .gif on README.md</li>
 	<li>More testing on '#G' and 'G' commands</li>
 	<li>Change the map-making process easier</li>
 	<li>Refactor code, more comments</li>
