@@ -1,22 +1,22 @@
-# Pac-Vim
+# PacVim
 
 PacVim is a game that teaches you vim commands.
 You must move pacman (the green cursor) to highlight each word on the gameboard while avoiding the ghosts (in red).
 
-![my image](https://raw.githubusercontent.com/jmoon018/Pac-Vim/master/gifs/all.gif)
-<h2><a name="HowToInstallTag"></a>Building and running</h2>
+![my image](https://raw.githubusercontent.com/jmoon018/PacVim/master/gifs/all.gif)
+<h2>Building and running</h2>
 
 Vim is a great tool to write and edit code, but many 
 people, including me, struggled with the steep learning curve. 
 I did not find a fun, free way to learn about the vim commands
-in-depth, and thus, Pac-Vim was born. Inspired by the the classic,
-PacMan, <b>PacVim</b> is a game that'll give anyone a ton of
+in-depth, and thus, PacVim was born. Inspired by the the classic,
+PacMan, <b>PacVim</b> is a game that'll give anyone plenty of
 practice with the vim commands while being a ton of fun to play.
 
 Download and build the game with:
 ```
-$ git clone https://github.com/jmoon018/Pac-Vim.git
-$ cd Pac-Vim
+$ git clone https://github.com/jmoon018/PacVim.git
+$ cd PacVim
 $ make
 ```
 
@@ -25,7 +25,6 @@ To play, run:
 $ ./pacvim
 ```
 
-<a name="HowToPlayTag"></a>
 #How To Play
 
 The objetive of PacVim is very similar to PacMan.
@@ -38,7 +37,7 @@ PacVim has two special obstacles:
 
 You are given three lives. You gain a life each time you beat
 level 0, 3, 6, 9, etc. There are 10 levels, 0 through 9. After
-beating the 9th level, the game is reset to the 0th levle, but
+beating the 9th level, the game is reset to the 0th level, but
 the ghosts move faster.
 
 <b>Winning conditions:</b> Use vim commands to move the cursor
@@ -46,7 +45,7 @@ over the letters and highlight them. After all letters are
 highlighted, you win and proceed to the next level.
 
 <b>Losing conditions:</b> If you touch a ghost (indicated
-by a red 'G') or a tilde character, you lose a life. If you
+by a red `G`) or a tilde character, you lose a life. If you
 have less than 0 lives, you lose the entire game.
 
 <h4>List of Implemented Commands</h4>
@@ -57,53 +56,51 @@ have less than 0 lives, you lose the entire game.
 | j   | move down |
 | k   | move up |
 | l   | move right |
-| --- | ---
+| w   | move forward to next word beginning |
+| W   | move forward to next WORD beginning |
+| e   | move forward to next word ending |
+| E   | move forward to next WORD ending |
+| b   | move backward to next word beginning |
+| B   | move backward to next WORD beginning |
+| $   | move to the end of the line |
+| 0   | move to the beginning of the line |
+| gg/1G | move to the beginning of the first line |
+| *number*G | move to the beginning of the line given by *number* |
+| G   | move to the beginning of the last line |
+| ^   | move to the first word at the current line |
+| &   | 1337 cheatz (beat current level)
 
-	<li>w - move forward to the next word beginning</li>
-	<li>W - move forward to the next WORD beginning</li>
-	<li>e - move forward to the next word ending</li>
-	<li>E - move forward to the next WORD ending</li>
-	<li>b - move backwards to the word beginning</li>
-	<li>B - move backwards to the WORD beginning</li>
-	<li>$ - move to the end of the line</li>
-	<li>0 - move to the beginning of the line</li>
-	<li>gg/1G - move to the beginning of the first line</li>
-	<li>*number* G - move to beginning of the line given by *number*</li>
-	<li>G - move to the beginning of the last line</li>
-	<li>^ - move to the first word at the current line</li>
-	<li>& - l337 cheatz (win the level)</li>
-</ul>
 
-<h2><a name="CodeOverviewTag">Code Overview</a></h2>
+<h2>Code Overview</h2>
 
 <h4>avatar.cpp</h4>
-Contains the <b>avatar</b> class, which contains information about
+Contains the <b>`avatar`</b> class, which contains information about
 the player, such as his/her x position, y position, etc. It
 also contains methods that allow the player to move and correspond
-to the keystrokes. For example, the <b>avatar</b> class contains the method
-called <i>"parseWordForward(bool)"</i> which implements the functionality
+to the keystrokes. For example, the <b>`avatar`</b> class contains the method
+called <b>`parseWordForward(bool)`</b> which implements the functionality
 for the "w" (or "W" if true) vim command.
 
 <h4>ghost1.cpp</h4>
-Contains the <b>Ghost1</b> class, derived from the <b>avatar</b> class. It is
+Contains the <b>Ghost1</b> class, derived from the <b>`avatar`</b> class. It is
 just like the avatar class, but it requires an extra paremeter
-upon initialization, called <i>'sleepTime'</i>, a double value that
+upon initialization, called `sleepTime`, a double value that
 determines how quickly a ghost moves. It refers to the time, in
-seconds, the ghost must wait to move. A <i>sleepTime</i> of 0.5 means
-the ghost moves 2 times a second. <i>sleepTime</i> = 0.33 is 3 moves per second, etc.
+seconds, the ghost must wait to move. A `sleepTime` of 0.5 means
+the ghost moves 2 times a second. `sleepTime` = 0.33 is 3 moves per second, etc.
 <br>
-The Ghost1 class also contains a method called <i>'spawnGhost'</i> which
+The `Ghost1` class also contains a method called <b>`spawnGhost`</b> which
 creates the ghost at the location based on its initialization parameters.
-The ghost will appear when <i>READY</i> (global bool) is true (this means the player
-is ready), and it will call <i>ghost.think()</i> one second afterwards.
+The ghost will appear when `READY` (global bool) is true (this means the player
+is ready), and it will call <b>`ghost.think()`</b> one second afterwards.
 <br>
-<i>'think'</i> is a recursive method that simply moves the ghost. It uses 
+`think` is a recursive method that simply moves the ghost. It uses 
 a basic greedy algorithm based on the distance of the ghost's potential
 moves (up, down, right, left) and the player.
 <br>
 
-Each ghost contains its own thread. A global mutex, called <i>mtx</i>, is
-used (in <i>'think'</i>) to ensure that resources are shared properly.
+Each ghost contains its own thread. A global mutex, called `mtx`, is
+used (in `think`) to ensure that resources are shared properly.
 
 `helperFns.cpp`
 Contains methods that allow easy changes of the screen. A few of them:
@@ -115,28 +112,28 @@ Contains methods that allow easy changes of the screen. A few of them:
 <h4>game.cpp</h4>
 This contains the <i>main()</i> method among many other important ones
 
-<b>main</b> - contains a loop that breaks when <i>LIVES</i> < 0. In the loop,
-the proper map name is determined and loaded. Data is reset (such as as the points,
+<b>main</b> - contains a loop that breaks when `LIVES` < 0. In the loop,
+the proper map name is determined and loaded. Data is reset (such as as the pointers,
 the ghost AI, etc). The level is incremented.
 <br>
-<b>init(const char*)</b> - called by main. Calls <i>drawScreen(str map)</i>, creates and
-spawns player and ghosts threads. Then calls <i>playGame</i>. After <i>playGame</i>
-ends, all the ghost threads are deleted, and then we go back to the main method.
+<b>init(const char*)</b> - called by <b>`main`</b>. Calls <b>`drawScreen(str map)`</b>, creates and
+spawns player and ghosts threads. Then calls <b>`playGame`</b>. After <b>`playGame`</b>
+ends, all the ghost threads are deleted, and then we go back to the <b>`main`</b> method.
 <br>
-<b>drawScreen(char* map)</b> - called by <b>init</b>. Reads from text file given
+<b>drawScreen(char* map)</b> - called by <b>`init`</b>. Reads from text file given
 by parameter. Loads everything onto the screen with the proper color and gets
-information from the ghost and player so that they spawn in the proper place in init.
+information from the ghost and player so that they spawn in the proper place in <b>`init`</b>.
 <br>
-<b>playGame(time_t, avatar player)</b> - called by <b>init</b>. This contains two loops,
+<b>playGame(time_t, avatar player)</b> - called by <b>`init`</b>. This contains two loops,
 one that consumes everything in the input buffer (which is then deleted), the second
 loop allows the player to continuously input keystrokes. When a keystroke is input,
-<i>onKeystroke</i> is called
+<b>`onKeystroke`</b> is called
 <br>
 
 
 <h2><a name="ToDoBugsTag">To-dos / Bugs</a></h2>
 <ul>
-	<li>More testing on '#G' and 'G' commands</li>
+	<li>More testing on `#G` and `G` commands</li>
 	<li>Change the map-making process easier</li>
 	<li>Refactor code, more comments</li>
 </ul>
