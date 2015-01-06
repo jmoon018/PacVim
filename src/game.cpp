@@ -409,20 +409,6 @@ void drawScreen(const char* file) {
 
 
 
-void test() {
-	addch(ACS_LLCORNER);
-	cchar_t theChar;
-	//int x = in_wch(&theChar);
-//	cout << "CHAR: " << (char) theChar;
-}
-
-void printIt(string msg, avatar& player) {
-	move(20, 0);
-	printf(msg.c_str());
-	//move(player.y, player.x);
-}
-
-
 void defineColors() {
 	start_color();
 	init_color(COLOR_CYAN, 1000, 500, 500);
