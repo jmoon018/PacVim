@@ -14,10 +14,15 @@ PacMan, <b>PacVim</b> is a game that'll give anyone plenty of
 practice with the vim commands while being a ton of fun to play.
 
 Download and build the game with:
+
+0. Download and install Curses (graphics library) <br>
+	-> For Ubuntu (in terminal): `sudo apt-get install libncurses5-dev` <br>
+	-> OR <a href="http://geeksww.com/tutorials/operating_systems/linux/tools/how_to_download_compile_and_install_gnu_ncurses_on_debianubuntu_linux.php">This tutorial</a> may help(have not confirmed)<br>
+	-> OR Links to <a href="http://ftp.gnu.org/pub/gnu/ncurses/">Curses source files</a>
 ```
-$ git clone https://github.com/jmoon018/PacVim.git
-$ cd PacVim
-$ make
+2. git clone https://github.com/jmoon018/PacVim.git
+3. cd PacVim
+4. make
 ```
 
 To play, run:
