@@ -555,7 +555,6 @@ void init(const char* mapName, int ghostCnt, double thinkMultiplier) {
 int main(int argc, char** argv)
 {
 	// Setup
-	setlocale(LC_ALL, "");
 	WINDOW* win = initscr();
 	defineColors();
 	noecho(); // dont print anything to the screen
