@@ -116,14 +116,21 @@ void doKeystroke(avatar& unit) {
 		while(!isInside(unit.getX(), TOP-i, "omni")) {
 			i++;
 			unit.setPos(unit.getX(), TOP-i);
-			unit.parseToEnd();
+			unit.parseToBeginning();
 		}
 		unit.parseToEnd();
 	}
 	else if(INPUT == "^") {
 		// goes to first character after blank
 		unit.parseToBeginning();
-		unit.parseWordForward(true);
+		//unit.parseWordForward(true);
+		stringstream ss;
+		char xx = charAt(unit.getX(), unit.getY());
+		ss << xx;
+		writeError(ss.str());
+		if (xx == ' ') {
+			unit.parseWordForward(true);
+		}
 	}
 	else if(INPUT == "&") {
 		GAME_WON = 1; // l337 cheetz
@@ -588,4 +595,4 @@ int main(int argc, char** argv)
 	sleep(2);
 	endwin();
 	return 0;
-}
+}          
