@@ -134,7 +134,6 @@ void loseGame() {
 
 // check to see if the player can move there
 bool isValid(int x, int y) {
-	//mtx.lock();
 	// Within range of board
 	if(y < 0 || x < 0)
 		return false;
@@ -150,14 +149,12 @@ bool isValid(int x, int y) {
 	// Now see if it's a valid spot
 	if(testPos >= 4000000 || WALLS.find(testPos) != WALLS.end())
 	{
-	//	cout << "NOT VALID" << endl;
-		//mtx.unlock();
 		return false;
 	}
-	//mtx.unlock();
 	return true;	
 }
 
+// recursive
 bool isInside(int x, int y, std::string direction = "omni") {
 	// we can tell if a location is bounded by the the walls
 	// if we can look up, right, left, down and find a wall before

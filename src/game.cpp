@@ -244,6 +244,7 @@ void drawScreen(const char* file) {
 	vector<chtype> line;
 
 	// store lines from text file into 'board' and 'boardStr'
+	WIDTH = 0; // largest width in the map
 	while(getline(in, str)) {
 		for(unsigned i = 0; i < str.length(); i++) {
 			line.push_back(str[i]);
@@ -252,6 +253,18 @@ void drawScreen(const char* file) {
 		board.push_back(line);
 		line.clear();
 		writeError(str);
+		if (WIDTH < str.length())
+			WIDTH = str.length();
+	}
+	for(unsigned i = 0; i < board.size(); i++) {
+		boardStr.at(i).resize(WIDTH, ' '); 
+		writeError("Resized: " + boardStr.at(i));
+		for(unsigned j = board.at(i).size(); j < WIDTH; j++) { 
+			chtype swag = ' ';
+			board.at(i).push_back(swag);
+			writeError("RESIZE2: ADDING SPACE");
+		}
+		//writeError("Resized2: " + board.at(i));
 	}
 	in.close();
 
@@ -384,9 +397,10 @@ void drawScreen(const char* file) {
 				attroff(COLOR_PAIR(6));
 			}
 		}
-		if(board.at(i).size() > WIDTH) {
-			WIDTH = board.at(i).size();
-		}
+		// biggest width
+		//if(board.at(i).size() > WIDTH) {
+			//WIDTH = board.at(i).size();
+		//}
 		writeError("eek");
 		
 		// set value of BOTTOM - which is the first row
@@ -412,6 +426,7 @@ void drawScreen(const char* file) {
 		writeError("Height is set");	
 		addch('\n');
 	}
+
 	
 	// if the 'p' in a file is not found, that means no player starting
 	// position was specified, and therefore we set the default here:

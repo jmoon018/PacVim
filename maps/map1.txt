@@ -10,8 +10,8 @@
 #swallow?#####~Huh?   #
 # I... I don't know   #
 ##  that.. #~*thrown*##
- ### *into*# *the* ### 
-   ### *volcano* ###   
-     #############     
-/.50 1 1               
+ ### *into*# *the* ###
+   ### *volcano* ###
+     #############
+/.50 1 1          
 /1.0 14 10             
