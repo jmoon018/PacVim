@@ -10,6 +10,7 @@ extern std::string INPUT; // keyboard characters
 extern int CURRENT_LEVEL;
 extern int LIVES;
 extern const int NUM_OF_LEVELS;
+extern bool ROGUE_KEYS;
 
 extern bool THINKING; //
 extern bool READY;

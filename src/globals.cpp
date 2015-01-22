@@ -7,6 +7,7 @@ std::string INPUT = "";
 bool READY = false;
 int LIVES = 3;
 const int NUM_OF_LEVELS = 9;
+bool ROGUE_KEYS = false;
 
 double THINK_MULTIPLIER = 1.0;
 

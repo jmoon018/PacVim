@@ -148,7 +148,7 @@ void onKeystroke(avatar& unit, char key) {
 	// 3. gg = beginning of file... it's weird bc it's two non-digit characters
 
 	// If INPUT != empty, and the user inputs a number, INPUT
-	// should reset.. eg: 3g3 dd = 1 dd, not 3 dd
+	// should reset.. jamal@jamal-P15SM:~/eg: 3g3 dd = 1 dd, not 3 dd
 	if(key == 'g') { 
 		if(INPUT.empty() || INPUT.size() == 1 && INPUT[0] == 'g') {	
 			
@@ -196,7 +196,6 @@ void onKeystroke(avatar& unit, char key) {
 			mtx.unlock();
 			return;
 		}
-
 		INPUT = key; 
 		for(int i = 0; i < num; i++) {
 			doKeystroke(unit);
@@ -598,7 +597,7 @@ int main(int argc, char** argv)
 	// at the start of the game.
 	// EG: ./pacvim 4 --> player starts on 4th level
 	if (argc > 1) {
-		string arg1 = argv[1];
+		arg1 = argv[2];
 		if (isFullDigits(arg1)) {
 			int new_level = std::stoi(arg1, nullptr, 0);
 			if (new_level > NUM_OF_LEVELS || new_level < 0) {
