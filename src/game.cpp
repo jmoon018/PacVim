@@ -15,24 +15,18 @@
 using namespace std;
 
 // more globals cause i'm lazy
+// changed in DrawScreen and used when spawning the player
 int START_X = 1;
 int START_Y = 1;
 
-// ghosts
+// ghosts from text file
 struct ghostInfo {
 	double think;
 	int xPos;
 	int yPos;
 };
-
 vector<ghostInfo> ghostList;
 
-void gotoLine(avatar& unit, int line) {
-	int wallCnt = 2;
-	char curChar = mvinch(line, 0);
-	while(wallCnt > 0) {
-		}
-}
 
 void gotoLineBeginning(int line, avatar &unit) {
 	int x = 0;
@@ -50,6 +44,7 @@ void getMore(avatar& unit, char key) {
 }
 
 
+// true if string only contains digits...regex would be nice
 bool isFullDigits(string &str) {
 	for(unsigned i = 0; i < str.size(); i++) {
 		if(!isdigit(str[i]))
@@ -58,8 +53,10 @@ bool isFullDigits(string &str) {
 	return true;
 }
 
+
+
 void doKeystroke(avatar& unit) {
-	if(INPUT== "q") { // allow ctrl c to exit game properly
+	if(INPUT== "q") { 
 		endwin();
 	}
 	else if(INPUT == "h") {
@@ -74,11 +71,11 @@ void doKeystroke(avatar& unit) {
 	else if(INPUT == "l") {
 		unit.moveRight();
 	}
-	else if(INPUT == "r") {
-		//clear();
+	else if(INPUT == "r") { // kinda unneeded
 		refresh();	
 	}
-	else if(INPUT == "w") { unit.parseWordForward(true); 
+	else if(INPUT == "w") { 
+		unit.parseWordForward(true); 
 	}
 	else if(INPUT == "W") {
 		unit.parseWordForward(false);	
@@ -118,12 +115,10 @@ void doKeystroke(avatar& unit) {
 			unit.setPos(unit.getX(), TOP-i);
 			unit.parseToBeginning();
 		}
-		unit.parseToEnd();
 	}
 	else if(INPUT == "^") {
 		// goes to first character after blank
 		unit.parseToBeginning();
-		//unit.parseWordForward(true);
 		stringstream ss;
 		char xx = charAt(unit.getX(), unit.getY());
 		ss << xx;
@@ -140,6 +135,8 @@ void doKeystroke(avatar& unit) {
 void onKeystroke(avatar& unit, char key) {
 	mtx.lock();
 	THINKING = true;
+	writeError("ON KEY STROKE");
+	writeError("CURRENT INPUT: " + INPUT + key);
 
 	// there are some weird edge cases which I want to handle here:
 	// 1. #G [moves to line #]
@@ -148,8 +145,6 @@ void onKeystroke(avatar& unit, char key) {
 
 	// If INPUT != empty, and the user inputs a number, INPUT
 	// should reset.. eg: 3g3 dd = 1 dd, not 3 dd
-	string we = "KEYSTROKE: " + key;
-	//writeError("KEYSTROKE");
 	if(key == 'g') { 
 		if(INPUT.empty() || INPUT.size() == 1 && INPUT[0] == 'g') {	
 			
@@ -163,14 +158,12 @@ void onKeystroke(avatar& unit, char key) {
 			INPUT = "";
 		}
 	}
-	else if(!INPUT.empty() && isdigit(key)) {
-		//writeError("resetting..");
+	else if(!INPUT.empty() && isdigit(key) && !isFullDigits(INPUT)) {
 		// reset it.. can't enter a digit in the middle of input
 		INPUT = "";
 	}
 	// we have full digits and then enter a character
 	else if(!INPUT.empty() && isFullDigits(INPUT) && !isdigit(key)) { 
-		//writeError("num -> char");
 		int num = std::stoi(INPUT, nullptr, 0); // extracts 33 from 33dd for example
 
 		if(key == 'G') {
@@ -184,9 +177,13 @@ void onKeystroke(avatar& unit, char key) {
 				doKeystroke(unit);
 			}
 			else {
+				//writeError("TRYING TO USE #G: " + INPUT);	
 				unit.setPos(unit.getX(), num);
-				INPUT = "^";
-				doKeystroke(unit);
+				INPUT = "";
+				
+				// hopefully no data racing issues arise from this
+				mtx.unlock();
+				onKeystroke(unit, '^');
 			}
 			refresh();
 			THINKING = false;
@@ -201,7 +198,7 @@ void onKeystroke(avatar& unit, char key) {
 		INPUT = "";
 	}
 	else {
-		//writeError("doing function");
+		// the first time we enter something
 		INPUT += key;
 		if(INPUT == "0" || !isFullDigits(INPUT)) {
 			doKeystroke(unit);
@@ -246,6 +243,7 @@ void drawScreen(const char* file) {
 	string str;
 	vector<chtype> line;
 
+	// store lines from text file into 'board' and 'boardStr'
 	while(getline(in, str)) {
 		for(unsigned i = 0; i < str.length(); i++) {
 			line.push_back(str[i]);
@@ -256,6 +254,8 @@ void drawScreen(const char* file) {
 		writeError(str);
 	}
 	in.close();
+
+	// iterate thru each line, parse, create board, create ghost attributes 
 	for(unsigned i = 0; i < board.size(); i++) {
 		unsigned length = board.size();
 		stringstream ss;
@@ -287,6 +287,7 @@ void drawScreen(const char* file) {
 			writeError("xx");
 			continue;
 		}
+		// this is where the plaer starting position is handled 
 	    else if(boardStr.at(i).at(0) == 'p') {
 			string str = boardStr.at(i);
 		    str.erase(str.begin(), str.begin()+1); 
@@ -301,16 +302,23 @@ void drawScreen(const char* file) {
 			START_X = stoi(x, nullptr, 0);
 			START_Y = stoi(y, nullptr, 0);
 
-			return; // player position should always be the last thing
+			return; // player position should always be the last thing in a file
 		}
+		// this is where we actually draw the board
 		for(unsigned j = 0; j < board.at(i).size(); j++) {
 			stringstream ss;
 			ss << board.at(i).at(j) << "..." << j;
 			writeError(ss.str());
+
+			// TOTAL_POINTS is incremented by 1 if a letter is found;
+			// it represents the number of letters the player has to step on to win
 			if(board.at(i).at(j) != '~' && 
 				board.at(i).at(j) != ' ' &&  board.at(i).at(j) != '#') 
 				TOTAL_POINTS++;
 
+
+			// Check for walls -- the wall character depends on the position
+			// of the other walls. EG: is the wall a corner, a straight line, etc?
 			bool left = false, right = false,
 				up = false, down = false;
 			chtype* ch = &( board.at(i).at(j));
@@ -340,9 +348,10 @@ void drawScreen(const char* file) {
 				}
 			}
 			writeError("Down works.");
-                                	
+                                
+			// add the appropriate wall 
 			if(*ch == '#') {
-				attron(COLOR_PAIR(3));
+				attron(COLOR_PAIR(3)); // yellow
 				if(left && right && up && down)
 					addch(ACS_PLUS); 
 				else if(left && right && up)
@@ -399,17 +408,13 @@ void drawScreen(const char* file) {
 				lastChar = board.at(i).at(j);
 			}
 		}
-		// increment height only if there are valid spaces
-		// for the player to land on (in otherwords, they aren't all hashtags)
-		//for(int j = 0; j < size; j++) { 
-			//if(boardStr.at(i).at(j) != '#') {
-				TOP++;
-				//break;
-			//}
-		//}
+		TOP++;
 		writeError("Height is set");	
 		addch('\n');
 	}
+	
+	// if the 'p' in a file is not found, that means no player starting
+	// position was specified, and therefore we set the default here:
 	START_X = WIDTH/2;
 	START_Y = HEIGHT/2;
 }
@@ -418,7 +423,7 @@ void drawScreen(const char* file) {
 
 void defineColors() {
 	start_color();
-	init_color(COLOR_CYAN, 1000, 500, 500);
+	init_color(COLOR_CYAN, 1000, 500, 500); // i dont think this works
 	init_pair(1, COLOR_RED	, COLOR_BLACK);
 	init_pair(2, COLOR_GREEN, COLOR_BLACK);
 	init_pair(3, COLOR_YELLOW, COLOR_BLACK);
@@ -430,7 +435,9 @@ void defineColors() {
 
 
 void playGame(time_t lastTime, avatar &player) {
-	//sleep(1);
+
+	// consume any inputs in the buffer, or else the inputs will affect
+	// the game right as it begins by moving the player 
 	usleep(10000);
 	printAtBottom("PRESS ENTER TO PLAY!");
 	while(true) {
@@ -443,15 +450,21 @@ void playGame(time_t lastTime, avatar &player) {
 	}
 	printAtBottom("GO!                  ");
 	char key;
+	
+	// continue playing until the player hits q or the game is over
 	while(key != 'q' && GAME_WON == 0) {
 		key = getch();
 		if(key != 'q')
 			onKeystroke(player, key);
 		stringstream ss;
+
+		// increment points as game progresses
 		ss << "Points: " << player.getPoints() << "/" 
 			<< TOTAL_POINTS << "\n" << " Lives: " << LIVES << "\n";
 		if(GAME_WON == 0)
 			printAtBottom(ss.str());
+
+		// redundant movement
 		move(player.getY(), player.getX());
 		refresh();
 	}	
