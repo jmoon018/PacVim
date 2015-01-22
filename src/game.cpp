@@ -58,6 +58,7 @@ bool isFullDigits(string &str) {
 void doKeystroke(avatar& unit) {
 	if(INPUT== "q") { 
 		endwin();
+		exit(0);
 	}
 	else if(INPUT == "h") {
 		unit.moveLeft();
@@ -467,10 +468,10 @@ void playGame(time_t lastTime, avatar &player) {
 	char key;
 	
 	// continue playing until the player hits q or the game is over
-	while(key != 'q' && GAME_WON == 0) {
+	while(GAME_WON == 0) {
 		key = getch();
-		if(key != 'q')
-			onKeystroke(player, key);
+
+		onKeystroke(player, key);
 		stringstream ss;
 
 		// increment points as game progresses

@@ -29,6 +29,12 @@ To play, run:
 ```
 $ ./pacvim
 ```
+or
+```
+$ ./pacvim LEVEL_NUMBER
+$ ./pacvim 5 // begin on level 5
+```
+
 
 #How To Play
 
@@ -57,6 +63,7 @@ have less than 0 lives, you lose the entire game.
 
 | key | what it does |
 | --- | --- |
+| q   | quit the game |
 | h   | move left |
 | j   | move down |
 | k   | move up |
