@@ -9,6 +9,7 @@ extern int GAME_WON; // 0 = in progress, 1 = won, -1 = lose
 extern std::string INPUT; // keyboard characters
 extern int CURRENT_LEVEL;
 extern int LIVES;
+extern const int NUM_OF_LEVELS;
 
 extern bool THINKING; //
 extern bool READY;

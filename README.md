@@ -76,6 +76,47 @@ have less than 0 lives, you lose the entire game.
 | &   | 1337 cheatz (beat current level)
 
 
+# Create Your Own Map! 
+
+The maps for <b>PacVim</b> are loaded from text files from
+the <i>map</i> folder. The name of the text file must
+be in either of the following formats: 'map##.txt' 
+or 'map#.txt' without the quotations, and with a digit in
+place of the '#'. They must also be in the <i>maps</i> folder.
+If you add a new map, <b>change the value of NUM_OF_LEVELS in
+globals.cpp or else your map will never load</b>. <i>NUM_OF_LEVELS</i>
+should be equivalent to the highest map number. For example, if you
+have map0.txt, map1.txt, ... map14.txt, <i>NUM_OF_LEVELS</i> should be 14.
+
+<br>
+
+In the map text file, the walls are denoted by ampersands `#`, and the
+tildes come just from the tilde key. Any height, width, or shape of
+the map <i>should</i> work, BUT the map must be bounded (the player
+should be stuck within 4 walls--one in each direction) and closed
+(there must not be a way for the player to go outside the walls). Also,
+ensure that the walls block the player from going offscreen (at the very
+top, and at the very left). 
+
+<br>
+
+At the bottom of each map text file, parameters regarding the Ghost's
+spawn location and think time, and the player's spawn location, are 
+stored. <b>To create a ghost</b>, use the following format: <br>
+`/# X Y` ... EG: `/0.5 1 1` <br>
+The forward slash denotes that this information describes a Ghost (instead of player).
+The # denotes the time, in seconds, it takes for the Ghost to move.
+So if `# = 0.5`, the Ghost will move every half second, or twice a second
+X and Y denote the starting x- and y-position of the Ghost
+
+<b>To spawn the player:</b> <br>
+`pX Y` ... EG: p15 7<br>
+The 'p' denotes that this information describes a Player (instead of Ghost).
+The X and Y denote the starting x- and y-position of the Player. 
+<b>This is optional</b>, and if this line does not exist in the map text file,
+the player will automatically spawn in the middle of the map
+<b>Anything after this line is ignored, so make this line the last one (if you want this line, of course).</b>
+ 
 <h2>Code Overview</h2>
 
 <h4>avatar.cpp</h4>
@@ -139,6 +180,5 @@ loop allows the player to continuously input keystrokes. When a keystroke is inp
 <h2><a name="ToDoBugsTag">To-dos / Bugs</a></h2>
 <ul>
 	<li>More testing on `#G` and `G` commands</li>
-	<li>Change the map-making process easier</li>
 	<li>Refactor code, more comments</li>
 </ul>

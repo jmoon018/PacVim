@@ -494,7 +494,7 @@ void playGame(time_t lastTime, avatar &player) {
 }
 
 
-void init(const char* mapName, int ghostCnt, double thinkMultiplier) {
+void init(const char* mapName) {
 	// set up map
 	clear();
 	TOP = 0;
@@ -516,7 +516,7 @@ void init(const char* mapName, int ghostCnt, double thinkMultiplier) {
 	
 	// Create ghosts if they exist in text file
 	// we can spawn 5 total at the moment, but more can be manually added below
-	ghostCnt = ghostList.size();
+	int ghostCnt = ghostList.size();
 	Ghost1 ghost1, ghost2, ghost3, ghost4, ghost5; 
 	ghost1 = Ghost1(ghostList.at(0).xPos, ghostList.at(0).yPos, 
 			(THINK_MULTIPLIER * ghostList.at(0).think), COLOR_RED); 
@@ -587,12 +587,39 @@ int main(int argc, char** argv)
 	defineColors();
 	noecho(); // dont print anything to the screen
 
+	// Look for cmd line args
+	// Any cmd line args will change the CURRENT_LEVEL
+	// at the start of the game.
+	// EG: ./pacvim 4 --> player starts on 4th level
+	if (argc > 1) {
+		string arg1 = argv[1];
+		if (isFullDigits(arg1)) {
+			int new_level = std::stoi(arg1, nullptr, 0);
+			if (new_level > NUM_OF_LEVELS || new_level < 0) {
+				endwin();
+				cout << "\nInvalid starting level." << endl << endl;
+				return 0;
+			}
+			CURRENT_LEVEL = new_level;
+		}
+		else {
+			endwin();
+			cout << "\nInvalid arguments. Try ./pacvim or ./pacvim #" <<
+				"\nEG: ./pacvim 8" << endl << endl;
+			return 0;
+		}
+	}
 
 	while(LIVES >= 0) {
 		string mapName = "maps/map";
-		mapName += ((char) '0' + CURRENT_LEVEL);
-		mapName += ".txt";
-		init(mapName.c_str(), 2, .75);
+		
+		// convert CURRENT_LEVEL to string, and load
+		std::stringstream ss;
+		ss << CURRENT_LEVEL;
+		
+		mapName += ss.str(); // add it to mapName
+		mapName += ".txt"; // must be .txt
+		init(mapName.c_str());
 		if(GAME_WON == -1) {
 			CURRENT_LEVEL--;
 			GAME_WON = 0;
@@ -613,7 +640,7 @@ int main(int argc, char** argv)
 		}
 		CURRENT_LEVEL++;
 		// Start from beginning now
-		if(CURRENT_LEVEL == 10) {
+		if(CURRENT_LEVEL > NUM_OF_LEVELS) {
 			CURRENT_LEVEL = 0;
 			THINK_MULTIPLIER *= 0.8;
 		}

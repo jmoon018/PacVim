@@ -6,6 +6,7 @@ bool THINKING = false;
 std::string INPUT = "";
 bool READY = false;
 int LIVES = 3;
+const int NUM_OF_LEVELS = 9;
 
 double THINK_MULTIPLIER = 1.0;
 
