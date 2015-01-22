@@ -511,79 +511,21 @@ void init(const char* mapName) {
 	// create player
 	avatar player (START_X, START_Y, true);
 	
+	std::vector<std::thread> ghost_threads;
+	for(int i = 0; i < ghostList.size(); ++i){
+		Ghost1 ghost = Ghost1(ghostList[i].xPos, ghostList[i].yPos,
+			(THINK_MULTIPLIER * ghostList[i].think), COLOR_RED);
 
-	// pointers to the ghost threads
-	std::thread *thread_ptr;
-	std::thread *thread_ptr2;
-	std::thread *thread_ptr3;
-	std::thread *thread_ptr4;
-	std::thread *thread_ptr5;
-	
-	
-	// Create ghosts if they exist in text file
-	// we can spawn 5 total at the moment, but more can be manually added below
-	int ghostCnt = ghostList.size();
-	Ghost1 ghost1, ghost2, ghost3, ghost4, ghost5; 
-	ghost1 = Ghost1(ghostList.at(0).xPos, ghostList.at(0).yPos, 
-			(THINK_MULTIPLIER * ghostList.at(0).think), COLOR_RED); 
-	if(ghostCnt >= 2) {	
-		ghost2 = Ghost1(ghostList.at(1).xPos, ghostList.at(1).yPos, 
-			(THINK_MULTIPLIER * ghostList.at(1).think), COLOR_RED); 
+		ghost_threads.push_back(thread(&Ghost1::spawnGhost, ghost, false));
 	}
-	if(ghostCnt >= 3) {	
-		ghost3 = Ghost1(ghostList.at(2).xPos, ghostList.at(2).yPos, 
-			(THINK_MULTIPLIER * ghostList.at(2).think), COLOR_RED); 
-	}
-	if(ghostCnt >= 4) { 
-		ghost4 = Ghost1(ghostList.at(3).xPos, ghostList.at(3).yPos, 
-			THINK_MULTIPLIER * ghostList.at(3).think, COLOR_RED); 
-	}
-	if(ghostCnt >= 5) { 
-		ghost5 = Ghost1(ghostList.at(4).xPos, ghostList.at(4).yPos,
-			THINK_MULTIPLIER * ghostList.at(4).think, COLOR_RED);
-	}
-		
-	// spawn ghosts
-	thread_ptr = new thread(&Ghost1::spawnGhost, ghost1, false);
-	if(ghostCnt >= 2) {
-		thread_ptr2 = new thread(&Ghost1::spawnGhost, ghost2, false);
-	}
-	if (ghostCnt >= 3){ // max 3
-		thread_ptr3 = new thread(&Ghost1::spawnGhost, ghost3, false);
-	}
-	if (ghostCnt >= 4){ // max 4
-		thread_ptr4 = new thread(&Ghost1::spawnGhost, ghost4, false);
-	}
-	if (ghostCnt >= 5){ // max 5
-		thread_ptr5 = new thread(&Ghost1::spawnGhost, ghost5, false);
-	}
-	
 	
 	// begin game	
 	playGame(time(0), player);
 	writeError("END DAMNIT!");
 
-	// join threads only if they were created
-	thread_ptr->join();
-	if(ghostCnt >= 2)
-		thread_ptr2->join();
-	if(ghostCnt >= 3)
-		thread_ptr3->join();
-	if(ghostCnt >= 4)
-		thread_ptr4->join();
-	if(ghostCnt >= 5)
-		thread_ptr5->join();
-
-	// delete
-	delete thread_ptr;
-	if(ghostCnt >= 2)
-		delete thread_ptr2;
-	if(ghostCnt >= 3)
-		delete thread_ptr3;
-	if(ghostCnt >= 4)
-		delete thread_ptr4;
-	if(ghostCnt >= 5)
-		delete thread_ptr5;
+	for(auto& ghost_thread : ghost_threads){
+		ghost_thread.join();
+	}
 }
 
 int main(int argc, char** argv)
