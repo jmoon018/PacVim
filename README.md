@@ -29,11 +29,6 @@ To play, run:
 ```
 $ ./pacvim
 ```
-or
-```
-$ ./pacvim LEVEL_NUMBER
-$ ./pacvim 5 // begin on level 5
-```
 or to start at a particular level, EG: if LEVEL_NUMBER = 4
 ```
 $ ./pacvim LEVEL_NUMBER
