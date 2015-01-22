@@ -116,6 +116,9 @@ void doKeystroke(avatar& unit) {
 			unit.setPos(unit.getX(), TOP-i);
 			unit.parseToBeginning();
 		}
+		// move to the first word on the current line
+		INPUT = "^";
+		doKeystroke(unit);
 	}
 	else if(INPUT == "^") {
 		// goes to first character after blank
@@ -174,10 +177,12 @@ void onKeystroke(avatar& unit, char key) {
 				doKeystroke(unit);
 			}
 			else if(num > TOP) {
+				writeError("WYYYYYYYYYYYYYY");
 				INPUT = "G";
 				doKeystroke(unit);
 			}
 			else {
+				writeError("FUCK");
 				//writeError("TRYING TO USE #G: " + INPUT);	
 				unit.setPos(unit.getX(), num);
 				INPUT = "";

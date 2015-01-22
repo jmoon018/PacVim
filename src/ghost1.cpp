@@ -84,8 +84,7 @@ void Ghost1::spawnGhost(bool spawned = false) {
 	}
 
 	mtx.unlock();
-	//sleep(2); // wait a second to create map, etc
-	sleep(1);
+	usleep(250000); // wait a quarter second
 	writeError("TRYING TO SPAWN");
 	if(!READY) {
 		writeError("UNREADY!");

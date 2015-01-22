@@ -285,8 +285,12 @@ bool avatar::parseToEnd() {
 
 bool avatar::parseToBeginning() { 
 	x = 0;
-	while(isValid(x, y))  { x++; }
-	while(!isValid(x, y)) { x++; }
+	while(isValid(x, y) && x <= WIDTH)  {
+		 x++; 
+	}
+	while(!isValid(x, y) && x <= WIDTH) {
+		 x++;
+	 }
 	moveTo(x, y);
 	return true;
 }
