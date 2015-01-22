@@ -177,5 +177,7 @@ loop allows the player to continuously input keystrokes. When a keystroke is inp
 <h2><a name="ToDoBugsTag">To-dos / Bugs</a></h2>
 <ul>
 	<li>More testing on `#G` and `G` commands</li>
+	<li>G can go out of bounds on Map 8 with the boxes. #G (between boxes)</li>
+	<li>G won't move to proper line, it can hit the last wall rather than the last word (map2)</li>
 	<li>Refactor code, more comments</li>
 </ul>
