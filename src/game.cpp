@@ -123,11 +123,9 @@ void doKeystroke(avatar& unit) {
 	else if(INPUT == "^") {
 		// goes to first character after blank
 		unit.parseToBeginning();
-		stringstream ss;
-		char xx = charAt(unit.getX(), unit.getY());
-		ss << xx;
-		writeError(ss.str());
-		if (xx == ' ') {
+
+		char currentChar = charAt(unit.getX(), unit.getY());
+		if (currentChar == ' ') {
 			unit.parseWordForward(true);
 		}
 	}
@@ -177,12 +175,10 @@ void onKeystroke(avatar& unit, char key) {
 				doKeystroke(unit);
 			}
 			else if(num > TOP) {
-				writeError("WYYYYYYYYYYYYYY");
 				INPUT = "G";
 				doKeystroke(unit);
 			}
 			else {
-				writeError("FUCK");
 				//writeError("TRYING TO USE #G: " + INPUT);	
 				unit.setPos(unit.getX(), num);
 				INPUT = "";
@@ -237,6 +233,8 @@ void levelMessage() {
 void drawScreen(const char* file) {
 	levelMessage();
 	clear();
+	
+	writeError("DRAWING THE SCREEN");
 
 	ifstream in(file);
 
@@ -257,28 +255,23 @@ void drawScreen(const char* file) {
 		boardStr.push_back(str);
 		board.push_back(line);
 		line.clear();
-		writeError(str);
+
 		if (WIDTH < str.length())
 			WIDTH = str.length();
 	}
 	for(unsigned i = 0; i < board.size(); i++) {
 		boardStr.at(i).resize(WIDTH, ' '); 
-		writeError("Resized: " + boardStr.at(i));
 		for(unsigned j = board.at(i).size(); j < WIDTH; j++) { 
-			chtype swag = ' ';
-			board.at(i).push_back(swag);
-			writeError("RESIZE2: ADDING SPACE");
+			chtype empty = ' ';
+			board.at(i).push_back(empty);
 		}
-		//writeError("Resized2: " + board.at(i));
 	}
 	in.close();
 
 	// iterate thru each line, parse, create board, create ghost attributes 
 	for(unsigned i = 0; i < board.size(); i++) {
 		unsigned length = board.size();
-		stringstream ss;
-		ss << "On row.." << i << "..." << boardStr.at(i);
-		writeError(ss.str());
+
 		// parse info about ghosts, add them to ghostlist
 		if(boardStr.at(i).at(0) == '/') {
 			// format: /*thinkTime* *x-position* *y-position* -- delimited by spaces ofc
@@ -294,15 +287,11 @@ void drawScreen(const char* file) {
 			string c = str.substr(0, str.find(" "));
 			str = str.substr(str.find(" ")+1, 9);
 		
-			writeError(a);
-			writeError(b);
-			writeError(c);
 			ghostInfo ghost;
 			ghost.think = stod(a, nullptr);
 			ghost.xPos = stoi(b, nullptr, 0);
 			ghost.yPos = stoi(c, nullptr, 0);
 			ghostList.push_back(ghost);
-			writeError("xx");
 			continue;
 		}
 		// this is where the plaer starting position is handled 
@@ -324,9 +313,6 @@ void drawScreen(const char* file) {
 		}
 		// this is where we actually draw the board
 		for(unsigned j = 0; j < board.at(i).size(); j++) {
-			stringstream ss;
-			ss << board.at(i).at(j) << "..." << j;
-			writeError(ss.str());
 
 			// TOTAL_POINTS is incremented by 1 if a letter is found;
 			// it represents the number of letters the player has to step on to win
@@ -358,14 +344,12 @@ void drawScreen(const char* file) {
 					up = true;
 				}
 			}
-			writeError("Up works");
 			// Check down
 			if((i+2) < (board.size())) {
 				if(board.at(i+1).at(j) == '#') {
 					down = true;
 				}
 			}
-			writeError("Down works.");
                                 
 			// add the appropriate wall 
 			if(*ch == '#') {
@@ -402,12 +386,6 @@ void drawScreen(const char* file) {
 				attroff(COLOR_PAIR(6));
 			}
 		}
-		// biggest width
-		//if(board.at(i).size() > WIDTH) {
-			//WIDTH = board.at(i).size();
-		//}
-		writeError("eek");
-		
 		// set value of BOTTOM - which is the first row
 		//	in which a player can move in
 		int size = board.at(i).size();
@@ -428,7 +406,7 @@ void drawScreen(const char* file) {
 			}
 		}
 		TOP++;
-		writeError("Height is set");	
+		writeError("TOP is set");	
 		addch('\n');
 	}
 
@@ -509,7 +487,8 @@ void init(const char* mapName) {
 
 	// create player
 	avatar player (START_X, START_Y, true);
-	
+
+	// spawn ghosts	
 	std::vector<std::thread> ghost_threads;
 	for(int i = 0; i < ghostList.size(); ++i){
 		Ghost1 ghost = Ghost1(ghostList[i].xPos, ghostList[i].yPos,
@@ -520,8 +499,9 @@ void init(const char* mapName) {
 	
 	// begin game	
 	playGame(time(0), player);
-	writeError("END DAMNIT!");
+	writeError("GAME ENDED!");
 
+	// join threads
 	for(auto& ghost_thread : ghost_threads){
 		ghost_thread.join();
 	}
@@ -538,8 +518,9 @@ int main(int argc, char** argv)
 	// Any cmd line args will change the CURRENT_LEVEL
 	// at the start of the game.
 	// EG: ./pacvim 4 --> player starts on 4th level
+
 	if (argc > 1) {
-		arg1 = argv[2];
+		string arg1 = argv[1];
 		if (isFullDigits(arg1)) {
 			int new_level = std::stoi(arg1, nullptr, 0);
 			if (new_level > NUM_OF_LEVELS || new_level < 0) {
