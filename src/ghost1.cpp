@@ -30,13 +30,13 @@ void Ghost1::think() {
 		double right = eval(x+1, y);
 
 		if(up <= down && up <= left && up <= right)
-			moveTo(x, y-1, false);
+			moveTo(x, y-1);
 		else if(down <= left && down <= right && down <= up)
-			moveTo(x, y+1, false);
+			moveTo(x, y+1);
 		else if(left <= right && left <= up && left <= down)
-			moveTo(x-1, y, false);
+			moveTo(x-1, y);
 		else if(right <= up && right <= down && right <= left)
-			moveTo(x+1, y, false);
+			moveTo(x+1, y);
 
 		mtx.unlock();
 		usleep(sleepTime * 1000000);
