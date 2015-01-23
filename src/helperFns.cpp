@@ -36,7 +36,7 @@ bool writeAt(int x, int y, chtype letter) {
 	// Check bounds
 	if(x < 0 || y < 0)
 		return false;
-	
+
 	int curX, curY;
 	getyx(stdscr, curY, curX);
 
@@ -54,7 +54,7 @@ bool writeAt(int x, int y, chtype letter, int color) {
 	// Check bounds
 	if(x < 0 || y < 0)
 		return false;
-	
+
 	int curX, curY;
 	getyx(stdscr, curY, curX);
 
