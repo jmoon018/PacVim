@@ -267,7 +267,6 @@ void drawScreen(const char* file) {
 
 	// iterate thru each line, parse, create board, create ghost attributes 
 	for(unsigned i = 0; i < board.size(); i++) {
-		unsigned length = board.size();
 
 		// parse info about ghosts, add them to ghostlist
 		if(boardStr.at(i).at(0) == '/') {

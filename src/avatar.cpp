@@ -167,7 +167,6 @@ bool avatar::parseWordEnd(bool isWord) {
 	// breakOnSpace = true if the current character isn't the end of a word
 	bool breakOnSpace = (nextChar != ' ' && curChar != ' ');
 	bool breakOnAlpha = !isalnum(nextChar) && nextChar != ' ';
-	bool didAnything = false;
 	while(true) { // no definite loop #; break when we reach conditions
 		if((!breakOnAlpha == !isalnum(nextChar))  && isWord) {
 			break;
