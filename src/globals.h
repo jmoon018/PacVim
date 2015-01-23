@@ -3,7 +3,7 @@
 
 #include <set>
 #include <mutex>
-#include <cursesw.h>
+#include <ncursesw/cursesw.h>
 extern int TOTAL_POINTS;
 extern int GAME_WON; // 0 = in progress, 1 = won, -1 = lose
 extern std::string INPUT; // keyboard characters
