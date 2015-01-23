@@ -12,7 +12,6 @@ extern int LIVES;
 extern const int NUM_OF_LEVELS;
 extern bool ROGUE_KEYS;
 
-extern bool THINKING; //
 extern bool READY;
 extern double THINK_MULTIPLIER; // all the think times for the AI are multipled by this
 

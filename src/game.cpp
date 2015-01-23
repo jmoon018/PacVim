@@ -136,7 +136,6 @@ void doKeystroke(avatar& unit) {
 
 void onKeystroke(avatar& unit, char key) {
 	mtx.lock();
-	THINKING = true;
 	writeError("ON KEY STROKE");
 	writeError("CURRENT INPUT: " + INPUT + key);
 
@@ -188,7 +187,6 @@ void onKeystroke(avatar& unit, char key) {
 				onKeystroke(unit, '^');
 			}
 			refresh();
-			THINKING = false;
 			mtx.unlock();
 			return;
 		}
@@ -209,7 +207,6 @@ void onKeystroke(avatar& unit, char key) {
 
 
 	refresh();
-	THINKING = false;
 	mtx.unlock();
 }
 
@@ -552,7 +549,6 @@ int main(int argc, char** argv)
 			CURRENT_LEVEL--;
 			GAME_WON = 0;
 			TOTAL_POINTS = 0;
-			THINKING = false;
 		}
 		else {
 			if(GAME_WON == -1) {
@@ -564,7 +560,6 @@ int main(int argc, char** argv)
 				
 			GAME_WON = 0;
 			TOTAL_POINTS = 0;
-			THINKING = false;
 		}
 		CURRENT_LEVEL++;
 		// Start from beginning now

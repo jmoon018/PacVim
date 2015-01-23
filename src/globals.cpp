@@ -2,7 +2,6 @@
 
 int TOTAL_POINTS = 0;
 int GAME_WON = 0;
-bool THINKING = false;
 std::string INPUT = "";
 bool READY = false;
 int LIVES = 3;
