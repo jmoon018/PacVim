@@ -136,7 +136,6 @@ void doKeystroke(avatar& unit) {
 
 void onKeystroke(avatar& unit, char key) {
 	mtx.lock();
-	THINKING = true;
 	writeError("ON KEY STROKE");
 	writeError("CURRENT INPUT: " + INPUT + key);
 
@@ -188,7 +187,6 @@ void onKeystroke(avatar& unit, char key) {
 				onKeystroke(unit, '^');
 			}
 			refresh();
-			THINKING = false;
 			mtx.unlock();
 			return;
 		}
@@ -209,7 +207,6 @@ void onKeystroke(avatar& unit, char key) {
 
 
 	refresh();
-	THINKING = false;
 	mtx.unlock();
 }
 
@@ -270,7 +267,6 @@ void drawScreen(const char* file) {
 
 	// iterate thru each line, parse, create board, create ghost attributes 
 	for(unsigned i = 0; i < board.size(); i++) {
-		unsigned length = board.size();
 
 		// parse info about ghosts, add them to ghostlist
 		if(boardStr.at(i).at(0) == '/') {
@@ -552,7 +548,6 @@ int main(int argc, char** argv)
 			CURRENT_LEVEL--;
 			GAME_WON = 0;
 			TOTAL_POINTS = 0;
-			THINKING = false;
 		}
 		else {
 			if(GAME_WON == -1) {
@@ -564,7 +559,6 @@ int main(int argc, char** argv)
 				
 			GAME_WON = 0;
 			TOTAL_POINTS = 0;
-			THINKING = false;
 		}
 		CURRENT_LEVEL++;
 		// Start from beginning now

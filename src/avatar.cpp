@@ -57,7 +57,7 @@ bool avatar::setPos(int theX, int theY) {
 
 
 
-bool avatar::moveTo(int a, int b, bool del) {
+bool avatar::moveTo(int a, int b) {
 	if(!isValid(a, b))
 		return false;
 
@@ -158,7 +158,7 @@ bool avatar::parseWordEnd(bool isWord) {
 	char nextChar = charAt(x+1,y);
 
 	while(nextChar == ' ') {
-		if(!moveTo(x+1, y, false))
+		if(!moveTo(x+1, y))
 			return false;
 		nextChar = charAt(x+1, y);
 		curChar = charAt(x, y);
@@ -167,7 +167,6 @@ bool avatar::parseWordEnd(bool isWord) {
 	// breakOnSpace = true if the current character isn't the end of a word
 	bool breakOnSpace = (nextChar != ' ' && curChar != ' ');
 	bool breakOnAlpha = !isalnum(nextChar) && nextChar != ' ';
-	bool didAnything = false;
 	while(true) { // no definite loop #; break when we reach conditions
 		if((!breakOnAlpha == !isalnum(nextChar))  && isWord) {
 			break;
@@ -179,7 +178,7 @@ bool avatar::parseWordEnd(bool isWord) {
 			break;
 		}
 		else { // iterate
-			if(!moveTo(x+1, y, false))
+			if(!moveTo(x+1, y))
 				return false;
 			if(nextChar != ' ')
 				breakOnSpace = true;
@@ -221,7 +220,7 @@ bool avatar::parseWordBackward(bool isWord) {
 		}
 		else { // iterate
 
-			if(!moveTo(x-1, y, false))
+			if(!moveTo(x-1, y))
 				return false;
 			if(nextChar != ' ' && !breakOnSpace) {
 				if(isWord) {	
@@ -252,12 +251,12 @@ bool avatar::parseWordForward(bool isWord) {
 			break;
 		}
 		else if(lastChar == '#' || curChar == '#') {
-			moveTo(x-1, y, false);
+			moveTo(x-1, y);
 			return false;
 		}
 		else {
 			lastChar = curChar;
-			if(!moveTo(x+1,y,false))
+			if(!moveTo(x+1,y))
 				return false;
 			curChar = charAt(x,y);
 		}

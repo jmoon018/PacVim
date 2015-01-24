@@ -23,7 +23,7 @@ class avatar {
 		int lives;
 		int color;
 	public:	
-		bool moveTo(int, int, bool del = false); 
+		bool moveTo(int, int); 
 		//bool moveTo(int, int, bool);
 		bool moveRight();
 		bool moveLeft();
