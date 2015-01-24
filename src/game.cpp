@@ -453,7 +453,7 @@ void playGame(time_t lastTime, avatar &player) {
 		else if(ch == 27){
 				endwin();
 				exit(0);
-			}
+		}
 	}
 	printAtBottom("GO!                  \n                    ");
 	char key;
