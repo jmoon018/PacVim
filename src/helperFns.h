@@ -1,8 +1,16 @@
+#ifdef __APPLE__&&__MACH__
+#include <ncursesw/cursesw.h>
+#else
+#include <cursesw.h>
+#endif
+
+
+
 #ifndef HELPERFNS_H
 #define HELPERFNS_H
 
 #include "globals.h"
-#include <ncursesw/cursesw.h>
+//#include <ncursesw/cursesw.h>
 #include <fstream>
 #include <string>
 

@@ -1,9 +1,17 @@
+#ifdef __APPLE__&&__MACH__
+#include <ncursesw/cursesw.h>
+#else
+#include <cursesw.h>
+#endif
+
+
+
 #ifndef GLOBALS_H
 #define GLOBALS_H
 
 #include <set>
 #include <mutex>
-#include <ncursesw/cursesw.h>
+//#include <cursesw.h>
 extern int TOTAL_POINTS;
 extern int GAME_WON; // 0 = in progress, 1 = won, -1 = lose
 extern std::string INPUT; // keyboard characters
