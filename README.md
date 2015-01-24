@@ -17,13 +17,18 @@ Download and build the game with:
 
 0. Download and install Curses (graphics library) <br>
 	-> For Ubuntu (in terminal): `sudo apt-get install libncurses5-dev` <br>
-	-> OR <a href="http://geeksww.com/tutorials/operating_systems/linux/tools/how_to_download_compile_and_install_gnu_ncurses_on_debianubuntu_linux.php">This tutorial</a> may help(have not confirmed)<br>
-	-> OR Links to <a href="http://ftp.gnu.org/pub/gnu/ncurses/">Curses source files</a>
-```
-2. git clone https://github.com/jmoon018/PacVim.git
-3. cd PacVim
-4. make
-```
+	
+	-> OR [This tutorial](http://geeksww.com/tutorials/operating_systems/linux/tools/how_to_download_compile_and_install_gnu_ncurses_on_debianubuntu_linux.php) may help (have not confirmed)
+	
+	-> OR build from source: [Curses source files](http://ftp.gnu.org/pub/gnu/ncurses/)
+	
+	-> For Mac OS X: Install Homebrew (brew.sh), then use `brew install ncurses && brew link ncurses --force`
+
+
+1. git clone https://github.com/jmoon018/PacVim.git
+2. cd PacVim
+3. make
+
 
 To play, run:
 ```

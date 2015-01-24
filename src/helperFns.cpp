@@ -3,8 +3,8 @@
 #include <sstream>
 #include <unistd.h>
 
-int stuff[] = {'#', ACS_ULCORNER, ACS_LLCORNER, ACS_URCORNER, ACS_LRCORNER,
-	ACS_LTEE, ACS_RTEE, ACS_BTEE, ACS_TTEE, ACS_HLINE, ACS_VLINE, ACS_PLUS};
+int stuff[] = {'#', static_cast<int>(ACS_ULCORNER), static_cast<int>(ACS_LLCORNER), static_cast<int>(ACS_URCORNER), static_cast<int>(ACS_LRCORNER),
+	static_cast<int>(ACS_LTEE), static_cast<int>(ACS_RTEE), static_cast<int>(ACS_BTEE), static_cast<int>(ACS_TTEE), static_cast<int>(ACS_HLINE), static_cast<int>(ACS_VLINE), static_cast<int>(ACS_PLUS)};
 std::set<int> WALLS(stuff, stuff + 12);
 // Return the character at x, y
 chtype charAt(int x, int y) {
@@ -36,7 +36,7 @@ bool writeAt(int x, int y, chtype letter) {
 	// Check bounds
 	if(x < 0 || y < 0)
 		return false;
-	
+
 	int curX, curY;
 	getyx(stdscr, curY, curX);
 
@@ -54,7 +54,7 @@ bool writeAt(int x, int y, chtype letter, int color) {
 	// Check bounds
 	if(x < 0 || y < 0)
 		return false;
-	
+
 	int curX, curY;
 	getyx(stdscr, curY, curX);
 

@@ -2,7 +2,7 @@
 #define HELPERFNS_H
 
 #include "globals.h"
-#include <cursesw.h>
+#include <ncursesw/cursesw.h>
 #include <fstream>
 #include <string>
 
