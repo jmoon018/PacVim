@@ -1,9 +1,3 @@
-// TODO: TEN LEVELS
-// LOOP TO BEGINNING AFTER 10TH GAME
-//	THEN MAKE GHOSTS FASTER
-// MORE VIM COMMANDS (numbers, gg, G, $, 0, ^)
-// beta test it w/ others 
-
 #include <vector>
 #include <iostream>
 
@@ -14,7 +8,6 @@
 
 using namespace std;
 
-// more globals cause i'm lazy
 // changed in DrawScreen and used when spawning the player
 int START_X = 1;
 int START_Y = 1;
@@ -71,9 +64,6 @@ void doKeystroke(avatar& unit) {
 	}
 	else if(INPUT == "l") {
 		unit.moveRight();
-	}
-	else if(INPUT == "r") { // kinda unneeded
-		refresh();	
 	}
 	else if(INPUT == "w") { 
 		unit.parseWordForward(true); 
@@ -145,9 +135,10 @@ void onKeystroke(avatar& unit, char key) {
 	// 3. gg = beginning of file... it's weird bc it's two non-digit characters
 
 	// If INPUT != empty, and the user inputs a number, INPUT
-	// should reset.. jamal@jamal-P15SM:~/eg: 3g3 dd = 1 dd, not 3 dd
+	// should reset.. EG: 3g3 dd = 1 dd, not 3 dd
 	if(key == 'g') { 
-		if(INPUT.empty() || INPUT.size() == 1 && INPUT[0] == 'g') {	
+		// have 'g' (only) in buffer, or buffer is empty
+		if(INPUT.empty() || (INPUT.size() == 1 && INPUT[0] == 'g')) {	
 			
 			INPUT += key;
 			if(INPUT == "gg") {
@@ -166,23 +157,25 @@ void onKeystroke(avatar& unit, char key) {
 	// we have full digits and then enter a character
 	else if(!INPUT.empty() && isFullDigits(INPUT) && !isdigit(key)) { 
 		int num = std::stoi(INPUT, nullptr, 0); // extracts 33 from 33dd for example
-
+		
+		// special ... #G. Move to the line number #
 		if(key == 'G') {
 			// go to line num
 			if(num == 1) {
 				INPUT = "1G";
 				doKeystroke(unit);
 			}
+			// don't go to a line that is offscreen or off the map
 			else if(num > TOP) {
 				INPUT = "G";
 				doKeystroke(unit);
 			}
 			else {
-				//writeError("TRYING TO USE #G: " + INPUT);	
+				// change line number
 				unit.setPos(unit.getX(), num);
 				INPUT = "";
 				
-				// hopefully no data racing issues arise from this
+				// then go to the first character
 				mtx.unlock();
 				onKeystroke(unit, '^');
 			}
@@ -190,6 +183,9 @@ void onKeystroke(avatar& unit, char key) {
 			mtx.unlock();
 			return;
 		}
+		// if the input is NOT G, then it means
+		// we are repeating a keystroke.. eg 3w = w, three times
+	
 		INPUT = key; 
 		for(int i = 0; i < num; i++) {
 			doKeystroke(unit);
@@ -199,24 +195,26 @@ void onKeystroke(avatar& unit, char key) {
 	else {
 		// the first time we enter something
 		INPUT += key;
+
+		// do keystroke if the first character is a letter,
+		//  except 0 (which immediately moves the player)
 		if(INPUT == "0" || !isFullDigits(INPUT)) {
 			doKeystroke(unit);
 			INPUT = "";
 		}
 	}
-
-
 	refresh();
 	mtx.unlock();
 }
 
+// called right before a level loads
 void levelMessage() {
 	// find appropriate message
 	stringstream ss;
-
 	ss << "LEVEL " << CURRENT_LEVEL;
 	string msg = ss.str();
 
+	// print + pause
 	printw(msg.c_str());
 	refresh();
 	usleep(1500000);
@@ -227,6 +225,7 @@ void levelMessage() {
 	refresh();
 }
 
+// loads the level, essentially
 void drawScreen(const char* file) {
 	levelMessage();
 	clear();
@@ -256,6 +255,10 @@ void drawScreen(const char* file) {
 		if (WIDTH < str.length())
 			WIDTH = str.length();
 	}
+	
+	// add spaces automatically to lines that don't have
+	// the max length (specified by WIDTH). Errors will
+	// happen if the board does not have a constant length
 	for(unsigned i = 0; i < board.size(); i++) {
 		boardStr.at(i).resize(WIDTH, ' '); 
 		for(unsigned j = board.at(i).size(); j < WIDTH; j++) { 
@@ -271,6 +274,7 @@ void drawScreen(const char* file) {
 		// parse info about ghosts, add them to ghostlist
 		if(boardStr.at(i).at(0) == '/') {
 			// format: /*thinkTime* *x-position* *y-position* -- delimited by spaces ofc
+			// EG: /1.5 19 7
 			string str = boardStr.at(i);
 			str.erase(str.begin(), str.begin()+1);
 
@@ -283,6 +287,7 @@ void drawScreen(const char* file) {
 			string c = str.substr(0, str.find(" "));
 			str = str.substr(str.find(" ")+1, 9);
 		
+			// create the ghost
 			ghostInfo ghost;
 			ghost.think = stod(a, nullptr);
 			ghost.xPos = stoi(b, nullptr, 0);
@@ -290,7 +295,7 @@ void drawScreen(const char* file) {
 			ghostList.push_back(ghost);
 			continue;
 		}
-		// this is where the plaer starting position is handled 
+		// this is where the player starting position is handled 
 	    else if(boardStr.at(i).at(0) == 'p') {
 			string str = boardStr.at(i);
 		    str.erase(str.begin(), str.begin()+1); 
@@ -349,7 +354,7 @@ void drawScreen(const char* file) {
                                 
 			// add the appropriate wall 
 			if(*ch == '#') {
-				attron(COLOR_PAIR(3)); // yellow
+				attron(COLOR_PAIR(3)); // yellow, but can change
 				if(left && right && up && down)
 					addch(ACS_PLUS); 
 				else if(left && right && up)
@@ -375,6 +380,7 @@ void drawScreen(const char* file) {
 				attroff(COLOR_PAIR(3));
 			}
 			else {
+				// special color for tilde keys
 				if(*ch == '~') {
 					attron(COLOR_PAIR(6));
 				}
@@ -417,7 +423,6 @@ void drawScreen(const char* file) {
 
 void defineColors() {
 	start_color();
-	init_color(COLOR_CYAN, 1000, 500, 500); // i dont think this works
 	init_pair(1, COLOR_RED	, COLOR_BLACK);
 	init_pair(2, COLOR_GREEN, COLOR_BLACK);
 	init_pair(3, COLOR_YELLOW, COLOR_BLACK);
@@ -432,17 +437,26 @@ void playGame(time_t lastTime, avatar &player) {
 
 	// consume any inputs in the buffer, or else the inputs will affect
 	// the game right as it begins by moving the player 
+	char ch;
 	usleep(10000);
-	printAtBottom("PRESS ENTER TO PLAY!");
+	printAtBottom("PRESS ENTER TO PLAY!\n    ESC OR q TO EXIT!");
 	while(true) {
-		if(getch() == '\n') {
+		
+		ch = getch();
+		
+		if(ch == '\n') {
 			if(time(0) > (lastTime)) {
 				READY = true;
 				break;
 			}
 		}
+		// quit the game if we type escape or q
+		else if(ch == 27 || ch == 'q'){
+				endwin();
+				exit(0);
+		}
 	}
-	printAtBottom("GO!                  ");
+	printAtBottom("GO!                  \n                    ");
 	char key;
 	
 	// continue playing until the player hits q or the game is over

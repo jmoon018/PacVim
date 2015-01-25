@@ -1,9 +1,8 @@
-#ifdef __APPLE__&&__MACH__
+#ifdef __APPLE__
 #include <ncursesw/cursesw.h>
 #else
 #include <cursesw.h>
 #endif
-
 
 
 #ifndef HELPERFNS_H

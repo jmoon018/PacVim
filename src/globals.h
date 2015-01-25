@@ -1,4 +1,4 @@
-#ifdef __APPLE__&&__MACH__
+#ifdef __APPLE__
 #include <ncursesw/cursesw.h>
 #else
 #include <cursesw.h>
@@ -18,7 +18,6 @@ extern std::string INPUT; // keyboard characters
 extern int CURRENT_LEVEL;
 extern int LIVES;
 extern const int NUM_OF_LEVELS;
-extern bool ROGUE_KEYS;
 
 extern bool READY;
 extern double THINK_MULTIPLIER; // all the think times for the AI are multipled by this
@@ -29,7 +28,6 @@ extern int BOTTOM;
 extern int WIDTH;
 #define HEIGHT (TOP - BOTTOM)
 
-//extern std::set<chtype> WALLS;
 extern std::mutex mtx;
 #endif
 
