@@ -432,17 +432,26 @@ void playGame(time_t lastTime, avatar &player) {
 
 	// consume any inputs in the buffer, or else the inputs will affect
 	// the game right as it begins by moving the player 
+	char ch;
 	usleep(10000);
-	printAtBottom("PRESS ENTER TO PLAY!");
+	printAtBottom("PRESS ENTER TO PLAY!\n        ESC  TO EXIT!");
 	while(true) {
-		if(getch() == '\n') {
+		
+		ch = getch();
+		
+		if(ch == '\n') {
 			if(time(0) > (lastTime)) {
 				READY = true;
 				break;
 			}
 		}
+		
+		else if(ch == 27){
+				endwin();
+				exit(0);
+		}
 	}
-	printAtBottom("GO!                  ");
+	printAtBottom("GO!                  \n                    ");
 	char key;
 	
 	// continue playing until the player hits q or the game is over
