@@ -11,9 +11,8 @@ using namespace std;
 // isFullDigits returns true if str only contains digits
 // compiles with regex on modern compilers
 // compiles the old version when GCC prior version 4.9 is used
-#if (!(defined(__clang__) || defined(__INTEL_COMPILER)) && (defined(__GNUC__) || defined(__GNUG__)) && ((__GNUC__ == 4) || (__GNUG__ == 4)) && (__GNUC_MINOR__ < 9))
+#if (!(defined(__clang__) || defined(__INTEL_COMPILER)) && (defined(__GNUC__) || defined(__GNUG__)) && ((__GNUC__ <= 4) || (__GNUG__ <= 4)) && (__GNUC_MINOR__ < 9))
 bool isFullDigits(string &str) {
-    writeError("without regex");
     for(unsigned i = 0; i < str.size(); i++)
         if(!isdigit(str[i])) return false;
     return true;
@@ -21,7 +20,6 @@ bool isFullDigits(string &str) {
 #else
 #include <regex>
 bool isFullDigits(string &str) {
-    writeError("with regex");
     regex r("[[:digit:]]+");
     return regex_match(str, r);
 }
