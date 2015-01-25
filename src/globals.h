@@ -32,3 +32,6 @@ extern int WIDTH;
 extern std::mutex mtx;
 #endif
 
+#ifndef MAPS_LOCATION
+#define MAPS_LOCATION "maps"
+#endif
