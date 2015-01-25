@@ -1,4 +1,3 @@
-#include <cstddef>
 #ifdef __APPLE__
 #include <curses.h>
 #else
