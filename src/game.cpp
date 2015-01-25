@@ -147,7 +147,7 @@ void onKeystroke(avatar& unit, char key) {
 	// If INPUT != empty, and the user inputs a number, INPUT
 	// should reset.. jamal@jamal-P15SM:~/eg: 3g3 dd = 1 dd, not 3 dd
 	if(key == 'g') { 
-		if(INPUT.empty() || INPUT.size() == 1 && INPUT[0] == 'g') {	
+		if(INPUT.empty() || (INPUT.size() == 1 && INPUT[0] == 'g')) {	
 			
 			INPUT += key;
 			if(INPUT == "gg") {
