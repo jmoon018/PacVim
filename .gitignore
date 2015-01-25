@@ -1,2 +1,5 @@
 errors.log
 pacvim
+*~
+*.swp
+*.swo

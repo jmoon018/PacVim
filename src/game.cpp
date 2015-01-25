@@ -65,8 +65,8 @@ void doKeystroke(avatar& unit) {
 	else if(INPUT == "l") {
 		unit.moveRight();
 	}
-	else if(INPUT == "w") { 
-		unit.parseWordForward(true); 
+	else if(INPUT == "w") {
+		unit.parseWordForward(true);
 	}
 	else if(INPUT == "W") {
 		unit.parseWordForward(false);	
@@ -456,7 +456,7 @@ void playGame(time_t lastTime, avatar &player) {
 				exit(0);
 		}
 	}
-	printAtBottom("GO!                  \n                    ");
+	printAtBottom("GO!                  \n                       ");
 	char key;
 	
 	// continue playing until the player hits q or the game is over
