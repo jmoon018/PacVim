@@ -25,11 +25,11 @@ Download and build the game with:
 	-> For Mac OS X: Install Homebrew (brew.sh), then use `brew install ncurses && brew link ncurses --force`. If you get errors, type `brew tap homebrew/dupes` and try again.
 
 
-`
-1. git clone https://github.com/jmoon018/PacVim.git
-2. cd PacVim
-3. make
-`
+```
+2. git clone https://github.com/jmoon018/PacVim.git
+3. cd PacVim
+4. make
+```
 
 
 To play, run:
