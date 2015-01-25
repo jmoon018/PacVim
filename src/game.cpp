@@ -1,5 +1,6 @@
 #include <vector>
 #include <iostream>
+#include <regex>
 
 #include "globals.h"
 #include "helperFns.h"
@@ -37,19 +38,16 @@ void getMore(avatar& unit, char key) {
 }
 
 
-// true if string only contains digits...regex would be nice
+// true if string only contains digits...
 bool isFullDigits(string &str) {
-	for(unsigned i = 0; i < str.size(); i++) {
-		if(!isdigit(str[i]))
-			return false;
-	}
-	return true;
+    regex r("[[:digit:]]+");
+    return regex_match(str, r);
 }
 
 
 
 void doKeystroke(avatar& unit) {
-	if(INPUT== "q") { 
+	if(INPUT== "q") {
 		endwin();
 		exit(0);
 	}
