@@ -21,7 +21,6 @@ Download and build the game with:
 	-> OR [This tutorial](http://geeksww.com/tutorials/operating_systems/linux/tools/how_to_download_compile_and_install_gnu_ncurses_on_debianubuntu_linux.php) may help (have not confirmed)
 	
 	-> OR build from source: [Curses source files](http://ftp.gnu.org/pub/gnu/ncurses/)
-
 	-> Mac OS X should come with Curses installed, so skip this step. 
 	
 <!--	-> For Mac OS X: Install Homebrew (brew.sh), then use `brew install ncurses && brew link ncurses --force`. If you get errors, type `brew tap homebrew/dupes` and try again.-->
