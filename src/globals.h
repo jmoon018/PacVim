@@ -1,6 +1,8 @@
+#include <cstddef>
 #ifdef __APPLE__
 #include <ncursesw/cursesw.h>
 #else
+#include <cstddef>
 #include <cursesw.h>
 #endif
 
