@@ -22,7 +22,7 @@ void Ghost1::think() {
 		mtx.lock();
 		std::stringstream msg;
 		msg << sleepTime;
-		//cout << "Thinking.." << endl;
+
 		// evaluate the four potential paths and move accordingly
 		double up = eval(x, y-1);
 		double down = eval(x, y+1);
@@ -42,22 +42,9 @@ void Ghost1::think() {
 		usleep(sleepTime * 1000000);
 	}
 }
-/*
-void Ghost1::think() { 
-	if(THINKING) 
-		usleep(sleepTime * 1000000 * 0.5);
-	THINKING = true;
-	int a = x, b = y;
-//	backtrack(a, b);
 
-	
-//	moveTo(a, b, false);
-	usleep(sleepTime * 1000000);
-	if(GAME_WON == 0)
-		think();
-}
-
-*/
+// When the board is created, spawn the ghost, but DON'T THINK
+// After the player is 'READY' (true), begin thinking
 void Ghost1::spawnGhost(bool spawned = false) { 
 	mtx.lock();
 	if(!moveTo(x, y) && !spawned) {
@@ -68,11 +55,14 @@ void Ghost1::spawnGhost(bool spawned = false) {
 	mtx.unlock();
 	usleep(250000); // wait a quarter second
 	writeError("TRYING TO SPAWN");
+
 	if(!READY) {
 		writeError("UNREADY!");
 		spawnGhost(true);
 		return;
 	}
+
+	// Player is ready. Start thinking
 	writeError("SHOULD HAVE SPAWNED");
 	think();
 }

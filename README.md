@@ -22,12 +22,14 @@ Download and build the game with:
 	
 	-> OR build from source: [Curses source files](http://ftp.gnu.org/pub/gnu/ncurses/)
 	
-	-> For Mac OS X: Install Homebrew (brew.sh), then use `brew install ncurses && brew link ncurses --force`
+	-> For Mac OS X: Install Homebrew (brew.sh), then use `brew install ncurses && brew link ncurses --force`. If you get errors, type `brew tap homebrew/dupes` and try again.
 
 
+`
 1. git clone https://github.com/jmoon018/PacVim.git
 2. cd PacVim
 3. make
+`
 
 
 To play, run:

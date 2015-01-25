@@ -20,7 +20,6 @@ avatar::avatar(int a, int b) {
 	isPlayer = false;
 	color = COLOR_WHITE;
 	letterUnder = charAt(a, b);
-//	moveTo(a, b, false);
 }
 
 
@@ -54,8 +53,6 @@ bool avatar::setPos(int theX, int theY) {
 	y = theY;
 	return true;
 }
-
-
 
 bool avatar::moveTo(int a, int b) {
 	if(!isValid(a, b))
@@ -200,7 +197,6 @@ bool avatar::parseWordBackward(bool isWord) {
 	bool isAlpha = isalnum(curChar);
 	char nextChar = charAt(x-1, y); 
 
-	// ...ic!! this   xx!!       
 	// breakOnSpace = true if the current character isn't the end of a word
 	bool breakOnSpace = (nextChar != ' ' && curChar != ' ');
 	bool breakOnAlpha = breakOnSpace && (!isAlpha && !isalnum(nextChar) && isWord); 
