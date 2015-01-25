@@ -204,8 +204,8 @@ bool avatar::parseWordBackward(bool isWord) {
 	// breakOnSpace = true if the current character isn't the end of a word
 	bool breakOnSpace = (nextChar != ' ' && curChar != ' ');
 	bool breakOnAlpha = breakOnSpace && (!isAlpha && !isalnum(nextChar) && isWord); 
-	bool breakOnNonAlpha = breakOnSpace && (isAlpha && isalnum(nextChar) || 
-			(!isAlpha && isalnum(nextChar)))&& isWord;
+	bool breakOnNonAlpha = breakOnSpace && ((isAlpha && isalnum(nextChar))
+	 		|| (!isAlpha && isalnum(nextChar)))&& isWord;
 
 
 	while(true) { // no definite loop #; break when we reach conditions
