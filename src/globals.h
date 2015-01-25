@@ -1,5 +1,5 @@
 #ifdef __APPLE__
-#include <ncursesw/cursesw.h>
+#include <curses.h>
 #else
 #include <cursesw.h>
 #endif
