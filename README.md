@@ -30,18 +30,21 @@ Download and build the game with:
 ```
 2. git clone https://github.com/jmoon018/PacVim.git
 3. cd PacVim
-4. make
+4. [sudo] make install
 ```
 
 
-To play, run:
+To play, run (from anywhere):
 ```
-$ ./pacvim
+$ pacvim
 ```
 or to start at a particular level, EG: if LEVEL_NUMBER = 4
 ```
-$ ./pacvim LEVEL_NUMBER
+$ pacvim LEVEL_NUMBER
 ```
+
+To Uninstall, navigate to the folder where you cloned this repo, and type `make uninstall` <br>
+Note: this game may not install/compile properly without gcc version 4.8.X or higher
 
 #How To Play
 
@@ -93,7 +96,10 @@ have less than 0 lives, you lose the entire game.
 # Create Your Own Map! 
 
 The maps for <b>PacVim</b> are loaded from text files from
-the <i>maps</i> folder. The name of each text file must be
+the <i>/usr/local/share/pacvim-maps</i> folder. After installing, you may, instead, use the *maps* folder (where you installed
+the game) by calling `make MAPDIR=maps`.
+
+The name of each text file must be
 in a format such as: `map#.txt`, where `#` represents a number like
 0, 1, 9, 14, etc. The numbers must be consecutive (can't have map0.txt,
 map1.txt, and then map3.txt). <b>MAKE SURE YOU CHANGE THE NUM_OF_LEVELS 
