@@ -549,7 +549,7 @@ int main(int argc, char** argv)
 	}
 
 	while(LIVES >= 0) {
-		string mapName = "maps/map";
+		string mapName = MAPS_LOCATION "/map";
 		
 		// convert CURRENT_LEVEL to string, and load
 		std::stringstream ss;

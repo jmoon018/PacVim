@@ -3,3 +3,5 @@ pacvim
 *~
 *.swp
 *.swo
+.deps
+*.o
