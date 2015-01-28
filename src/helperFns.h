@@ -1,5 +1,7 @@
 #ifdef __APPLE__
 #include <curses.h>
+#elif __FreeBSD__
+#include <curses.h>
 #else
 #include <cursesw.h>
 #endif
