@@ -4,7 +4,7 @@ PacVim is a game that teaches you vim commands.
 You must move pacman (the green cursor) to highlight each word on the gameboard while avoiding the ghosts (in red).
 
 ![my image](https://raw.githubusercontent.com/jmoon018/PacVim/master/gifs/all.gif)
-<h2>Building and running</h2>
+# Building and running
 
 Vim is a great tool to write and edit code, but many 
 people, including me, struggled with the steep learning curve. 
@@ -14,6 +14,11 @@ PacMan, <b>PacVim</b> is a game that'll give anyone plenty of
 practice with the vim commands while being a ton of fun to play.
 
 Download and build the game with:
+
+## Mac OS X
+`brew install pacvim`
+
+## Linux (and Mac OS X alternative)
 
 1. Download and install Curses (graphics library) <br>
 	-> For Ubuntu (in terminal): `sudo apt-get install libncurses5-dev` <br>
@@ -38,7 +43,7 @@ To play, run (from anywhere):
 ```
 $ pacvim [LEVEL_NUMER] [MODE]
 ```
-You may specify the starting level and mode (`n` and `h` for normal/hard):
+You may specify the starting level and mode (`n` and `h` for normal/hard). Default mode is hard:
 ```
 $ pacvim 8 n
 ```
