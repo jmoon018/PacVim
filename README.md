@@ -36,11 +36,11 @@ Download and build the game with:
 
 To play, run (from anywhere):
 ```
-$ pacvim
+$ pacvim [LEVEL_NUMER] [MODE]
 ```
-or to start at a particular level, EG: if LEVEL_NUMBER = 4
+You may specify the starting level and mode (`n` and `h` for normal/hard):
 ```
-$ pacvim LEVEL_NUMBER
+$ pacvim 8 n
 ```
 
 To Uninstall, navigate to the folder where you cloned this repo, and type `make uninstall` <br>

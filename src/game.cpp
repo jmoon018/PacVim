@@ -542,31 +542,31 @@ bool checkParams(int argc, char** argv) {
 			}
 			CURRENT_LEVEL = new_level;
 		}
-		else if ( currentParam.length() == 3 && currentParam.substr(0,2).compare("m=") == 0) // check for hard/easy mode
+		else if ( currentParam.length() == 1 ) // check for hard/normal mode
 		{
-			char mode = currentParam[2]; // h=hard, e=easy
+			char mode = currentParam[0]; // h=hard, n=normal
 			if (mode == 'h')
 			{
 				// hard/default mode
 				THINK_MULTIPLIER = 1.0;
 			}
-			else if (mode == 'e')
+			else if (mode == 'n')
 			{
-				// easy mode
+				// normal mode
 				THINK_MULTIPLIER = 1.2; // 20% slower ghosts
 			}
 			else
 			{
 				endwin();
-				cout << "\nInvalid mode argument, only h/e allowed. Example: ./pacvim m=e" << endl << endl;
+				cout << "\nInvalid mode argument, only h/n allowed. Example: ./pacvim n" << endl << endl;
 				return false;
 			}
 		}
 		else
 		{
 			endwin();
-			cout << "\nInvalid arguments. Try ./pacvim or ./pacvim [#] [m=h/e]" <<
-				"\nEG: ./pacvim 8 m=e" << endl << endl;
+			cout << "\nInvalid arguments. Try ./pacvim or ./pacvim [#] [h/n]" <<
+				"\nEG: ./pacvim 8 n" << endl << endl;
 			return false;
 		}
 	}
