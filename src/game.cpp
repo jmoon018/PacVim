@@ -517,6 +517,63 @@ void init(const char* mapName) {
 	}
 }
 
+bool checkParams(int argc, char** argv) {
+	//returns true if success, false if there is any error
+	std::vector<string> params; // command params except first one (where the program is called)
+	for (int i = 0; i < argc - 1; ++i)
+	{
+		params.push_back(argv[i+1]);
+	}
+	
+	// yes, I know that you could optimize by doing it in one cycle but:
+	// 1) it is not noticable
+	// 2) I think this approach is more readable and allows further use of the "sanitized" input
+	for (int i = 0; i < params.size(); ++i)
+	{
+		string currentParam = params[i];
+
+		if (isFullDigits(currentParam)) // level select
+		{
+			int new_level = std::stoi(currentParam, nullptr, 0);
+			if (new_level > NUM_OF_LEVELS || new_level < 0) {
+				endwin();
+				cout << "\nInvalid starting level." << endl << endl;
+				return false;
+			}
+			CURRENT_LEVEL = new_level;
+		}
+		else if ( currentParam.length() == 3 && currentParam.substr(0,2).compare("m=") == 0) // check for hard/easy mode
+		{
+			char mode = currentParam[2]; // h=hard, e=easy
+			if (mode == 'h')
+			{
+				// hard/default mode
+				THINK_MULTIPLIER = 1.0;
+			}
+			else if (mode == 'e')
+			{
+				// easy mode
+				THINK_MULTIPLIER = 1.2; // 20% slower ghosts
+			}
+			else
+			{
+				endwin();
+				cout << "\nInvalid mode argument, only h/e allowed. Example: ./pacvim m=e" << endl << endl;
+				return false;
+			}
+		}
+		else
+		{
+			endwin();
+			cout << "\nInvalid arguments. Try ./pacvim or ./pacvim [#] [m=h/e]" <<
+				"\nEG: ./pacvim 8 m=e" << endl << endl;
+			return false;
+		}
+	}
+
+	return true;
+}
+
 int main(int argc, char** argv)
 {
 	// Setup
@@ -529,23 +586,10 @@ int main(int argc, char** argv)
 	// at the start of the game.
 	// EG: ./pacvim 4 --> player starts on 4th level
 
-	if (argc > 1) {
-		string arg1 = argv[1];
-		if (isFullDigits(arg1)) {
-			int new_level = std::stoi(arg1, nullptr, 0);
-			if (new_level > NUM_OF_LEVELS || new_level < 0) {
-				endwin();
-				cout << "\nInvalid starting level." << endl << endl;
-				return 0;
-			}
-			CURRENT_LEVEL = new_level;
-		}
-		else {
-			endwin();
-			cout << "\nInvalid arguments. Try ./pacvim or ./pacvim #" <<
-				"\nEG: ./pacvim 8" << endl << endl;
-			return 0;
-		}
+	if( ! checkParams(argc, argv) )
+	{
+		// program called with invalid arguments
+		return 0;
 	}
 
 	while(LIVES >= 0) {
