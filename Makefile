@@ -14,7 +14,7 @@ CXXFLAGS += -pthread
 endif
 
 $(TARGET): $(OBJS)
-	$(CXX) $(CXXFLAGS) $(LDFLAGS) $(LDLIBS) $^ -o $@
+	$(CXX) $(CXXFLAGS) $(LDFLAGS) $^ -o $@ $(LDLIBS)
 
 install: $(TARGET)
 	install -Dm755 $(TARGET) $(DESTDIR)$(BINDIR)/$(TARGET)
@@ -25,4 +25,7 @@ uninstall:
 	$(RM) $(DESTDIR)$(BINDIR)/$(TARGET)
 	$(RM) -r $(DESTDIR)$(MAPDIR)
 
-.PHONY: install uninstall
+clean:
+	$(RM) $(wildcard src/*.o) $(TARGET)
+
+.PHONY: install uninstall clean
