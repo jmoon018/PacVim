@@ -14,7 +14,7 @@ CXXFLAGS += -pthread
 endif
 
 $(TARGET): $(OBJS)
-	$(CXX) $(LDFLAGS) $(LDLIBS) $^ -o $@
+	$(CXX) $(CXXFLAGS) $(LDFLAGS) $(LDLIBS) $^ -o $@
 
 install: $(TARGET)
 	install -Dm755 $(TARGET) $(DESTDIR)$(BINDIR)/$(TARGET)
