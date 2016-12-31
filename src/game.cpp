@@ -197,6 +197,7 @@ void onKeystroke(avatar& unit, char key) {
 				// then go to the first character
 				mtx.unlock();
 				onKeystroke(unit, '^');
+				mtx.lock();
 			}
 			refresh();
 			mtx.unlock();
