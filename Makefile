@@ -1,45 +1,31 @@
-SRCS   = $(wildcard src/*.cpp)
-OBJS   = $(SRCS:.cpp=.o)
-
-PREFIX = /usr/local
-BINDIR = $(PREFIX)/bin
-SHARE  = $(PREFIX)/share
-MAPDIR = $(SHARE)/pacvim-maps
-
-CXX    = g++
-CFLAGS = -std=c++11 -DMAPS_LOCATION='"$(MAPDIR)"'
-LFLAGS = -lncurses
-
-TARGET = pacvim
-MAPS   = maps
-DEPS   = .deps
+TARGET     =  pacvim
+PREFIX    ?=  /usr/local
+BINDIR     =  $(PREFIX)/bin
+MAPDIR     =  $(PREFIX)/share/pacvim-maps
+OBJS      :=  $(patsubst %.cpp,%.o,$(wildcard src/*.cpp))
+MAPS      :=  $(wildcard maps/*)
+CXX       ?=  g++
+CXXFLAGS  +=  -std=c++11 -DMAPS_LOCATION='"$(MAPDIR)"'
+LDLIBS    +=  -lncurses -lpthread
 
 ifneq ($(shell uname -s 2>/dev/null || echo nop),Darwin)
 # OS has POSIX threads in libc
-CFLAGS += -pthread
+CXXFLAGS += -pthread
 endif
 
-all: $(TARGET)
-
 $(TARGET): $(OBJS)
-	$(CXX) $(CFLAGS) $^ $(LFLAGS) -o $@
-
-%.o: %.cpp
-	$(CXX) $(CFLAGS) -c -o $@ $<
-
-$(DEPS):
-	$(CXX) -M $(SRCS) >| $@
-
-clean:
-	$(RM) $(OBJS) $(DEPS)
+	$(CXX) $(CXXFLAGS) $(LDFLAGS) $^ -o $@ $(LDLIBS)
 
 install: $(TARGET)
-	install -d $(BINDIR) $(SHARE)
-	install -m 755 $(TARGET) $(BINDIR)/
-	cp -r $(MAPS) $(MAPDIR)
+	install -Dm755 $(TARGET) $(DESTDIR)$(BINDIR)/$(TARGET)
+	install -d $(DESTDIR)$(MAPDIR)
+	install -t $(DESTDIR)$(MAPDIR) $(MAPS)
 
 uninstall:
-	$(RM) $(BINDIR)/$(TARGET)
-	$(RM) -r $(MAPDIR)
+	$(RM) $(DESTDIR)$(BINDIR)/$(TARGET)
+	$(RM) -r $(DESTDIR)$(MAPDIR)
 
--include $(DEPS)
+clean:
+	$(RM) $(wildcard src/*.o) $(TARGET)
+
+.PHONY: install uninstall clean
