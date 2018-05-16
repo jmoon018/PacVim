@@ -2,10 +2,11 @@ TARGET     =  pacvim
 PREFIX    ?=  /usr/local
 BINDIR     =  $(PREFIX)/bin
 MAPDIR     =  $(PREFIX)/share/pacvim-maps
-OBJS      :=  $(patsubst %.cpp,%.o,$(wildcard src/*.cpp))
+# OBJS      :=  $(patsubst %.cpp,%.o,$(wildcard src/*.cpp))
+OBJS      :=  $(patsubst %.cpp,%.o,$(shell find src/. -name *.cpp))
 MAPS      :=  $(wildcard maps/*)
 CXX       ?=  g++
-CXXFLAGS  +=  -std=c++11 -DMAPS_LOCATION='"$(MAPDIR)"'
+CXXFLAGS  +=  -std=c++11 -DMAPS_LOCATION='"$(MAPDIR)"' -Wall -Werror
 LDLIBS    +=  -lncurses -lpthread
 
 ifneq ($(shell uname -s 2>/dev/null || echo nop),Darwin)

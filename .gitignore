@@ -5,3 +5,4 @@ pacvim
 *.swo
 .deps
 *.o
+*.idea
