@@ -9,7 +9,7 @@ You must move pacman (the green cursor) to highlight each word on the gameboard 
 Vim is a great tool to write and edit code, but many 
 people, including me, struggled with the steep learning curve. 
 I did not find a fun, free way to learn about the vim commands
-in-depth, and thus, PacVim was born. Inspired by the the classic,
+in-depth, and thus, PacVim was born. Inspired by the classic,
 PacMan, <b>PacVim</b> is a game that'll give anyone plenty of
 practice with the vim commands while being a ton of fun to play.
 
@@ -38,10 +38,31 @@ Download and build the game with:
 4. [sudo] make install
 ```
 
+## Using Docker
+
+If you have docker installed already, you can just:
+
+```sh
+docker run -it freedomben/pacvim [LEVEL_NUMBER] [MODE]
+```
+
+### Building the docker image from source
+
+From the project root, build the image:
+
+```sh
+docker build -t freedomben/pacvim .
+```
+
+Push to docker hub:
+
+```sh
+docker push freedomben/pacvim
+```
 
 To play, run (from anywhere):
 ```
-$ pacvim [LEVEL_NUMER] [MODE]
+$ pacvim [LEVEL_NUMBER] [MODE]
 ```
 You may specify the starting level and mode (`n` and `h` for normal/hard). Default mode is hard:
 ```
@@ -51,7 +72,7 @@ $ pacvim 8 n
 To Uninstall, navigate to the folder where you cloned this repo, and type `make uninstall` <br>
 Note: this game may not install/compile properly without gcc version 4.8.X or higher
 
-#How To Play
+# How To Play
 
 The objective of PacVim is very similar to PacMan.
 You must run over all the characters on the screen while avoiding the ghosts (red `G`).
