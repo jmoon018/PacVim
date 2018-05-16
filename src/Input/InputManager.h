@@ -6,9 +6,10 @@
 class InputManager {
 public:
 	static std::string GetInput();
+	static void ClearCurrentInput();
 
 private:
-	static void ClearInputBuffer();
+	static void ClearInputStream();
 
 	static std::string mCurrentInput;
 };

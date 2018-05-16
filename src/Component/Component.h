@@ -1,11 +1,16 @@
 #ifndef COMPONENT_H
 #define COMPONENT_H
 
+#include <memory> // for shared ptr
+
 class Component {
 public:
-	virtual void Start() = 0;
-	virtual void Update() = 0;
-	virtual void LateUpdate() = 0;
+	// These can be overriden in child classes
+	virtual void Start() {};
+	virtual void Update() {};
+	virtual void LateUpdate() {};
 };
+
+typedef std::shared_ptr<Component> ComponentPtr;
 
 #endif //COMPONENT_H
