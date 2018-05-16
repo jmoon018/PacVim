@@ -22,7 +22,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <curses.h>
 #else
 #include <cstddef>
-#include <cursesw.h>
+#include <ncurses.h>
 #endif
 
 

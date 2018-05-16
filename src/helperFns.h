@@ -21,7 +21,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #elif __FreeBSD__
 #include <curses.h>
 #else
-#include <cursesw.h>
+#include <ncurses.h>
 #endif
 
 
