@@ -13,31 +13,32 @@ in-depth, and thus, PacVim was born. Inspired by the the classic,
 PacMan, <b>PacVim</b> is a game that'll give anyone plenty of
 practice with the vim commands while being a ton of fun to play.
 
-Download and build the game with:
+## Installation
+### Mac OS X
 
-## Mac OS X
+On Mac OS X you can use homebrew to install pacvim:
 `brew install pacvim`
 
-## Linux (and Mac OS X alternative)
+## Compilation from source
 
-1. Download and install Curses (graphics library) <br>
-	-> For Ubuntu (in terminal): `sudo apt-get install libncurses5-dev` <br>
-	
-	-> OR [This tutorial](http://geeksww.com/tutorials/operating_systems/linux/tools/how_to_download_compile_and_install_gnu_ncurses_on_debianubuntu_linux.php) may help (have not confirmed)
-	
-	-> OR build from source: [Curses source files](http://ftp.gnu.org/pub/gnu/ncurses/)
+You will need the curses/ncurses library to build PacVim.
+There are several ways of getting it:
 
-	-> Mac OS X should come with Curses installed, so skip this step. 
+- Use your package manager (e.g. for Debian based distributions: `sudo apt-get install libncurses5-dev`)
+- [This tutorial](http://geeksww.com/tutorials/operating_systems/linux/tools/how_to_download_compile_and_install_gnu_ncurses_on_debianubuntu_linux.php) may help (have not confirmed)
+- Build from source: [Curses source files](http://ftp.gnu.org/pub/gnu/ncurses/)
+
+Mac OS X should come with Curses installed, so skip this step. 
 	
 <!--	-> For Mac OS X: Install Homebrew (brew.sh), then use `brew install ncurses && brew link ncurses --force`. If you get errors, type `brew tap homebrew/dupes` and try again.-->
 
+Now get the PacVim sources and compile them with:
 
 ```
-2. git clone https://github.com/jmoon018/PacVim.git
-3. cd PacVim
-4. [sudo] make install
+git clone https://github.com/jmoon018/PacVim.git
+cd PacVim
+[sudo] make install
 ```
-
 
 To play, run (from anywhere):
 ```
@@ -51,7 +52,7 @@ $ pacvim 8 n
 To Uninstall, navigate to the folder where you cloned this repo, and type `make uninstall` <br>
 Note: this game may not install/compile properly without gcc version 4.8.X or higher
 
-#How To Play
+# How To Play
 
 The objective of PacVim is very similar to PacMan.
 You must run over all the characters on the screen while avoiding the ghosts (red `G`).
