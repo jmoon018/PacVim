@@ -3,7 +3,8 @@
 
 #include <vector>
 #include <memory> // for shared ptr
-#include "../Component/Component.h"
+#include "Transform.h"
+
 
 // A GameObject is an entity that stores components; the sum of the
 // components creates the behavior for the particular GameObject
@@ -11,9 +12,19 @@
 //    as opposed to more abstract entities (managers, etc)
 class GameObject {
 public:
+	GameObject() {
+		// GameObjects should have a transform
+		AddComponent(TransformPtr());
+	}
 
-	void AddComponent(Component);
+	// Component-related functions ------------------------------------
+	void AddComponent(ComponentPtr);
 
+	template<class T>
+	T* GetComponentOfType(); // Returns first matching component
+
+
+	// Functions called for each component on each/certain frames -----
 	void Start();
 	void Update();
 	void LateUpdate();
