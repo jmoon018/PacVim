@@ -3,6 +3,7 @@
 
 #include <vector>
 #include "../GameObject/GameObject.h"
+#include "../Input/InputManager.h"
 
 class Game {
 public:

@@ -3,17 +3,41 @@
 
 #include <string>
 
+enum class Key {
+	h,
+	j,
+	k,
+	l,
+	w,
+	W,
+	e,
+	E,
+	b,
+	B,
+	$,
+	zero, // '0' character -- but can't use '0' alone in enum
+	gg,
+	G, // just 'G'
+	NumG, // 1G, 24G, 2912G, etc
+	Caret, // '^' key
+	Ampersand, // '&'
+	quit // ':q'
+};
+
 class KeyBinding {
 public:
-	KeyBinding(bool isRepeatable, bool hasNumberPrefix, std::string commandString) :
+	KeyBinding(bool isRepeatable, bool hasNumberPrefix,
+			   std::string commandString, Key key) :
+		mCommandString(commandString),
 		mIsRepeatable(isRepeatable),
 		mHasNumberPrefix(hasNumberPrefix),
-		mCommandString(commandString)
+		mKey(key)
 	{}
 
 	bool IsRepeatable() { return mIsRepeatable; }
 	bool HasNumberPrefix() { return mHasNumberPrefix; }
-	std::string GetCommandString();
+	std::string GetCommandString() { return mCommandString; }
+	Key GetKey() { return mKey; }
 
 protected:
 	// The string of characters that represent the command, WITHOUT preceding numbers
@@ -27,6 +51,9 @@ protected:
 	// commands, but does not necessarily imply that the command is repeatable
 	// EG: 5w, 6W, 2e, 124b, 24G, 2G, etc
 	bool mHasNumberPrefix;
+
+	// Key enum
+	Key mKey;
 };
 
 

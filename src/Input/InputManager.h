@@ -1,6 +1,7 @@
 #ifndef INPUTMANAGER_H
 #define INPUTMANAGER_H
 
+#include "Input.h"
 #include <string>
 
 class InputManager {

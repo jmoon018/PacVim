@@ -1,28 +1,20 @@
 #ifndef INPUT_H
 #define INPUT_H
 
+#include "KeyBindings.h"
+#include <vector>
+
 class Input {
 public:
-	enum class Keys {
-		Key_h,
-		Key_j,
-		Key_k,
-		Key_l,
-		Key_w,
-		Key_W,
-		Key_e,
-		Key_E,
-		Key_b,
-		Key_B,
-		Key_$,
-		Key_0,
-		Key_gg,
-		Key_G,
-		Key_NumG, // 1G, 24G, 2912G, etc
-		Key_Carat, // '^' key
-		Key_Ampersand, // '&'
-		Key_quit // ':q'
-	};
+	static KeyBinding GetKeyBindingFromKey(Key k);
+
+	static std::vector<KeyBinding> GetKeyBindings();
+private:
+
+	// A list of all the keybindings in the game
+	// Store it as a variable so we don't have to
+	//    recalculate the list each time we want to use it
+	static std::vector<KeyBinding> mKeyBindings;
 };
 
 #endif //INPUT_H
