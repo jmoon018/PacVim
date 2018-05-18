@@ -56,5 +56,11 @@ protected:
 	Key mKey;
 };
 
+struct KeyBindingWrapper {
+	KeyBindingWrapper(KeyBinding kb, unsigned reps) : mKeyBinding(kb), mRepetitions(reps) {}
+	KeyBinding mKeyBinding;
+	unsigned mRepetitions;
+};
+
 
 #endif //KEYBINDINGS_H
