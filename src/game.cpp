@@ -27,6 +27,237 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using namespace std;
 
+/* navigation function arguments */
+class nvarg {
+	public:
+	nvarg(bool caps_arg, avatar &unit_arg) : is_caps(caps_arg), unit(unit_arg) {}
+	bool is_caps;
+	avatar &unit;
+};
+
+static void nv_right(nvarg arg);
+static void nv_left(nvarg arg);
+static void nv_up(nvarg arg);
+static void nv_down(nvarg arg);
+static void nv_end(nvarg arg);
+static void nv_dollar(nvarg arg);
+static void nv_search(nvarg arg);
+static void nv_next(nvarg arg);
+static void nv_bck_word(nvarg arg);
+static void nv_wordcmd(nvarg arg);
+static void nv_wordcmd_end(nvarg arg);
+static void nv_beginline(nvarg arg);
+static void nv_begin(nvarg arg);
+static void nv_goto(nvarg arg);
+static void nv_g_cmd(nvarg arg);
+static void quit_game(nvarg arg);
+static void cheat_game(nvarg arg);
+void doKeystroke(avatar &unit);
+
+typedef void (*nv_func)(nvarg arg);
+static const struct nv_cmd {
+	int cmd_char;
+	nv_func cmd_func;
+	bool is_caps;
+} nv_cmds[] =
+{
+	{'g', nv_g_cmd, false},
+	{'q', quit_game, false},
+	{'&', cheat_game, false},
+	{'^', nv_beginline, false},
+	{'G', nv_goto, false},
+	{'0', nv_begin, false},
+	{'$', nv_dollar, false},
+	{'e', nv_wordcmd, false},
+	{'E', nv_wordcmd, false},
+	{'b', nv_bck_word, false},
+	{'B', nv_bck_word, false},
+	{'w', nv_wordcmd, false},
+	{'W', nv_wordcmd, true},
+	{'j', nv_down, false},
+	{'k', nv_up, false},
+	{'l', nv_right, false},
+	{'h', nv_left, false},
+	{'b', nv_bck_word, false},
+	{'B', nv_bck_word, true},
+	{'e', nv_wordcmd_end, false},
+	{'E', nv_wordcmd_end, true},
+	{'$', nv_dollar, false},
+};
+
+/* Number of commands in nv_cmds[]. */
+#define NV_CMDS_SIZE (sizeof(nv_cmds) / sizeof(struct nv_cmd))
+
+/* Sorted index of commands in nv_cmds[]. */
+static short nv_cmd_idx[NV_CMDS_SIZE];
+
+/* The highest index for which
+ * nv_cmds[idx].cmd_char == nv_cmd_idx[nv_cmds[idx].cmd_char] */
+static int nv_max_linear;
+
+/*
+ * Compare functions for qsort() below, that checks the command character
+ * through the index in nv_cmd_idx[].
+ */
+static int nv_compare(const void *s1, const void *s2)
+{
+	int	c1, c2;
+
+	/* The commands are sorted on absolute value. */
+	c1 = nv_cmds[*(const short *)s1].cmd_char;
+	c2 = nv_cmds[*(const short *)s2].cmd_char;
+	if (c1 < 0)
+		c1 = -c1;
+	if (c2 < 0)
+		c2 = -c2;
+	return c1 - c2;
+}
+
+/*
+ * Initialize the nv_cmd_idx[] table.
+ */
+void init_normal_cmds(void)
+{
+	int i;
+
+	/* Fill the index table with a one to one relation. */
+	for (i = 0; i < (int)NV_CMDS_SIZE; ++i)
+		nv_cmd_idx[i] = i;
+
+	/* Sort the commands by the command character.  */
+	qsort((void *)&nv_cmd_idx, (size_t)NV_CMDS_SIZE, sizeof(short), nv_compare);
+
+	/* Find the first entry that can't be indexed by the command character. */
+	for (i = 0; i < (int)NV_CMDS_SIZE; ++i)
+		if (i != nv_cmds[nv_cmd_idx[i]].cmd_char)
+			break;
+	nv_max_linear = i - 1;
+}
+
+/*
+ * Search for a command in the commands table.
+ * Returns -1 for invalid command.
+ */
+static int find_command(int cmdchar)
+{
+	int i;
+	int idx;
+	int top, bot;
+	int c;
+
+	/* We use the absolute value of the character.  Special keys have a
+	 * negative value, but are sorted on their absolute value. */
+	if (cmdchar < 0)
+		cmdchar = -cmdchar;
+
+	/* If the character is in the first part: The character is the index into
+	 * nv_cmd_idx[]. */
+	if (cmdchar <= nv_max_linear)
+		return nv_cmd_idx[cmdchar];
+
+	/* Perform a binary search. */
+	bot = nv_max_linear + 1;
+	top = NV_CMDS_SIZE - 1;
+	idx = -1;
+	while (bot <= top)
+	{
+		i = (top + bot) / 2;
+		c = nv_cmds[nv_cmd_idx[i]].cmd_char;
+		if (c < 0)
+			c = -c;
+		if (cmdchar == c)
+		{
+			idx = nv_cmd_idx[i];
+			break;
+		}
+		if (cmdchar > c)
+			bot = i + 1;
+		else
+			top = i - 1;
+	}
+	return idx;
+}
+
+static void nv_g_cmd(nvarg arg) {
+	int i = 0;
+
+	while(!isInside(arg.unit.getX(), BOTTOM+i, "omni")) {
+		i++;
+		arg.unit.setPos(0, BOTTOM+i);
+		arg.unit.parseToBeginning();
+	}
+	arg.unit.setPos(arg.unit.getX(), BOTTOM+i);
+	arg.unit.parseToBeginning();
+}
+
+static void quit_game(nvarg arg) {
+	endwin();
+	exit(0);
+}
+
+static void cheat_game(nvarg arg) {
+	GAME_WON = 1; // l337 cheetz
+}
+
+static void nv_beginline(nvarg arg) {
+	// goes to first character after blank
+	arg.unit.parseToBeginning();
+
+	char currentChar = charAt(arg.unit.getX(), arg.unit.getY());
+	if (currentChar == ' ') {
+		arg.unit.parseWordForward(true);
+	}
+}
+
+static void nv_begin(nvarg arg) {
+	arg.unit.parseToBeginning();
+}
+
+static void nv_goto(nvarg arg) {
+	int i = 0;
+
+	while(!isInside(arg.unit.getX(), TOP-i, "omni")) {
+		i++;
+		arg.unit.setPos(arg.unit.getX(), TOP-i);
+		arg.unit.parseToBeginning();
+	}
+	// move to the first word on the current line
+	INPUT = "^";
+	doKeystroke(arg.unit);
+}
+
+static void nv_left(nvarg arg) {
+	arg.unit.moveLeft();
+}
+
+static void nv_down(nvarg arg) {
+	arg.unit.moveDown();
+}
+
+static void nv_up(nvarg arg) {
+	arg.unit.moveUp();
+}
+
+static void nv_right(nvarg arg) {
+	arg.unit.moveRight();
+}
+
+static void nv_wordcmd(nvarg arg) {
+	arg.unit.parseWordForward(!arg.is_caps);
+}
+
+static void nv_bck_word(nvarg arg) {
+	arg.unit.parseWordBackward(!arg.is_caps);
+}
+
+static void nv_wordcmd_end(nvarg arg) {
+	arg.unit.parseWordEnd(!arg.is_caps);
+}
+
+static void nv_dollar(nvarg arg) {
+	arg.unit.parseToEnd();
+}
+
 // changed in DrawScreen and used when spawning the player
 int START_X = 1;
 int START_Y = 1;
@@ -38,7 +269,6 @@ struct ghostInfo {
 	int yPos;
 };
 vector<ghostInfo> ghostList;
-
 
 void gotoLineBeginning(int line, avatar &unit) {
 	int x = 0;
@@ -55,7 +285,6 @@ void getMore(avatar& unit, char key) {
 	onKeystroke(unit, key);
 }
 
-
 // true if string only contains digits...regex would be nice
 bool isFullDigits(string &str) {
 	for(unsigned i = 0; i < str.size(); i++) {
@@ -65,83 +294,21 @@ bool isFullDigits(string &str) {
 	return true;
 }
 
-
-
-void doKeystroke(avatar& unit) {
-	if(INPUT== "q") { 
-		endwin();
-		exit(0);
-	}
-	else if(INPUT == "h") {
-		unit.moveLeft();
-	}
-	else if(INPUT == "j") {
-		unit.moveDown();
-	}
-	else if(INPUT == "k") {
-		unit.moveUp(); 
-	}
-	else if(INPUT == "l") {
-		unit.moveRight();
-	}
-	else if(INPUT == "w") {
-		unit.parseWordForward(true);
-	}
-	else if(INPUT == "W") {
-		unit.parseWordForward(false);	
-	}
-	else if(INPUT == "b") {
-		unit.parseWordBackward(true);
-	}
-	else if(INPUT == "B") {
-		unit.parseWordBackward(false);
-	}
-	else if(INPUT == "E") {
-		unit.parseWordEnd(false);
-	}
-	else if(INPUT == "e") {
-		unit.parseWordEnd(true);
-	}
-	else if(INPUT == "$") { 
-		unit.parseToEnd(); 
-	}
-	else if(INPUT == "0") {
-		unit.parseToBeginning();
-	}
-	else if(INPUT == "gg" || INPUT == "1G") {
-		int i = 0;
-		while(!isInside(unit.getX(), BOTTOM+i, "omni")) {
-			i++;
-			unit.setPos(0, BOTTOM+i);
-			unit.parseToBeginning();
+void doKeystroke(avatar &unit) {
+	if (strlen(INPUT.c_str()) > 1) {
+		nvarg arg(false, unit);
+		nv_g_cmd(arg);
+	} else {
+		const char *c = INPUT.c_str();
+		int idx = find_command(c[0]);
+		if (idx < 0) {
+			writeError("command not found");
+			return;
 		}
-		unit.setPos(unit.getX(), BOTTOM+i); 
-		unit.parseToBeginning();
+		nvarg arg(nv_cmds[idx].is_caps, unit);
+		(nv_cmds[idx].cmd_func)(arg);
 	}
-	else if(INPUT == "G") { 
-		int i = 0;
-		while(!isInside(unit.getX(), TOP-i, "omni")) {
-			i++;
-			unit.setPos(unit.getX(), TOP-i);
-			unit.parseToBeginning();
-		}
-		// move to the first word on the current line
-		INPUT = "^";
-		doKeystroke(unit);
-	}
-	else if(INPUT == "^") {
-		// goes to first character after blank
-		unit.parseToBeginning();
-
-		char currentChar = charAt(unit.getX(), unit.getY());
-		if (currentChar == ' ') {
-			unit.parseWordForward(true);
-		}
-	}
-	else if(INPUT == "&") {
-		GAME_WON = 1; // l337 cheetz
-	}
-}	
+}
 
 void onKeystroke(avatar& unit, char key) {
 	mtx.lock();
@@ -193,7 +360,7 @@ void onKeystroke(avatar& unit, char key) {
 				// change line number
 				unit.setPos(unit.getX(), num);
 				INPUT = "";
-				
+
 				// then go to the first character
 				mtx.unlock();
 				onKeystroke(unit, '^');
@@ -248,7 +415,7 @@ void levelMessage() {
 void drawScreen(const char* file) {
 	levelMessage();
 	clear();
-	
+
 	writeError("DRAWING THE SCREEN");
 
 	ifstream in(file);
@@ -305,7 +472,7 @@ void drawScreen(const char* file) {
 
 			string c = str.substr(0, str.find(" "));
 			str = str.substr(str.find(" ")+1, 9);
-		
+
 			// create the ghost
 			ghostInfo ghost;
 			ghost.think = stod(a, nullptr);
@@ -477,7 +644,7 @@ void playGame(time_t lastTime, avatar &player) {
 	}
 	printAtBottom("GO!                  \n                       ");
 	char key;
-	
+
 	// continue playing until the player hits q or the game is over
 	while(GAME_WON == 0) {
 		key = getch();
@@ -494,8 +661,8 @@ void playGame(time_t lastTime, avatar &player) {
 		// redundant movement
 		move(player.getY(), player.getX());
 		refresh();
-	}	
-	
+	}
+
 	clear();
 	if(GAME_WON == 1) {
 		winGame();
@@ -543,7 +710,7 @@ bool checkParams(int argc, char** argv) {
 	{
 		params.push_back(argv[i+1]);
 	}
-	
+
 	// yes, I know that you could optimize by doing it in one cycle but:
 	// 1) it is not noticable
 	// 2) I think this approach is more readable and allows further use of the "sanitized" input
@@ -611,13 +778,14 @@ int main(int argc, char** argv)
 		return 0;
 	}
 
+	init_normal_cmds();
 	while(LIVES >= 0) {
 		string mapName = MAPS_LOCATION "/map";
-		
+
 		// convert CURRENT_LEVEL to string, and load
 		std::stringstream ss;
 		ss << CURRENT_LEVEL;
-		
+
 		mapName += ss.str(); // add it to mapName
 		mapName += ".txt"; // must be .txt
 		init(mapName.c_str());
@@ -633,7 +801,7 @@ int main(int argc, char** argv)
 			else if ((CURRENT_LEVEL % 3) == 0) {
 				LIVES++; // gain a life every 3 levels
 			}
-				
+
 			GAME_WON = 0;
 			TOTAL_POINTS = 0;
 		}
