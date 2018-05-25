@@ -24,6 +24,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "helperFns.h"
 #include "avatar.h"
 #include "ghost1.h"
+#include "string.h"
 
 using namespace std;
 
