@@ -723,7 +723,7 @@ static void usage(void)
 			"-h, --help             this help\n"
 			"-V, --version          print current version\n"
 			"-m, --map=name         map directory\n"
-			"-l, --level=#  exits when no data has been received\n"
+			"-l, --level=#  current level\n"
 			"-d, --difficulty=Type  n for normal and h for hard\n");
 }
 
