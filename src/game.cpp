@@ -19,7 +19,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <vector>
 #include <iostream>
-
+#include <getopt.h>
+#include <stdarg.h>
 #include "globals.h"
 #include "helperFns.h"
 #include "avatar.h"
@@ -27,6 +28,16 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "string.h"
 
 using namespace std;
+
+static void error(const char *format, ...)
+{
+	va_list ap;
+
+	va_start(ap, format);
+	vfprintf(stderr, format, ap);
+	va_end(ap);
+	putc('\n', stderr);
+}
 
 /* navigation function arguments */
 class nvarg {
@@ -704,85 +715,83 @@ void init(const char* mapName) {
 	}
 }
 
-bool checkParams(int argc, char** argv) {
-	//returns true if success, false if there is any error
-	std::vector<string> params; // command params except first one (where the program is called)
-	for (int i = 0; i < argc - 1; ++i)
-	{
-		params.push_back(argv[i+1]);
-	}
+static void usage(void)
+{
+	printf(
+			"Usage: pacvim options\n"
+			"\n"
+			"-h, --help             this help\n"
+			"-V, --version          print current version\n"
+			"-m, --map=name         map directory\n"
+			"-l, --level=#  exits when no data has been received\n"
+			"-d, --difficulty=Type  n for normal and h for hard\n");
+}
 
-	// yes, I know that you could optimize by doing it in one cycle but:
-	// 1) it is not noticable
-	// 2) I think this approach is more readable and allows further use of the "sanitized" input
-	for (int i = 0; i < params.size(); ++i)
-	{
-		string currentParam = params[i];
-
-		if (isFullDigits(currentParam)) // level select
-		{
-			int new_level = std::stoi(currentParam, nullptr, 0);
-			if (new_level > NUM_OF_LEVELS || new_level < 0) {
-				endwin();
-				cout << "\nInvalid starting level." << endl << endl;
-				return false;
-			}
-			CURRENT_LEVEL = new_level;
-		}
-		else if ( currentParam.length() == 1 ) // check for hard/normal mode
-		{
-			char mode = currentParam[0]; // h=hard, n=normal
-			if (mode == 'h')
-			{
-				// hard/default mode
-				THINK_MULTIPLIER = 1.0;
-			}
-			else if (mode == 'n')
-			{
-				// normal mode
-				THINK_MULTIPLIER = 1.2; // 20% slower ghosts
-			}
-			else
-			{
-				endwin();
-				cout << "\nInvalid mode argument, only h/n allowed. Example: ./pacvim n" << endl << endl;
-				return false;
-			}
-		}
-		else
-		{
-			endwin();
-			cout << "\nInvalid arguments. Try ./pacvim or ./pacvim [#] [h/n]" <<
-				"\nEG: ./pacvim 8 n" << endl << endl;
-			return false;
-		}
-	}
-
-	return true;
+static void version(void)
+{
+	puts("pacvim version 1.0");
 }
 
 int main(int argc, char** argv)
 {
+	string mapName;
+	static const char short_options[] = "hVm:l:d:";
+	static const struct option long_options[] = {
+		{"help", 0, NULL, 'h'},
+		{"version", 0, NULL, 'V'},
+		{"map", 1, NULL, 'p'},
+		{"level", 1, 0, 0},
+		{"difficulty", 1, 0, 'n'},
+		{ }
+	};
+
+	int c;
+	while ((c = getopt_long(argc, argv, short_options,
+					long_options, NULL)) != -1) {
+		int new_level;
+		char mode;
+		switch (c) {
+			case 'h':
+				usage();
+				return 0;
+			case 'V':
+				version();
+				return 0;
+			case 'm':
+				mapName = string(optarg);
+				break;
+			case 'l':
+				new_level = strtol(optarg, NULL, 0);
+				if (new_level > NUM_OF_LEVELS || new_level < 0) {
+					cout << "\nInvalid starting level." << endl << endl;
+					return 1;
+				}
+				CURRENT_LEVEL = new_level;
+				break;
+			case 'd':
+				if (strcasecmp(optarg, "h") == 0) {
+					// hard/default mode
+					THINK_MULTIPLIER = 1.0;
+				} else if (strcasecmp(optarg, "n") == 0) {
+					// normal mode
+					THINK_MULTIPLIER = 1.2; // 20% slower ghosts
+				} else {
+					cout << "\nInvalid mode argument, only h or n allowed" << endl;
+					return 1;
+				}
+				break;
+			default:
+				error("Try `pacvim --help' for more information.");
+				return 1;
+		}
+	}
 	// Setup
 	WINDOW* win = initscr();
 	defineColors();
 	noecho(); // dont print anything to the screen
 
-	// Look for cmd line args
-	// Any cmd line args will change the CURRENT_LEVEL
-	// at the start of the game.
-	// EG: ./pacvim 4 --> player starts on 4th level
-
-	if( ! checkParams(argc, argv) )
-	{
-		// program called with invalid arguments
-		return 0;
-	}
-
 	init_normal_cmds();
 	while(LIVES >= 0) {
-		string mapName = MAPS_LOCATION "/map";
-
 		// convert CURRENT_LEVEL to string, and load
 		std::stringstream ss;
 		ss << CURRENT_LEVEL;
