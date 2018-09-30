@@ -3,8 +3,8 @@
 Copyright 2015 Jamal Moon
 
 PacVim is free software: you can redistribute it and/or modify
-it under the terms of the GNU Lesser General Public License (LGPL) as 
-published by the Free Software Foundation, either version 3 of the 
+it under the terms of the GNU Lesser General Public License (LGPL) as
+published by the Free Software Foundation, either version 3 of the
 License, or (at your option) any later version.
 
 PacVim program is distributed in the hope that it will be useful,
@@ -64,7 +64,7 @@ void Ghost1::think() {
 
 // When the board is created, spawn the ghost, but DON'T THINK
 // After the player is 'READY' (true), begin thinking
-void Ghost1::spawnGhost(bool spawned = false) { 
+void Ghost1::spawnGhost(bool spawned = false) {
 	mtx.lock();
 	if(!moveTo(x, y) && !spawned) {
 		mtx.unlock();

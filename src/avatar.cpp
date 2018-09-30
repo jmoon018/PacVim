@@ -3,8 +3,8 @@
 Copyright 2015 Jamal Moon
 
 PacVim is free software: you can redistribute it and/or modify
-it under the terms of the GNU Lesser General Public License (LGPL) as 
-published by the Free Software Foundation, either version 3 of the 
+it under the terms of the GNU Lesser General Public License (LGPL) as
+published by the Free Software Foundation, either version 3 of the
 License, or (at your option) any later version.
 
 PacVim program is distributed in the hope that it will be useful,
@@ -66,7 +66,7 @@ int avatar::getX() { return x; }
 int avatar::getY() { return y; }
 char avatar::getPortrait() { return portrait; }
 
-bool avatar::setPos(int theX, int theY) { 
+bool avatar::setPos(int theX, int theY) {
 	x = theX;
 	y = theY;
 	return true;
@@ -76,7 +76,7 @@ bool avatar::moveTo(int a, int b) {
 	if(!isValid(a, b))
 		return false;
 
-	// character at destination 
+	// character at destination
 	chtype curChar = charAt(a, b);
 	if(isPlayer) {
 		if((curChar & COLOR_PAIR(6)) == COLOR_PAIR(6) ) {
@@ -88,7 +88,7 @@ bool avatar::moveTo(int a, int b) {
 			GAME_WON = -1;
 			return false;
 		}
-		
+
 		// points
 		if(curChar != ' ' && !(curChar & COLOR_PAIR(2))) {
 			points++;
@@ -119,7 +119,7 @@ bool avatar::moveTo(int a, int b) {
 		writeAt(x, y, letterUnder);
 		letterUnder = charAt(a, b);
 
-		writeAt(a, b, portrait,  color); 
+		writeAt(a, b, portrait,  color);
 		x = a;
 		y = b;
 	}
@@ -128,9 +128,9 @@ bool avatar::moveTo(int a, int b) {
 
 }
 bool avatar::moveRight() {
-	if(!isValid(x+1, y)) 
+	if(!isValid(x+1, y))
 		return false;
-	
+
 	moveTo(x+1, y+0);
 	return true;
 }
@@ -138,15 +138,15 @@ bool avatar::moveRight() {
 bool avatar::moveLeft() {
 	if(!isValid(x-1, y))
 		return false;
-	
+
 	moveTo(x-1, y);
 	return true;
 }
 
 bool avatar::moveUp() {
-	if(!isValid(x,y-1)) 
+	if(!isValid(x,y-1))
 		return false;
-	
+
 	moveTo(x, y-1);
 	return true;
 }
@@ -160,10 +160,10 @@ bool avatar::moveDown() {
 
 bool avatar::parseWordEnd(bool isWord) {
 	// Formula: Get next char, is it alphanumeric? If so, loop & break
-	//		on nonalpha-, and viceversa. 
+	//		on nonalpha-, and viceversa.
 	// 2nd case: if you are not at the end of a word, loop until you
 	//		reach a space
-	
+
 	if(charAt(x+1, y) == ' ') {
 		moveRight();
 	}
@@ -187,7 +187,7 @@ bool avatar::parseWordEnd(bool isWord) {
 			break;
 		}
 		else if(breakOnSpace && (nextChar == ' ')) {
-			break; 
+			break;
 		}
 		else if(nextChar == '#') { // not allowed to go on # so break
 			break;
@@ -203,21 +203,21 @@ bool avatar::parseWordEnd(bool isWord) {
 	}
 	return true;
 }
-				
+
 bool avatar::parseWordBackward(bool isWord) {
 	// Formula: Get next char, is it alphanumeric? If so, loop & break
-	//		on nonalpha-, and viceversa. 
+	//		on nonalpha-, and viceversa.
 	// 2nd case: if you are not at the end of a word, loop until you
 	//		reach a space
 
 	// store the current character type
-	char curChar = charAt(x, y); 
+	char curChar = charAt(x, y);
 	bool isAlpha = isalnum(curChar);
-	char nextChar = charAt(x-1, y); 
+	char nextChar = charAt(x-1, y);
 
 	// breakOnSpace = true if the current character isn't the end of a word
 	bool breakOnSpace = (nextChar != ' ' && curChar != ' ');
-	bool breakOnAlpha = breakOnSpace && (!isAlpha && !isalnum(nextChar) && isWord); 
+	bool breakOnAlpha = breakOnSpace && (!isAlpha && !isalnum(nextChar) && isWord);
 	bool breakOnNonAlpha = breakOnSpace && ((isAlpha && isalnum(nextChar))
 	 		|| (!isAlpha && isalnum(nextChar)))&& isWord;
 
@@ -227,7 +227,7 @@ bool avatar::parseWordBackward(bool isWord) {
 			break;
 		}
 		else if(breakOnSpace && nextChar == ' ') {
-			break; 
+			break;
 		}
 		else if(nextChar == '#') { // not allowed to go on # so break
 			return false;
@@ -237,13 +237,13 @@ bool avatar::parseWordBackward(bool isWord) {
 			if(!moveTo(x-1, y))
 				return false;
 			if(nextChar != ' ' && !breakOnSpace) {
-				if(isWord) {	
+				if(isWord) {
 					breakOnAlpha = !isalnum(nextChar);
 					breakOnNonAlpha = isalnum(nextChar);
 				}
 				breakOnSpace = true;
 			}
-			nextChar = charAt(x-1, y); 
+			nextChar = charAt(x-1, y);
 			curChar = charAt(x, y);
 		}
 	}
@@ -251,12 +251,12 @@ bool avatar::parseWordBackward(bool isWord) {
 }
 
 bool avatar::parseWordForward(bool isWord) {
-	char curChar = charAt(x, y); 
+	char curChar = charAt(x, y);
 	bool isAlpha = isalnum(curChar);
 	char lastChar= 'X';
 
 	bool breakOnAlpha = !isalnum(curChar);
-	
+
 	while(true) {
 		if(curChar != ' ' && (!isalnum(curChar) == !breakOnAlpha) && isWord ) { // if they are the same
 			break;
@@ -296,10 +296,10 @@ bool avatar::parseToEnd() {
 	return true;
 }
 
-bool avatar::parseToBeginning() { 
+bool avatar::parseToBeginning() {
 	x = 0;
 	while(isValid(x, y) && x <= WIDTH)  {
-		 x++; 
+		 x++;
 	}
 	while(!isValid(x, y) && x <= WIDTH) {
 		 x++;
