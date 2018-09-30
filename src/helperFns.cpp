@@ -3,8 +3,8 @@
 Copyright 2015 Jamal Moon
 
 PacVim is free software: you can redistribute it and/or modify
-it under the terms of the GNU Lesser General Public License (LGPL) as 
-published by the Free Software Foundation, either version 3 of the 
+it under the terms of the GNU Lesser General Public License (LGPL) as
+published by the Free Software Foundation, either version 3 of the
 License, or (at your option) any later version.
 
 PacVim program is distributed in the hope that it will be useful,
@@ -156,7 +156,7 @@ bool isValid(int x, int y) {
 	// Within range of board
 	if(y < 0 || x < 0)
 		return false;
-	
+
 
 	// Move cursor, check character, move cursor back
 	int curX, curY;
@@ -170,7 +170,7 @@ bool isValid(int x, int y) {
 	{
 		return false;
 	}
-	return true;	
+	return true;
 }
 
 // recursive
@@ -187,19 +187,19 @@ bool isInside(int x, int y, std::string direction = "omni") {
 	chtype value = charAt(x, y);
 
 	// found a wall
-	if(value >= 4000000) { 
+	if(value >= 4000000) {
 		return direction != "omni"; // can't call isInside(x,y, omni) on a wall
 	}
 
  	// no wall found -- continue searching in the proper direction
-	if(direction == "left") { 
+	if(direction == "left") {
 		return isInside(x-1, y, "left");
 	}
 	else if(direction == "right") {
 		return isInside(x+1, y, "right");
 	}
 	else if(direction == "up") {
-		return isInside(x, y-1, "up"); 
+		return isInside(x, y-1, "up");
 	}
 	else if(direction == "down") {
 		return isInside(x, y+1, "down");
@@ -210,8 +210,8 @@ bool isInside(int x, int y, std::string direction = "omni") {
 	}
 }
 
-	
 
 
 
-	
+
+
