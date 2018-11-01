@@ -16,7 +16,7 @@ endif
 $(TARGET): $(OBJS)
 	$(CXX) $(CXXFLAGS) $(LDFLAGS) $^ -o $@ $(LDLIBS)
 
-install: $(TARGET)
+install-darwin: $(TARGET)
 	install $(TARGET) $(DESTDIR)$(BINDIR)/$(TARGET)
 	install -d $(DESTDIR)$(MAPDIR)
 	install  $(MAPS) $(DESTDIR)$(MAPDIR)
@@ -28,4 +28,4 @@ uninstall:
 clean:
 	$(RM) $(wildcard src/*.o) $(TARGET)
 
-.PHONY: install uninstall clean
+.PHONY: install install-darwin uninstall clean
