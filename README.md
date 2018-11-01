@@ -35,9 +35,15 @@ Download and build the game with:
 ```
 2. git clone https://github.com/jmoon018/PacVim.git
 3. cd PacVim
+```
+### Linux install
+```
 4. [sudo] make install
 ```
-
+### MacOS install
+```
+4. [sudo] make install-darwin
+```
 ## Using Docker
 
 If you have docker installed already, you can just:
