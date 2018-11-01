@@ -16,6 +16,11 @@ endif
 $(TARGET): $(OBJS)
 	$(CXX) $(CXXFLAGS) $(LDFLAGS) $^ -o $@ $(LDLIBS)
 
+install: $(TARGET)
+	install -Dm755 $(TARGET) $(DESTDIR)$(BINDIR)/$(TARGET)
+	install -d $(DESTDIR)$(MAPDIR)
+	install -t $(DESTDIR)$(MAPDIR) $(MAPS)
+
 install-darwin: $(TARGET)
 	install $(TARGET) $(DESTDIR)$(BINDIR)/$(TARGET)
 	install -d $(DESTDIR)$(MAPDIR)
