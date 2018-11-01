@@ -17,9 +17,9 @@ $(TARGET): $(OBJS)
 	$(CXX) $(CXXFLAGS) $(LDFLAGS) $^ -o $@ $(LDLIBS)
 
 install: $(TARGET)
-	install -Dm755 $(TARGET) $(DESTDIR)$(BINDIR)/$(TARGET)
+	install $(TARGET) $(DESTDIR)$(BINDIR)/$(TARGET)
 	install -d $(DESTDIR)$(MAPDIR)
-	install -t $(DESTDIR)$(MAPDIR) $(MAPS)
+	install  $(MAPS) $(DESTDIR)$(MAPDIR)
 
 uninstall:
 	$(RM) $(DESTDIR)$(BINDIR)/$(TARGET)
