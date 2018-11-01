@@ -21,6 +21,11 @@ install: $(TARGET)
 	install -d $(DESTDIR)$(MAPDIR)
 	install -t $(DESTDIR)$(MAPDIR) $(MAPS)
 
+install-darwin: $(TARGET)
+	install $(TARGET) $(DESTDIR)$(BINDIR)/$(TARGET)
+	install -d $(DESTDIR)$(MAPDIR)
+	install  $(MAPS) $(DESTDIR)$(MAPDIR)
+
 uninstall:
 	$(RM) $(DESTDIR)$(BINDIR)/$(TARGET)
 	$(RM) -r $(DESTDIR)$(MAPDIR)
@@ -28,4 +33,4 @@ uninstall:
 clean:
 	$(RM) $(wildcard src/*.o) $(TARGET)
 
-.PHONY: install uninstall clean
+.PHONY: install install-darwin uninstall clean
