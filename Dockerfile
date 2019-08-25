@@ -1,7 +1,7 @@
-FROM alpine:3.6
+FROM alpine:3.10
 
-RUN apk update \
- && apk add \
+RUN apk update --no-cache\
+ && apk add --no-cache \
     tini \
     git \
     make \
