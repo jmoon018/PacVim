@@ -72,7 +72,7 @@ void Ghost1::spawnGhost(bool spawned = false) {
 	}
 
 	mtx.unlock();
-	usleep(250000); // wait a quarter second
+	usleep(0.25 * 1000000); // wait a quarter second
 	writeError("TRYING TO SPAWN");
 
 	if(!READY) {

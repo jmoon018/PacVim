@@ -236,7 +236,7 @@ void levelMessage() {
 	// print + pause
 	printw(msg.c_str());
 	refresh();
-	usleep(1500000);
+	usleep(1.5 * 1000000);
 
 	// clear and reset everything
 	clear();
@@ -457,7 +457,7 @@ void playGame(time_t lastTime, avatar &player) {
 
 	// consume any inputs in the buffer, or else the inputs will affect
 	// the game right as it begins by moving the player
-	usleep(10000);
+	usleep(0.01 * 1000000);
 	printAtBottom("PRESS ENTER TO PLAY!\n    ESC OR q TO EXIT!");
 	while(true) {
 
