@@ -27,13 +27,13 @@ double Ghost1::eval() {
 	return sqrt( pow(playerY-y, 2.0) + pow(playerX - x, 2.0) );
 }
 
-double Ghost1::eval(int a, int b) {
-	if(!isValid(a,b))
+double Ghost1::eval(int x, int y) {
+	if(!isValid(x, y))
 		return 1000;
 	int playerX, playerY;
 	getyx(stdscr, playerY, playerX);
 
-	return sqrt(pow(playerY-b, 2.0) + pow(playerX-a, 2.0));
+	return sqrt(pow(playerY-y, 2.0) + pow(playerX-x, 2.0));
 }
 
 void Ghost1::think() {

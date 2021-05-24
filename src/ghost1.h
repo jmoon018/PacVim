@@ -26,33 +26,33 @@ class Ghost1 : public avatar {
 	private:
 		double sleepTime;
 		double eval();
-		double eval(int a, int b);
+		double eval(int x, int y);
 	public:
-		Ghost1(int a, int b, double c)
-			: avatar(a, b)
-			, sleepTime(c)
+		Ghost1(int x, int y, double sleepTime)
+			: avatar(x, y)
+			, sleepTime(sleepTime)
 		{}
-		Ghost1(int a, int b)
-			: avatar(a, b)
+		Ghost1(int x, int y)
+			: avatar(x, y)
 			, sleepTime(0.5)
 		{}
 		Ghost1()
 			: avatar()
 			, sleepTime(0.5)
 		{}
-		explicit Ghost1(double time)
+		explicit Ghost1(double sleepTime)
 			: avatar()
-			, sleepTime(time)
+			, sleepTime(sleepTime)
 		{}
-		Ghost1(int a, int b, double c, int col)
-			: avatar(a, b)
-			, sleepTime(c)
+		Ghost1(int x, int y, double sleepTime, int color)
+			: avatar(x, y)
+			, sleepTime(sleepTime)
 		{
-			color = col;
+			this->color = color;
 		}
 		void lol();
 		void spawnGhost(bool spawned);
-		//void backtrack(int &a, int &b);
+		//void backtrack(int &x, int &y);
 		void think();
 };
 #endif
