@@ -21,6 +21,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #define GHOST1_H
 
 #include "avatar.h"
+
 class Ghost1 : public avatar {
 	private:
 		double sleepTime;

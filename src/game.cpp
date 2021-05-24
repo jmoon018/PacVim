@@ -55,7 +55,6 @@ void getMore(avatar& unit, char key) {
 	onKeystroke(unit, key);
 }
 
-
 // true if string only contains digits...regex would be nice
 bool isFullDigits(const string& str) {
 	for(unsigned i = 0; i < str.size(); i++) {
@@ -64,8 +63,6 @@ bool isFullDigits(const string& str) {
 	}
 	return true;
 }
-
-
 
 void doKeystroke(avatar& unit) {
 	if(INPUT== "q") {

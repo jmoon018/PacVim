@@ -114,9 +114,6 @@ void printAtBottom(std::string msg) {
 	//mtx.unlock();
 }
 
-
-
-
 // Game state
 void winGame() {
 	clear();
@@ -146,10 +143,6 @@ void loseGame() {
 	LIVES--;
 	sleep(1);
 }
-
-
-
-
 
 // check to see if the player can move there
 bool isValid(int x, int y) {
