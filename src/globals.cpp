@@ -27,6 +27,7 @@ bool READY = false;
 int LIVES = 3;
 const int NUM_OF_LEVELS = 9;
 
+// The higher this value, the slower the ghosts move
 double THINK_MULTIPLIER = 1.0;
 
 int TOP = 0;
