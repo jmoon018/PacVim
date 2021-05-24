@@ -139,8 +139,8 @@ The name of each text file must be in a format such as:
 `map#.txt`, where `#` represents a number like 0, 1, 9, 14, etc..
 The numbers must be consecutive
 (can't have map0.txt, map1.txt, and then map3.txt).
- **MAKE SURE YOU CHANGE THE NUM_OF_LEVELS
-IN GLOBALS.CPP OR ELSE YOUR NEW MAPS WON'T LOAD**.
+ **MAKE SURE YOU CHANGE THE `NUM_OF_LEVELS`
+IN "globals.cpp", OR ELSE YOUR NEW MAPS WON'T LOAD**.
 It should be equal to the highest map number.
 
 In the map text file, the walls are denoted by ampersands `#`,
@@ -221,9 +221,9 @@ A few of them:
 
 ### game.cpp
 
-This contains the *main()* method among many other important ones
+This contains the *`main()`* method among many other important ones
 
-**`main`** - contains a loop that breaks when `LIVES` < 0. In the loop,
+**`main()`** - contains a loop that breaks when `LIVES` < 0. In the loop,
 the proper map name is determined and loaded. Data is reset (such as as the pointers,
 the ghost AI, etc). The level is incremented.
 
