@@ -6,8 +6,6 @@ while avoiding the ghosts (in red).
 
 ![my image](https://raw.githubusercontent.com/jmoon018/PacVim/master/gifs/all.gif)
 
-## Building and running
-
 Vim is a great tool to write and edit code, but many
 people, including me, struggled with the steep learning curve.
 I did not find a fun, free way to learn about the vim commands
@@ -15,15 +13,15 @@ in-depth, and thus, PacVim was born. Inspired by the classic,
 PacMan, **PacVim** is a game that'll give anyone plenty of
 practice with the vim commands while being a ton of fun to play.
 
-Download and build the game with:
+## Building/Installing
 
-## Mac OS X
+### Mac OS X
 
 ```
 brew install pacvim
 ```
 
-## Linux (and Mac OS X alternative)
+### Linux (and Mac OS X alternative)
 
 <!--
       For Mac OS X: Install Homebrew (brew.sh),
@@ -41,7 +39,7 @@ brew install pacvim
 3. `cd PacVim`
 4. `[sudo] make install`
 
-## Using Docker
+### Using Docker
 
 If you have docker installed already, you can just:
 
@@ -49,7 +47,7 @@ If you have docker installed already, you can just:
 docker run -it freedomben/pacvim [LEVEL_NUMBER] [MODE]
 ```
 
-### Building the docker image from source
+#### Building the docker image from source
 
 From the project root, build the image:
 
@@ -156,7 +154,7 @@ Any shape, height, and width, within these constraints, should work.
 At the bottom of each map text file, parameters about the Ghost(s)
 and Players are specified
 
-### Ghost
+#### Ghost
 
 `/# X Y` ... EG: `/0.5 1 1`
 
@@ -167,7 +165,7 @@ The # denotes the time, in seconds, it takes for the Ghost to move.
 
 X and Y denote the starting x- and y-position of the Ghost
 
-### Player
+#### Player
 
 `pX Y` ... EG: `p15 7`
 
