@@ -1,7 +1,7 @@
 # PacVim
 
 PacVim is a game that teaches you vim commands.
-You must move pacman (the green cursor) to highlight each word on the gameboard
+You must move pacman (the green cursor) to highlight each word on the game board
 while avoiding the ghosts (in red).
 
 ![my image](https://raw.githubusercontent.com/jmoon018/PacVim/master/gifs/all.gif)
