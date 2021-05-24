@@ -25,7 +25,10 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <sstream>
 #include <unistd.h>
 #include "helperFns.h"
-// Avatar Class -- can be a ghost or player
+
+/**
+ * Avatar Class -- can be a ghost or player
+ */
 class avatar {
 	public:
 		avatar();
@@ -33,14 +36,14 @@ class avatar {
 		avatar(int, int, bool);
 		avatar(int, int, bool, int);
 	protected:
-		chtype letterUnder;
 		int x;
 		int y;
-		bool isPlayer;
+		int lives;
 		int points;
 		char portrait;
-		int lives;
+		bool isPlayer;
 		int color;
+		chtype letterUnder;
 	public:
 		bool moveTo(int, int);
 		//bool moveTo(int, int, bool);

@@ -16,47 +16,50 @@ You should have received a copy of the GNU Lesser General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
  */
+
 #include "avatar.h"
 #include <sstream>
 
-avatar::avatar() {
-	x = 1;
-	y = 1;
-	lives = 3;
-	points = 0;
-	portrait = 'G';
-	isPlayer = false;
-	color = COLOR_WHITE;
+avatar::avatar()
+	: x(1)
+	, y(1)
+	, lives(3)
+	, points(0)
+	, portrait('G')
+	, isPlayer(false)
+	, color(COLOR_WHITE)
+{
 }
 
-avatar::avatar(int a, int b) {
-	x = a;
-	y = b;
-	lives = 3;
-	points = 0;
-	portrait = 'G';
-	isPlayer = false;
-	color = COLOR_WHITE;
-	letterUnder = charAt(a, b);
+avatar::avatar(const int a, const int b)
+	: x(a)
+	, y(b)
+	, lives(3)
+	, points(0)
+	, portrait('G')
+	, isPlayer(false)
+	, color(COLOR_WHITE)
+	, letterUnder(charAt(a, b))
+{
 }
 
 
-avatar::avatar(int a, int b, bool human) {
-	x = a;
-	y = b;
-	lives = 3;
-	points = 0;
-	isPlayer = human;
-	if(human)
-		portrait = ' '; // default for player
-	else
-		portrait = 'G';
-	letterUnder = charAt(a, b);
+avatar::avatar(int a, int b, bool human)
+	: x(a)
+	, y(b)
+	, lives(3)
+	, points(0)
+	, portrait(human ? ' ' : 'G') // ' ' is default for player
+	, isPlayer(human)
+//	, color(COLOR_WHITE)
+	, letterUnder(charAt(a, b))
+{
 	moveTo(a, b);
 }
 
-avatar::avatar(int a, int b, bool human, int c) {
-	avatar(a, b, human);
+avatar::avatar(int a, int b, bool human, int c)
+	: avatar(a, b, human)
+{
 	color = c;
 }
 
@@ -169,7 +172,7 @@ bool avatar::parseWordEnd(bool isWord) {
 	}
 	// store the current character type
 	char curChar = charAt(x, y);
-	bool isAlpha = isalnum(curChar);
+	//bool isAlpha = isalnum(curChar);
 	char nextChar = charAt(x+1,y);
 
 	while(nextChar == ' ') {
@@ -177,7 +180,7 @@ bool avatar::parseWordEnd(bool isWord) {
 			return false;
 		nextChar = charAt(x+1, y);
 		curChar = charAt(x, y);
-		isAlpha = isalnum(curChar);
+		//isAlpha = isalnum(curChar);
 	}
 	// breakOnSpace = true if the current character isn't the end of a word
 	bool breakOnSpace = (nextChar != ' ' && curChar != ' ');
@@ -198,7 +201,7 @@ bool avatar::parseWordEnd(bool isWord) {
 			if(nextChar != ' ')
 				breakOnSpace = true;
 			nextChar = charAt(x+1, y);
-			curChar = charAt(x, y);
+			//curChar = charAt(x, y);
 		}
 	}
 	return true;
@@ -252,7 +255,7 @@ bool avatar::parseWordBackward(bool isWord) {
 
 bool avatar::parseWordForward(bool isWord) {
 	char curChar = charAt(x, y);
-	bool isAlpha = isalnum(curChar);
+	//bool isAlpha = isalnum(curChar);
 	char lastChar= 'X';
 
 	bool breakOnAlpha = !isalnum(curChar);

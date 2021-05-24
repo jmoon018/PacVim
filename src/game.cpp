@@ -51,13 +51,13 @@ void gotoLineBeginning(int line, avatar &unit) {
 void onKeystroke(avatar& unit, char key);
 
 void getMore(avatar& unit, char key) {
-	char nextChar = getch();
+	/*char nextChar =*/ getch();
 	onKeystroke(unit, key);
 }
 
 
 // true if string only contains digits...regex would be nice
-bool isFullDigits(string &str) {
+bool isFullDigits(const string& str) {
 	for(unsigned i = 0; i < str.size(); i++) {
 		if(!isdigit(str[i]))
 			return false;
@@ -258,29 +258,29 @@ void drawScreen(const char* file) {
 
 	vector<vector <chtype> > board;
 	vector<string> boardStr;
-	string str;
+	string text;
 	vector<chtype> line;
 
 	// store lines from text file into 'board' and 'boardStr'
 	WIDTH = 0; // largest width in the map
-	while(getline(in, str)) {
-		for(unsigned i = 0; i < str.length(); i++) {
-			line.push_back(str[i]);
+	while(getline(in, text)) {
+		for(unsigned i = 0; i < text.length(); i++) {
+			line.push_back(text[i]);
 		}
-		boardStr.push_back(str);
+		boardStr.push_back(text);
 		board.push_back(line);
 		line.clear();
 
-		if (WIDTH < str.length())
-			WIDTH = str.length();
+		if (WIDTH < text.length())
+			WIDTH = text.length();
 	}
 
 	// add spaces automatically to lines that don't have
 	// the max length (specified by WIDTH). Errors will
 	// happen if the board does not have a constant length
-	for(unsigned i = 0; i < board.size(); i++) {
+	for(size_t i = 0; i < board.size(); i++) {
 		boardStr.at(i).resize(WIDTH, ' ');
-		for(unsigned j = board.at(i).size(); j < WIDTH; j++) {
+		for(size_t j = board.at(i).size(); j < WIDTH; j++) {
 			chtype empty = ' ';
 			board.at(i).push_back(empty);
 		}
@@ -315,16 +315,16 @@ void drawScreen(const char* file) {
 			continue;
 		}
 		// this is where the player starting position is handled
-	    else if(boardStr.at(i).at(0) == 'p') {
+		else if(boardStr.at(i).at(0) == 'p') {
 			string str = boardStr.at(i);
-		    str.erase(str.begin(), str.begin()+1);
+			str.erase(str.begin(), str.begin()+1);
 
 			// get x position
 			string x = str.substr(0, str.find(" "));
 			str = str.substr(str.find(" ")+1, 9); // delete up to space
 
 			string y = str.substr(0, str.find(" "));
-			str = str.substr(str.find(" ")+1, 9); // delete up to space
+			//str = str.substr(str.find(" ")+1, 9); // delete up to space
 
 			START_X = stoi(x, nullptr, 0);
 			START_Y = stoi(y, nullptr, 0);
@@ -411,19 +411,20 @@ void drawScreen(const char* file) {
 		//	in which a player can move in
 		int size = board.at(i).size();
 		if(i != 0 && BOTTOM == 0) {
-			bool INSIDE = false;
-			char lastChar;
+			//bool INSIDE = false;
+			//char lastChar;
 			for(int j = 0; j < size; j++) {
 				if(board.at(i).at(j) == '#') {
-					if(lastChar != '#')
+					/*if(lastChar != '#') {
 						INSIDE = !INSIDE; // true -> false, false -> true
+					}*/
 				}
 				else {
 					BOTTOM = i;
 					break;
 				}
-				INSIDE = false;
-				lastChar = board.at(i).at(j);
+				//INSIDE = false;
+				//lastChar = board.at(i).at(j);
 			}
 		}
 		TOP++;
@@ -456,12 +457,11 @@ void playGame(time_t lastTime, avatar &player) {
 
 	// consume any inputs in the buffer, or else the inputs will affect
 	// the game right as it begins by moving the player
-	char ch;
 	usleep(10000);
 	printAtBottom("PRESS ENTER TO PLAY!\n    ESC OR q TO EXIT!");
 	while(true) {
 
-		ch = getch();
+		const char ch = getch();
 
 		if(ch == '\n') {
 			if(time(0) > (lastTime)) {
@@ -476,11 +476,10 @@ void playGame(time_t lastTime, avatar &player) {
 		}
 	}
 	printAtBottom("GO!                  \n                       ");
-	char key;
 
 	// continue playing until the player hits q or the game is over
 	while(GAME_WON == 0) {
-		key = getch();
+		const char key = getch();
 
 		onKeystroke(player, key);
 		stringstream ss;
@@ -519,7 +518,7 @@ void init(const char* mapName) {
 
 	// spawn ghosts
 	std::vector<std::thread> ghost_threads;
-	for(int i = 0; i < ghostList.size(); ++i){
+	for(size_t i = 0; i < ghostList.size(); ++i){
 		Ghost1 ghost = Ghost1(ghostList[i].xPos, ghostList[i].yPos,
 			(THINK_MULTIPLIER * ghostList[i].think), COLOR_RED);
 
@@ -547,7 +546,7 @@ bool checkParams(int argc, char** argv) {
 	// yes, I know that you could optimize by doing it in one cycle but:
 	// 1) it is not noticable
 	// 2) I think this approach is more readable and allows further use of the "sanitized" input
-	for (int i = 0; i < params.size(); ++i)
+	for (size_t i = 0; i < params.size(); ++i)
 	{
 		string currentParam = params[i];
 
@@ -596,7 +595,7 @@ bool checkParams(int argc, char** argv) {
 int main(int argc, char** argv)
 {
 	// Setup
-	WINDOW* win = initscr();
+	/*WINDOW* win = */initscr();
 	defineColors();
 	noecho(); // dont print anything to the screen
 
@@ -627,10 +626,11 @@ int main(int argc, char** argv)
 			TOTAL_POINTS = 0;
 		}
 		else {
-			if(GAME_WON == -1) {
-				CURRENT_LEVEL--; // lost the game, repeat the level
-			}
-			else if ((CURRENT_LEVEL % 3) == 0) {
+			//if(GAME_WON == -1) {
+			//	CURRENT_LEVEL--; // lost the game, repeat the level
+			//}
+			//else
+			if ((CURRENT_LEVEL % 3) == 0) {
 				LIVES++; // gain a life every 3 levels
 			}
 
@@ -644,7 +644,6 @@ int main(int argc, char** argv)
 			THINK_MULTIPLIER *= 0.8;
 		}
 	}
-	//endwin();
 	sleep(2);
 	endwin();
 	return 0;

@@ -37,7 +37,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 chtype charAt(int x, int y);
 bool writeAt(int x, int y, chtype letter);
 bool writeAt(int x, int y, chtype letter, int color);
-void writeError(std::string msg);
+void writeError(const std::string& msg);
 void printAtBottomChar(char msg);
 void printAtBottom(std::string msg);
 
@@ -48,7 +48,7 @@ void winGame();
 void loseGame();
 
 //
-bool isInside(int x, int y, std::string direction);
+bool isInside(int x, int y, const std::string& direction);
 
 // check to see if the player can move there
 bool isValid(int x, int y);

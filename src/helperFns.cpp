@@ -88,7 +88,7 @@ bool writeAt(int x, int y, chtype letter, int color) {
 	return true;
 }
 
-void writeError(std::string msg) {
+void writeError(const std::string& msg) {
 	std::ofstream fs;
 	fs.open("errors.log", std::fstream::app);
 	fs << msg;
@@ -174,7 +174,7 @@ bool isValid(int x, int y) {
 }
 
 // recursive
-bool isInside(int x, int y, std::string direction = "omni") {
+bool isInside(int x, int y, const std::string& direction = "omni") {
 	// we can tell if a location is bounded by the the walls
 	// if we can look up, right, left, down and find a wall before
 	// hitting the edge of the screen (eg: the far top or far
