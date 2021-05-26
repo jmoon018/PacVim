@@ -249,6 +249,15 @@ void drawScreen(const char* file) {
 	writeError("DRAWING THE SCREEN");
 
 	ifstream in(file);
+	if (in.fail()) {
+		const std::string err
+			= std::string("Failed to read map file '") + file + "'.\n"
+			+ " Maybe you forgot to install the maps (on Linux: `[sudo] make install`),"
+			+ " or you do not have permissions to read them.";
+		writeError(err);
+		std::cerr << err << std::endl;
+		exit(1);
+	}
 
 	// clear ghostList because we are gonna obtain new ones
 	ghostList.clear();
