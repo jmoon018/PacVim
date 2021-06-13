@@ -3,8 +3,8 @@
 Copyright 2015 Jamal Moon
 
 PacVim is free software: you can redistribute it and/or modify
-it under the terms of the GNU Lesser General Public License (LGPL) as 
-published by the Free Software Foundation, either version 3 of the 
+it under the terms of the GNU Lesser General Public License (LGPL) as
+published by the Free Software Foundation, either version 3 of the
 License, or (at your option) any later version.
 
 PacVim program is distributed in the hope that it will be useful,
@@ -27,13 +27,13 @@ double Ghost1::eval() {
 	return sqrt( pow(playerY-y, 2.0) + pow(playerX - x, 2.0) );
 }
 
-double Ghost1::eval(int a, int b) {
-	if(!isValid(a,b))
+double Ghost1::eval(int x, int y) {
+	if(!isValid(x, y))
 		return 1000;
 	int playerX, playerY;
 	getyx(stdscr, playerY, playerX);
 
-	return sqrt(pow(playerY-b, 2.0) + pow(playerX-a, 2.0));
+	return sqrt(pow(playerY-y, 2.0) + pow(playerX-x, 2.0));
 }
 
 void Ghost1::think() {
@@ -64,7 +64,7 @@ void Ghost1::think() {
 
 // When the board is created, spawn the ghost, but DON'T THINK
 // After the player is 'READY' (true), begin thinking
-void Ghost1::spawnGhost(bool spawned = false) { 
+void Ghost1::spawnGhost(bool spawned = false) {
 	mtx.lock();
 	if(!moveTo(x, y) && !spawned) {
 		mtx.unlock();
@@ -72,7 +72,7 @@ void Ghost1::spawnGhost(bool spawned = false) {
 	}
 
 	mtx.unlock();
-	usleep(250000); // wait a quarter second
+	usleep(0.25 * 1000000); // wait a quarter second
 	writeError("TRYING TO SPAWN");
 
 	if(!READY) {

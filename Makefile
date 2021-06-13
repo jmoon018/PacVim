@@ -5,7 +5,7 @@ MAPDIR     =  $(PREFIX)/share/pacvim-maps
 OBJS      :=  $(patsubst %.cpp,%.o,$(wildcard src/*.cpp))
 MAPS      :=  $(wildcard maps/*)
 CXX       ?=  g++
-CXXFLAGS  +=  -std=c++11 -DMAPS_LOCATION='"$(MAPDIR)"'
+CXXFLAGS  +=  -std=c++11 -DMAPS_LOCATION='"$(MAPDIR)"' -Wall
 LDLIBS    +=  -lncurses -lpthread
 
 ifneq ($(shell uname -s 2>/dev/null || echo nop),Darwin)

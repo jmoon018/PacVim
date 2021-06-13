@@ -1,12 +1,12 @@
-##################      ##############     
-#Hey, Doc, we#   #      #   ~Roads?  #     
-# better back#up.#      #where we're #     
-# We don't have  #      # going, we ~#     
-#enough~road to  #      #don't###    #     
-# get up#to 88.  #      #~need#roads!#     
-##################      ##############     
-                                           
-                                           
+##################      ##############
+#Hey, Doc, we#   #      #   ~Roads?  #
+# better back#up.#      #where we're #
+# We don't have  #      # going, we ~#
+#enough~road to  #      #don't###    #
+# get up#to 88.  #      #~need#roads!#
+##################      ##############
+
+
 ###################     ###################
 #Doc! Doc! No! No!#     # What about all  #
 # You're alive!!! #     #that talk about  #
@@ -16,8 +16,8 @@
 #~chance to tell  #     # Well, I figured,#
 ####### you.~######     #~what the hell?  #
       ########          ###################
-/.45 1 1                                   
-/.45 1 11                                  
-/.45 30 1                                  
-/.45 30 11                                 
+/.45 1 1
+/.45 1 11
+/.45 30 1
+/.45 30 11
 p10 5

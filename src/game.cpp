@@ -3,8 +3,8 @@
 Copyright 2015 Jamal Moon
 
 PacVim is free software: you can redistribute it and/or modify
-it under the terms of the GNU Lesser General Public License (LGPL) as 
-published by the Free Software Foundation, either version 3 of the 
+it under the terms of the GNU Lesser General Public License (LGPL) as
+published by the Free Software Foundation, either version 3 of the
 License, or (at your option) any later version.
 
 PacVim program is distributed in the hope that it will be useful,
@@ -51,13 +51,12 @@ void gotoLineBeginning(int line, avatar &unit) {
 void onKeystroke(avatar& unit, char key);
 
 void getMore(avatar& unit, char key) {
-	char nextChar = getch();
+	/*char nextChar =*/ getch();
 	onKeystroke(unit, key);
 }
 
-
 // true if string only contains digits...regex would be nice
-bool isFullDigits(string &str) {
+bool isFullDigits(const string& str) {
 	for(unsigned i = 0; i < str.size(); i++) {
 		if(!isdigit(str[i]))
 			return false;
@@ -65,10 +64,8 @@ bool isFullDigits(string &str) {
 	return true;
 }
 
-
-
 void doKeystroke(avatar& unit) {
-	if(INPUT== "q") { 
+	if(INPUT== "q") {
 		endwin();
 		exit(0);
 	}
@@ -79,7 +76,7 @@ void doKeystroke(avatar& unit) {
 		unit.moveDown();
 	}
 	else if(INPUT == "k") {
-		unit.moveUp(); 
+		unit.moveUp();
 	}
 	else if(INPUT == "l") {
 		unit.moveRight();
@@ -88,7 +85,7 @@ void doKeystroke(avatar& unit) {
 		unit.parseWordForward(true);
 	}
 	else if(INPUT == "W") {
-		unit.parseWordForward(false);	
+		unit.parseWordForward(false);
 	}
 	else if(INPUT == "b") {
 		unit.parseWordBackward(true);
@@ -102,8 +99,8 @@ void doKeystroke(avatar& unit) {
 	else if(INPUT == "e") {
 		unit.parseWordEnd(true);
 	}
-	else if(INPUT == "$") { 
-		unit.parseToEnd(); 
+	else if(INPUT == "$") {
+		unit.parseToEnd();
 	}
 	else if(INPUT == "0") {
 		unit.parseToBeginning();
@@ -115,10 +112,10 @@ void doKeystroke(avatar& unit) {
 			unit.setPos(0, BOTTOM+i);
 			unit.parseToBeginning();
 		}
-		unit.setPos(unit.getX(), BOTTOM+i); 
+		unit.setPos(unit.getX(), BOTTOM+i);
 		unit.parseToBeginning();
 	}
-	else if(INPUT == "G") { 
+	else if(INPUT == "G") {
 		int i = 0;
 		while(!isInside(unit.getX(), TOP-i, "omni")) {
 			i++;
@@ -141,7 +138,7 @@ void doKeystroke(avatar& unit) {
 	else if(INPUT == "&") {
 		GAME_WON = 1; // l337 cheetz
 	}
-}	
+}
 
 void onKeystroke(avatar& unit, char key) {
 	mtx.lock();
@@ -155,10 +152,10 @@ void onKeystroke(avatar& unit, char key) {
 
 	// If INPUT != empty, and the user inputs a number, INPUT
 	// should reset.. EG: 3g3 dd = 1 dd, not 3 dd
-	if(key == 'g') { 
+	if(key == 'g') {
 		// have 'g' (only) in buffer, or buffer is empty
-		if(INPUT.empty() || (INPUT.size() == 1 && INPUT[0] == 'g')) {	
-			
+		if(INPUT.empty() || (INPUT.size() == 1 && INPUT[0] == 'g')) {
+
 			INPUT += key;
 			if(INPUT == "gg") {
 				doKeystroke(unit);
@@ -174,9 +171,9 @@ void onKeystroke(avatar& unit, char key) {
 		INPUT = "";
 	}
 	// we have full digits and then enter a character
-	else if(!INPUT.empty() && isFullDigits(INPUT) && !isdigit(key)) { 
+	else if(!INPUT.empty() && isFullDigits(INPUT) && !isdigit(key)) {
 		int num = std::stoi(INPUT, nullptr, 0); // extracts 33 from 33dd for example
-		
+
 		// special ... #G. Move to the line number #
 		if(key == 'G') {
 			// go to line num
@@ -193,7 +190,7 @@ void onKeystroke(avatar& unit, char key) {
 				// change line number
 				unit.setPos(unit.getX(), num);
 				INPUT = "";
-				
+
 				// then go to the first character
 				mtx.unlock();
 				onKeystroke(unit, '^');
@@ -204,8 +201,8 @@ void onKeystroke(avatar& unit, char key) {
 		}
 		// if the input is NOT G, then it means
 		// we are repeating a keystroke.. eg 3w = w, three times
-	
-		INPUT = key; 
+
+		INPUT = key;
 		for(int i = 0; i < num; i++) {
 			doKeystroke(unit);
 		}
@@ -236,7 +233,7 @@ void levelMessage() {
 	// print + pause
 	printw(msg.c_str());
 	refresh();
-	usleep(1500000);
+	usleep(1.5 * 1000000);
 
 	// clear and reset everything
 	clear();
@@ -248,46 +245,55 @@ void levelMessage() {
 void drawScreen(const char* file) {
 	levelMessage();
 	clear();
-	
+
 	writeError("DRAWING THE SCREEN");
 
 	ifstream in(file);
+	if (in.fail()) {
+		const std::string err
+			= std::string("Failed to read map file '") + file + "'.\n"
+			+ " Maybe you forgot to install the maps (on Linux: `[sudo] make install`),"
+			+ " or you do not have permissions to read them.";
+		writeError(err);
+		std::cerr << err << std::endl;
+		exit(1);
+	}
 
 	// clear ghostList because we are gonna obtain new ones
 	ghostList.clear();
 
 	vector<vector <chtype> > board;
 	vector<string> boardStr;
-	string str;
+	string text;
 	vector<chtype> line;
 
 	// store lines from text file into 'board' and 'boardStr'
 	WIDTH = 0; // largest width in the map
-	while(getline(in, str)) {
-		for(unsigned i = 0; i < str.length(); i++) {
-			line.push_back(str[i]);
+	while(getline(in, text)) {
+		for(unsigned i = 0; i < text.length(); i++) {
+			line.push_back(text[i]);
 		}
-		boardStr.push_back(str);
+		boardStr.push_back(text);
 		board.push_back(line);
 		line.clear();
 
-		if (WIDTH < str.length())
-			WIDTH = str.length();
+		if (WIDTH < text.length())
+			WIDTH = text.length();
 	}
-	
+
 	// add spaces automatically to lines that don't have
 	// the max length (specified by WIDTH). Errors will
 	// happen if the board does not have a constant length
-	for(unsigned i = 0; i < board.size(); i++) {
-		boardStr.at(i).resize(WIDTH, ' '); 
-		for(unsigned j = board.at(i).size(); j < WIDTH; j++) { 
+	for(size_t i = 0; i < board.size(); i++) {
+		boardStr.at(i).resize(WIDTH, ' ');
+		for(size_t j = board.at(i).size(); j < WIDTH; j++) {
 			chtype empty = ' ';
 			board.at(i).push_back(empty);
 		}
 	}
 	in.close();
 
-	// iterate thru each line, parse, create board, create ghost attributes 
+	// iterate thru each line, parse, create board, create ghost attributes
 	for(unsigned i = 0; i < board.size(); i++) {
 
 		// parse info about ghosts, add them to ghostlist
@@ -305,7 +311,7 @@ void drawScreen(const char* file) {
 
 			string c = str.substr(0, str.find(" "));
 			str = str.substr(str.find(" ")+1, 9);
-		
+
 			// create the ghost
 			ghostInfo ghost;
 			ghost.think = stod(a, nullptr);
@@ -314,17 +320,17 @@ void drawScreen(const char* file) {
 			ghostList.push_back(ghost);
 			continue;
 		}
-		// this is where the player starting position is handled 
-	    else if(boardStr.at(i).at(0) == 'p') {
+		// this is where the player starting position is handled
+		else if(boardStr.at(i).at(0) == 'p') {
 			string str = boardStr.at(i);
-		    str.erase(str.begin(), str.begin()+1); 
+			str.erase(str.begin(), str.begin()+1);
 
 			// get x position
 			string x = str.substr(0, str.find(" "));
 			str = str.substr(str.find(" ")+1, 9); // delete up to space
 
 			string y = str.substr(0, str.find(" "));
-			str = str.substr(str.find(" ")+1, 9); // delete up to space
+			//str = str.substr(str.find(" ")+1, 9); // delete up to space
 
 			START_X = stoi(x, nullptr, 0);
 			START_Y = stoi(y, nullptr, 0);
@@ -336,8 +342,8 @@ void drawScreen(const char* file) {
 
 			// TOTAL_POINTS is incremented by 1 if a letter is found;
 			// it represents the number of letters the player has to step on to win
-			if(board.at(i).at(j) != '~' && 
-				board.at(i).at(j) != ' ' &&  board.at(i).at(j) != '#') 
+			if(board.at(i).at(j) != '~' &&
+				board.at(i).at(j) != ' ' &&  board.at(i).at(j) != '#')
 				TOTAL_POINTS++;
 
 
@@ -370,32 +376,32 @@ void drawScreen(const char* file) {
 					down = true;
 				}
 			}
-                                
-			// add the appropriate wall 
+
+			// add the appropriate wall
 			if(*ch == '#') {
 				attron(COLOR_PAIR(3)); // yellow, but can change
 				if(left && right && up && down)
-					addch(ACS_PLUS); 
+					addch(ACS_PLUS);
 				else if(left && right && up)
-					addch(ACS_BTEE); 
+					addch(ACS_BTEE);
 				else if(left && right && down)
-					addch(ACS_TTEE); 
+					addch(ACS_TTEE);
 				else if(left && up && down)
-					addch(ACS_RTEE); 
+					addch(ACS_RTEE);
 				else if(right && up && down)
-					addch(ACS_LTEE); 
+					addch(ACS_LTEE);
 				else if(up && left)
-					addch(ACS_LRCORNER); 
+					addch(ACS_LRCORNER);
 				else if(up && right)
-					addch(ACS_LLCORNER); 
+					addch(ACS_LLCORNER);
 				else if(down && left)
-					addch(ACS_URCORNER); 
+					addch(ACS_URCORNER);
 				else if(down && right)
-					addch(ACS_ULCORNER); 
+					addch(ACS_ULCORNER);
 				else if(down || up)
-					addch(ACS_VLINE); 
-				else 
-					addch(ACS_HLINE); 
+					addch(ACS_VLINE);
+				else
+					addch(ACS_HLINE);
 				attroff(COLOR_PAIR(3));
 			}
 			else {
@@ -410,28 +416,29 @@ void drawScreen(const char* file) {
 		// set value of BOTTOM - which is the first row
 		//	in which a player can move in
 		int size = board.at(i).size();
-		if(i != 0 && BOTTOM == 0) {	
-			bool INSIDE = false;
-			char lastChar;
-			for(int j = 0; j < size; j++) { 
+		if(i != 0 && BOTTOM == 0) {
+			//bool INSIDE = false;
+			//char lastChar;
+			for(int j = 0; j < size; j++) {
 				if(board.at(i).at(j) == '#') {
-					if(lastChar != '#')
+					/*if(lastChar != '#') {
 						INSIDE = !INSIDE; // true -> false, false -> true
+					}*/
 				}
 				else {
 					BOTTOM = i;
 					break;
 				}
-				INSIDE = false;
-				lastChar = board.at(i).at(j);
+				//INSIDE = false;
+				//lastChar = board.at(i).at(j);
 			}
 		}
 		TOP++;
-		writeError("TOP is set");	
+		writeError("TOP is set");
 		addch('\n');
 	}
 
-	
+
 	// if the 'p' in a file is not found, that means no player starting
 	// position was specified, and therefore we set the default here:
 	START_X = WIDTH/2;
@@ -455,14 +462,13 @@ void defineColors() {
 void playGame(time_t lastTime, avatar &player) {
 
 	// consume any inputs in the buffer, or else the inputs will affect
-	// the game right as it begins by moving the player 
-	char ch;
-	usleep(10000);
+	// the game right as it begins by moving the player
+	usleep(0.01 * 1000000);
 	printAtBottom("PRESS ENTER TO PLAY!\n    ESC OR q TO EXIT!");
 	while(true) {
-		
-		ch = getch();
-		
+
+		const char ch = getch();
+
 		if(ch == '\n') {
 			if(time(0) > (lastTime)) {
 				READY = true;
@@ -476,17 +482,16 @@ void playGame(time_t lastTime, avatar &player) {
 		}
 	}
 	printAtBottom("GO!                  \n                       ");
-	char key;
-	
+
 	// continue playing until the player hits q or the game is over
 	while(GAME_WON == 0) {
-		key = getch();
+		const char key = getch();
 
 		onKeystroke(player, key);
 		stringstream ss;
 
 		// increment points as game progresses
-		ss << "Points: " << player.getPoints() << "/" 
+		ss << "Points: " << player.getPoints() << "/"
 			<< TOTAL_POINTS << "\n" << " Lives: " << LIVES << "\n";
 		if(GAME_WON == 0)
 			printAtBottom(ss.str());
@@ -494,8 +499,8 @@ void playGame(time_t lastTime, avatar &player) {
 		// redundant movement
 		move(player.getY(), player.getX());
 		refresh();
-	}	
-	
+	}
+
 	clear();
 	if(GAME_WON == 1) {
 		winGame();
@@ -517,16 +522,16 @@ void init(const char* mapName) {
 	// create player
 	avatar player (START_X, START_Y, true);
 
-	// spawn ghosts	
+	// spawn ghosts
 	std::vector<std::thread> ghost_threads;
-	for(int i = 0; i < ghostList.size(); ++i){
+	for(size_t i = 0; i < ghostList.size(); ++i){
 		Ghost1 ghost = Ghost1(ghostList[i].xPos, ghostList[i].yPos,
 			(THINK_MULTIPLIER * ghostList[i].think), COLOR_RED);
 
 		ghost_threads.push_back(thread(&Ghost1::spawnGhost, ghost, false));
 	}
-	
-	// begin game	
+
+	// begin game
 	playGame(time(0), player);
 	writeError("GAME ENDED!");
 
@@ -543,11 +548,11 @@ bool checkParams(int argc, char** argv) {
 	{
 		params.push_back(argv[i+1]);
 	}
-	
+
 	// yes, I know that you could optimize by doing it in one cycle but:
 	// 1) it is not noticable
 	// 2) I think this approach is more readable and allows further use of the "sanitized" input
-	for (int i = 0; i < params.size(); ++i)
+	for (size_t i = 0; i < params.size(); ++i)
 	{
 		string currentParam = params[i];
 
@@ -596,7 +601,7 @@ bool checkParams(int argc, char** argv) {
 int main(int argc, char** argv)
 {
 	// Setup
-	WINDOW* win = initscr();
+	/*WINDOW* win = */initscr();
 	defineColors();
 	noecho(); // dont print anything to the screen
 
@@ -613,11 +618,11 @@ int main(int argc, char** argv)
 
 	while(LIVES >= 0) {
 		string mapName = MAPS_LOCATION "/map";
-		
+
 		// convert CURRENT_LEVEL to string, and load
 		std::stringstream ss;
 		ss << CURRENT_LEVEL;
-		
+
 		mapName += ss.str(); // add it to mapName
 		mapName += ".txt"; // must be .txt
 		init(mapName.c_str());
@@ -627,13 +632,14 @@ int main(int argc, char** argv)
 			TOTAL_POINTS = 0;
 		}
 		else {
-			if(GAME_WON == -1) {
-				CURRENT_LEVEL--; // lost the game, repeat the level
-			}
-			else if ((CURRENT_LEVEL % 3) == 0) {
+			//if(GAME_WON == -1) {
+			//	CURRENT_LEVEL--; // lost the game, repeat the level
+			//}
+			//else
+			if ((CURRENT_LEVEL % 3) == 0) {
 				LIVES++; // gain a life every 3 levels
 			}
-				
+
 			GAME_WON = 0;
 			TOTAL_POINTS = 0;
 		}
@@ -643,9 +649,8 @@ int main(int argc, char** argv)
 			CURRENT_LEVEL = 0;
 			THINK_MULTIPLIER *= 0.8;
 		}
-	}	
-	//endwin();
+	}
 	sleep(2);
 	endwin();
 	return 0;
-}          
+}

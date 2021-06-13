@@ -1,44 +1,45 @@
 # PacVim
 
 PacVim is a game that teaches you vim commands.
-You must move pacman (the green cursor) to highlight each word on the gameboard while avoiding the ghosts (in red).
+You must move pacman (the green cursor) to highlight each word on the game board
+while avoiding the ghosts (in red).
 
 ![my image](https://raw.githubusercontent.com/jmoon018/PacVim/master/gifs/all.gif)
-# Building and running
 
-Vim is a great tool to write and edit code, but many 
-people, including me, struggled with the steep learning curve. 
+Vim is a great tool to write and edit code, but many
+people, including me, struggled with the steep learning curve.
 I did not find a fun, free way to learn about the vim commands
 in-depth, and thus, PacVim was born. Inspired by the classic,
-PacMan, <b>PacVim</b> is a game that'll give anyone plenty of
+PacMan, **PacVim** is a game that'll give anyone plenty of
 practice with the vim commands while being a ton of fun to play.
 
-Download and build the game with:
+## Building/Installing
 
-## Mac OS X
-`brew install pacvim`
-
-## Linux (and Mac OS X alternative)
-
-1. Download and install Curses (graphics library) <br>
-	-> For Ubuntu (in terminal): `sudo apt-get install libncurses5-dev` <br>
-	
-	-> OR [This tutorial](http://geeksww.com/tutorials/operating_systems/linux/tools/how_to_download_compile_and_install_gnu_ncurses_on_debianubuntu_linux.php) may help (have not confirmed)
-	
-	-> OR build from source: [Curses source files](http://ftp.gnu.org/pub/gnu/ncurses/)
-
-	-> Mac OS X should come with Curses installed, so skip this step. 
-	
-<!--	-> For Mac OS X: Install Homebrew (brew.sh), then use `brew install ncurses && brew link ncurses --force`. If you get errors, type `brew tap homebrew/dupes` and try again.-->
-
+### Mac OS X
 
 ```
-2. git clone https://github.com/jmoon018/PacVim.git
-3. cd PacVim
-4. [sudo] make install
+brew install pacvim
 ```
 
-## Using Docker
+### Linux (and Mac OS X alternative)
+
+<!--
+      For Mac OS X: Install Homebrew (brew.sh),
+      then use `brew install ncurses && brew link ncurses - -force`.
+      If you get errors, type `brew tap homebrew/dupes` and try again.
+-->
+
+1. Download and install Curses (graphics library)
+    - -> For Ubuntu (in terminal): `sudo apt-get install libncurses5-dev`
+    - -> OR [This tutorial](http://geeksww.com/tutorials/operating_systems/linux/tools/how_to_download_compile_and_install_gnu_ncurses_on_debianubuntu_linux.php)
+      may help (have not confirmed)
+    - -> OR build from source: [Curses source files](http://ftp.gnu.org/pub/gnu/ncurses/)
+    - -> Mac OS X should come with Curses installed, so skip this step.
+2. `git clone https://github.com/jmoon018/PacVim.git`
+3. `cd PacVim`
+4. `[sudo] make install`
+
+### Using Docker
 
 If you have docker installed already, you can just:
 
@@ -46,7 +47,7 @@ If you have docker installed already, you can just:
 docker run -it freedomben/pacvim [LEVEL_NUMBER] [MODE]
 ```
 
-### Building the docker image from source
+#### Building the docker image from source
 
 From the project root, build the image:
 
@@ -61,24 +62,31 @@ docker push freedomben/pacvim
 ```
 
 To play, run (from anywhere):
-```
-$ pacvim [LEVEL_NUMBER] [MODE]
-```
-You may specify the starting level and mode (`n` and `h` for normal/hard). Default mode is hard:
-```
-$ pacvim 8 n
+
+```sh
+pacvim [LEVEL_NUMBER] [MODE]
 ```
 
-To Uninstall, navigate to the folder where you cloned this repo, and type `make uninstall` <br>
+You may specify the starting level and mode (`n` and `h` for normal/hard).
+Default mode is hard:
+
+```sh
+pacvim 8 n
+```
+
+To Uninstall, navigate to the folder where you cloned this repo, and type `make uninstall`
+
 Note: this game may not install/compile properly without gcc version 4.8.X or higher
 
-# How To Play
+## How To Play
 
 The objective of PacVim is very similar to PacMan.
-You must run over all the characters on the screen while avoiding the ghosts (red `G`).
+You must run over all the characters on the screen
+while avoiding the ghosts (red `G`).
 PacVim has two special obstacles:
 
-1. You cannot move into the walls (yellow color).  You must use vim motions to jump over them.
+1. You cannot move into the walls (yellow color).
+   You must use vim motions to jump over them.
 
 2. If you step on a tilde character (cyan `~`), you lose!
 
@@ -87,15 +95,15 @@ level 0, 3, 6, 9, etc. There are 10 levels, 0 through 9. After
 beating the 9th level, the game is reset to the 0th level, but
 the ghosts move faster.
 
-<b>Winning conditions:</b> Use vim commands to move the cursor
+**Winning conditions:** Use vim commands to move the cursor
 over the letters and highlight them. After all letters are
 highlighted, you win and proceed to the next level.
 
-<b>Losing conditions:</b> If you touch a ghost (indicated
+**Losing conditions:** If you touch a ghost (indicated
 by a red `G`) or a tilde character, you lose a life. If you
 have less than 0 lives, you lose the entire game.
 
-<h4>List of Implemented Commands</h4>
+### List of Implemented Commands
 
 | key | what it does |
 | --- | --- |
@@ -118,113 +126,129 @@ have less than 0 lives, you lose the entire game.
 | ^   | move to the first word at the current line |
 | &   | 1337 cheatz (beat current level)
 
+## Create Your Own Map
 
-# Create Your Own Map! 
+The maps for **PacVim** are loaded from text files from
+the */usr/local/share/pacvim-maps* folder.
+After installing, you may, instead, use the *maps* folder
+(where you installed the game) by calling `make MAPDIR=maps`.
 
-The maps for <b>PacVim</b> are loaded from text files from
-the <i>/usr/local/share/pacvim-maps</i> folder. After installing, you may, instead, use the *maps* folder (where you installed
-the game) by calling `make MAPDIR=maps`.
+The name of each text file must be in a format such as:
+`map#.txt`, where `#` represents a number like 0, 1, 9, 14, etc..
+The numbers must be consecutive
+(can't have map0.txt, map1.txt, and then map3.txt).
+ **MAKE SURE YOU CHANGE THE `NUM_OF_LEVELS`
+IN "globals.cpp", OR ELSE YOUR NEW MAPS WON'T LOAD**.
+It should be equal to the highest map number.
 
-The name of each text file must be
-in a format such as: `map#.txt`, where `#` represents a number like
-0, 1, 9, 14, etc. The numbers must be consecutive (can't have map0.txt,
-map1.txt, and then map3.txt). <b>MAKE SURE YOU CHANGE THE NUM_OF_LEVELS 
-IN GLOBALS.CPP OR ELSE YOUR NEW MAPS WON'T LOAD</b>. It should be equal
-to the highest map number.
+In the map text file, the walls are denoted by ampersands `#`,
+and the tildes come just from the tilde key.
+Maps must be bounded and closed,
+so the player is trapped within 4 walls.
+Make sure walls block the top and left of the terminal
+(or else the player goes offscreen).
+Any shape, height, and width, within these constraints, should work.
 
-In the map text file, the walls are denoted by ampersands `#`, and the
-tildes come just from the tilde key. Maps must be bounded and closed,
-so the player is trapped within 4 walls. Make sure walls block the top
-and left of the terminal (or else the player goes offscreen). Any
-shape, height, and width, within these constraints, should work
+### Creating Ghosts and Players
 
-<b>Creating Ghosts and Players</b><br>
 At the bottom of each map text file, parameters about the Ghost(s)
 and Players are specified
 
-<b>Ghost:</b><br>
-`/# X Y` ... EG: `/0.5 1 1`<br>
-The forward slash denotes that this information describes a Ghost (instead of player).<br>
-The # denotes the time, in seconds, it takes for the Ghost to move. (#=0.5 means 2 moves/sec)<br>
-X and Y denote the starting x- and y-position of the Ghost<br>
+#### Ghost
 
-<b>Player:</b> <br>
+`/# X Y` ... EG: `/0.5 1 1`
+
+The forward slash denotes that this information describes a Ghost (instead of player).
+
+The # denotes the time, in seconds, it takes for the Ghost to move.
+(#=0.5 means 2 moves/sec)
+
+X and Y denote the starting x- and y-position of the Ghost
+
+#### Player
+
 `pX Y` ... EG: `p15 7`
-The 'p' denotes that this information describes a Player (instead of Ghost).<br>
-The X and Y denote the starting x- and y-position of the Player. <br>
-<b>This is optional</b>, the player spawns in the middle of the map otherwise<br>
-<b>This should be the last line of the file</b><br>
- 
-<h2>Code Overview</h2>
 
-<h4>avatar.cpp</h4>
-Contains the <b>`avatar`</b> class, which contains information about
+The 'p' denotes that this information describes a Player (instead of Ghost).
+
+The X and Y denote the starting x- and y-position of the Player.
+
+**This is optional**, the player spawns in the middle of the map otherwise.
+
+**This should be the last line of the file**
+
+## Code Overview
+
+### avatar.cpp
+
+Contains the **`avatar`** class, which contains information about
 the player, such as his/her x position, y position, etc. It
 also contains methods that allow the player to move and correspond
-to the keystrokes. For example, the <b>`avatar`</b> class contains the method
-called <b>`parseWordForward(bool)`</b> which implements the functionality
+to the keystrokes. For example, the **`avatar`** class contains the method
+called **`parseWordForward(bool)`** which implements the functionality
 for the "w" (or "W" if true) vim command.
 
-<h4>ghost1.cpp</h4>
-Contains the <b>Ghost1</b> class, derived from the <b>`avatar`</b> class. It is
+### ghost1.cpp
+
+Contains the **Ghost1** class, derived from the **`avatar`** class. It is
 just like the avatar class, but it requires an extra paremeter
 upon initialization, called `sleepTime`, a double value that
 determines how quickly a ghost moves. It refers to the time, in
 seconds, the ghost must wait to move. A `sleepTime` of 0.5 means
 the ghost moves 2 times a second. `sleepTime` = 0.33 is 3 moves per second, etc.
-<br>
-The `Ghost1` class also contains a method called <b>`spawnGhost`</b> which
+
+The `Ghost1` class also contains a method called **`spawnGhost`** which
 creates the ghost at the location based on its initialization parameters.
 The ghost will appear when `READY` (global bool) is true (this means the player
-is ready), and it will call <b>`ghost.think()`</b> one second afterwards.
-<br>
-`think` is a recursive method that simply moves the ghost. It uses 
+is ready), and it will call **`ghost.think()`** one second afterwards.
+
+`think` is a recursive method that simply moves the ghost. It uses
 a basic greedy algorithm based on the distance of the ghost's potential
 moves (up, down, right, left) and the player.
-<br>
 
 Each ghost contains its own thread. A global mutex, called `mtx`, is
 used (in `think`) to ensure that resources are shared properly.
 
-`helperFns.cpp`
-Contains methods that allow easy changes of the screen. A few of them:
+`helperFns.cpp` contains methods that allow easy changes of the screen.
+A few of them:
 
-* `chtype charAt(int x, int y)` returns the chtype at the (x,y) location
-* `bool writeAt(int x, int y, chtype letter)` writes the 'letter' at location (x,y). Returns false if location is invalid.
-* `void printAtBottom(string msg)`  writes a message one line below the last line
+- `chtype charAt(int x, int y)` returns the `chtype` at the (x,y) location
+- `bool writeAt(int x, int y, chtype letter)` writes the 'letter' at location (x,y).
+  Returns false if location is invalid.
+- `void printAtBottom(string msg)`  writes a message one line below the last line
 
-<h4>game.cpp</h4>
-This contains the <i>main()</i> method among many other important ones
+### game.cpp
 
-<b>main</b> - contains a loop that breaks when `LIVES` < 0. In the loop,
+This contains the *`main()`* method among many other important ones
+
+**`main()`** - contains a loop that breaks when `LIVES` < 0. In the loop,
 the proper map name is determined and loaded. Data is reset (such as as the pointers,
 the ghost AI, etc). The level is incremented.
-<br>
-<b>init(const char*)</b> - called by <b>`main`</b>. Calls <b>`drawScreen(str map)`</b>, creates and
-spawns player and ghosts threads. Then calls <b>`playGame`</b>. After <b>`playGame`</b>
-ends, all the ghost threads are deleted, and then we go back to the <b>`main`</b> method.
-<br>
-<b>drawScreen(char* map)</b> - called by <b>`init`</b>. Reads from text file given
+
+**`init(const char*)`** - called by **`main`**. Calls **`drawScreen(str map)`**,
+creates and spawns player and ghosts threads.
+Then calls **`playGame`**. After **`playGame`** ends,
+all the ghost threads are deleted, and then we go back to the **`main`** method.
+
+**`drawScreen(char* map)`** - called by **`init`**. Reads from text file given
 by parameter. Loads everything onto the screen with the proper color and gets
-information from the ghost and player so that they spawn in the proper place in <b>`init`</b>.
-<br>
-<b>playGame(time_t, avatar player)</b> - called by <b>`init`</b>. This contains two loops,
+information from the ghost and player so that they spawn in the proper place in **`init`**.
+
+**`playGame(time_t, avatar player)`** - called by **`init`**. This contains two loops,
 one that consumes everything in the input buffer (which is then deleted), the second
 loop allows the player to continuously input keystrokes. When a keystroke is input,
-<b>`onKeystroke`</b> is called
-<br>
+**`onKeystroke`** is called
 
+## <a name="ToDoBugsTag">To-dos / Bugs</a>
 
-<h2><a name="ToDoBugsTag">To-dos / Bugs</a></h2>
-<ul>
-	<li>More testing on `#G` and `G` commands</li>
-	<li>G can go out of bounds on Map 8 with the boxes. #G (between boxes)</li>
-	<li>G won't move to proper line, it can hit the last wall rather than the last word (map2)</li>
-	<li>Refactor code, more comments</li>
-</ul>
+- More testing on `#G` and `G` commands
+- G can go out of bounds on Map 8 with the boxes. #G (between boxes)
+- G won't move to proper line,
+  it can hit the last wall rather than the last word (map2)
+- Refactor code, more comments
 
+## LICENSE
 
-<h2>LICENSE</h2>
 PacVim is free software: you can redistribute it and/or modify
 it under the terms of the GNU Lesser General Public License (LGPL) as published by
 the Free Software Foundation, either version 3 of the License, or
@@ -237,3 +261,4 @@ GNU Lesser General Public License for more details.
 
 You should have received a copy of the GNU Lesser General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
