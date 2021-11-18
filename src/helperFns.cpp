@@ -100,14 +100,14 @@ void printAtBottomChar(char msg) {
 	//mtx.lock();
 	std::string x;
 	x += msg;
-	mvprintw(TOP+5, 0, (x).c_str());
+	mvprintw(TOP+5, 0, "%s", (x).c_str());
 	//mtx.unlock();
 }
 void printAtBottom(std::string msg) {
 	//mtx.lock();
 	int x, y;
 	getyx(stdscr, y, x);
-	mvprintw(TOP+1, 1, msg.c_str());
+	mvprintw(TOP+1, 1, "%s", msg.c_str());
 	mvinch(y,x);
 	move(y,x);
 
