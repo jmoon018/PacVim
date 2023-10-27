@@ -234,7 +234,7 @@ void levelMessage() {
 	string msg = ss.str();
 
 	// print + pause
-	printw(msg.c_str());
+	printw("%s", msg.c_str());
 	refresh();
 	usleep(1500000);
 
