@@ -154,6 +154,9 @@ void doKeystroke(avatar& unit) {
 			unit.parseWordForward(true);
 		}
 	}
+	else if(INPUT == "!") {
+	  FREEZE_GHOSTS = 1 - FREEZE_GHOSTS;
+	}
 	else if(INPUT == "&") {
 		GAME_WON = 1; // l337 cheetz
 	}
@@ -174,6 +177,8 @@ void onKeystroke(avatar& unit, char key) {
 	if(INPUT.size() == 1 && (INPUT[0] == 'f' || INPUT[0] == 'F'
 	                      || INPUT[0] == 't' || INPUT[0] == 'T')) {
 	  INPUT += key;
+	  doKeystroke(unit);
+	  INPUT = "";
 	}
 	else if(key == 'g') { 
 		// have 'g' (only) in buffer, or buffer is empty

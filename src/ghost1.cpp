@@ -38,26 +38,28 @@ double Ghost1::eval(int a, int b) {
 
 void Ghost1::think() {
 	while(GAME_WON == 0) {
-		mtx.lock();
-		std::stringstream msg;
-		msg << sleepTime;
+	  if (FREEZE_GHOSTS == 0) {
+		  mtx.lock();
+		  std::stringstream msg;
+		  msg << sleepTime;
 
-		// evaluate the four potential paths and move accordingly
-		double up = eval(x, y-1);
-		double down = eval(x, y+1);
-		double left = eval(x-1, y);
-		double right = eval(x+1, y);
+		  // evaluate the four potential paths and move accordingly
+		  double up = eval(x, y-1);
+		  double down = eval(x, y+1);
+		  double left = eval(x-1, y);
+		  double right = eval(x+1, y);
 
-		if(up <= down && up <= left && up <= right)
-			moveTo(x, y-1);
-		else if(down <= left && down <= right && down <= up)
-			moveTo(x, y+1);
-		else if(left <= right && left <= up && left <= down)
-			moveTo(x-1, y);
-		else if(right <= up && right <= down && right <= left)
-			moveTo(x+1, y);
+		  if(up <= down && up <= left && up <= right)
+			  moveTo(x, y-1);
+		  else if(down <= left && down <= right && down <= up)
+			  moveTo(x, y+1);
+		  else if(left <= right && left <= up && left <= down)
+			  moveTo(x-1, y);
+		  else if(right <= up && right <= down && right <= left)
+			  moveTo(x+1, y);
 
-		mtx.unlock();
+		  mtx.unlock();
+		}
 		usleep(sleepTime * 1000000);
 	}
 }

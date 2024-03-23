@@ -35,6 +35,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //#include <cursesw.h>
 extern int TOTAL_POINTS;
 extern int GAME_WON; // 0 = in progress, 1 = won, -1 = lose
+extern int FREEZE_GHOSTS; // 0 = moving, 1 = frozen
 extern std::string INPUT; // keyboard characters
 extern int CURRENT_LEVEL;
 extern int LIVES;

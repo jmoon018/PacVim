@@ -22,6 +22,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 int TOTAL_POINTS = 0;
 int GAME_WON = 0;
+int FREEZE_GHOSTS = 0;
 std::string INPUT = "";
 bool READY = false;
 int LIVES = 3;

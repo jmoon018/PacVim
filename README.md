@@ -118,7 +118,8 @@ have less than 0 lives, you lose the entire game.
 | *number*G | jump to the beginning of the line given by *number* |
 | G   | jump to the beginning of the last line |
 | ^   | jump to the first word at the current line |
-| &   | 1337 cheatz (beat current level)
+| &   | cheat: beat current level
+| !   | cheat: freeze/unfreeze ghosts
 
 
 # Create Your Own Map! 
