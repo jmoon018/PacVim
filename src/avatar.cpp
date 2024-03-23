@@ -308,7 +308,7 @@ bool avatar::parseToBeginning() {
 	return true;
 }
 
-bool avatar::jumpToChar(char targetChar, bool forward) {
+bool avatar::jumpToChar(char targetChar, bool forward, bool includingTarget) {
   int offset = forward ? 1 : -1;
   for(int target_x = x + offset; target_x >= 0 && target_x < WIDTH; target_x += offset) {
     if (charAt(target_x, y) > 4000000) {
@@ -316,17 +316,20 @@ bool avatar::jumpToChar(char targetChar, bool forward) {
     }
     chtype letter = letterAt(target_x,y);
     if(letter == targetChar){
+      if (!includingTarget) {
+        target_x -= offset;
+      }
       return moveTo(target_x,y);
     }
   }
   return false;
 }
 
-bool avatar::jumpForward(char targetChar) {
-  return jumpToChar(targetChar, true);
+bool avatar::jumpForward(char targetChar, bool includingTarget) {
+  return jumpToChar(targetChar, true, includingTarget);
 }
 
-bool avatar::jumpBackward(char targetChar) {
-  return jumpToChar(targetChar, false);
+bool avatar::jumpBackward(char targetChar, bool includingTarget) {
+  return jumpToChar(targetChar, false, includingTarget);
 }
 

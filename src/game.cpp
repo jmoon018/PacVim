@@ -109,11 +109,19 @@ void doKeystroke(avatar& unit) {
 		unit.parseToBeginning();
 	}
 	else if(INPUT.size() == 2 && (INPUT[0] == 'f')){
-	  unit.jumpForward(INPUT[1]);
+	  unit.jumpForward(INPUT[1], true);
 	  INPUT="";
 	}
 	else if(INPUT.size() == 2 && (INPUT[0] == 'F')){
-	  unit.jumpBackward(INPUT[1]);
+	  unit.jumpBackward(INPUT[1], true);
+	  INPUT="";
+	}
+	else if(INPUT.size() == 2 && (INPUT[0] == 't')){
+	  unit.jumpForward(INPUT[1], false);
+	  INPUT="";
+	}
+	else if(INPUT.size() == 2 && (INPUT[0] == 'T')){
+	  unit.jumpBackward(INPUT[1], false);
 	  INPUT="";
 	}
 	else if(INPUT == "gg" || INPUT == "1G") {
@@ -162,8 +170,9 @@ void onKeystroke(avatar& unit, char key) {
 	// 3. gg = beginning of file... it's weird bc it's two non-digit characters
 	// 4. fx = for any x character, jump forward to it, Fx for backward
 
-	// if f or F was pressed, allow every character
-	if(INPUT.size() == 1 && (INPUT[0] == 'f' || INPUT[0] == 'F')) {
+	// if f/F/t/T was pressed, allow every character
+	if(INPUT.size() == 1 && (INPUT[0] == 'f' || INPUT[0] == 'F'
+	                      || INPUT[0] == 't' || INPUT[0] == 'T')) {
 	  INPUT += key;
 	}
 	else if(key == 'g') { 
@@ -228,13 +237,14 @@ void onKeystroke(avatar& unit, char key) {
 		// the first time we enter something
 		INPUT += key;
 
-		if(INPUT.size() == 2 && (INPUT[0] == 'f' || INPUT[0] == 'F')){
+		if(INPUT.size() == 2 && (INPUT[0] == 'f' || INPUT[0] == 'F'
+		                      || INPUT[0] == 't' || INPUT[0] == 'T')){
 			doKeystroke(unit);
 			INPUT = "";
 		}
 		// do keystroke if the first character is a letter,
 		//  except 0 (which immediately moves the player)
-		if(INPUT == "0" || !isFullDigits(INPUT)) {
+		if(INPUT == "0" || (!isFullDigits(INPUT) && INPUT != "f" && INPUT != "F" && INPUT != "t" && INPUT != "T")) {
 			doKeystroke(unit);
 			INPUT = "";
 		}
