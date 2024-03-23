@@ -110,12 +110,14 @@ have less than 0 lives, you lose the entire game.
 | E   | move forward to next WORD ending |
 | b   | move backward to next word beginning |
 | B   | move backward to next WORD beginning |
-| $   | move to the end of the line |
-| 0   | move to the beginning of the line |
-| gg/1G | move to the beginning of the first line |
-| *number*G | move to the beginning of the line given by *number* |
-| G   | move to the beginning of the last line |
-| ^   | move to the first word at the current line |
+| $   | jump to the end of the line |
+| 0   | jump to the beginning of the line |
+| fx  | jump forward to character x (cannot cross walls) |
+| Fx  | jump backward to character x (cannot cross walls) |
+| gg/1G | jump to the beginning of the first line |
+| *number*G | jump to the beginning of the line given by *number* |
+| G   | jump to the beginning of the last line |
+| ^   | jump to the first word at the current line |
 | &   | 1337 cheatz (beat current level)
 
 

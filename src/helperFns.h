@@ -35,6 +35,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 // Return the character at x, y
 chtype charAt(int x, int y);
+// Return just the letter at x,y ignoring colour
+chtype letterAt(int x, int y);
 bool writeAt(int x, int y, chtype letter);
 bool writeAt(int x, int y, chtype letter, int color);
 void writeError(std::string msg);
@@ -50,6 +52,7 @@ void loseGame();
 // 
 bool isInside(int x, int y, std::string direction);
 
+bool isWall(chtype character);
 // check to see if the player can move there
 bool isValid(int x, int y);
 

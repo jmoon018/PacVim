@@ -108,6 +108,14 @@ void doKeystroke(avatar& unit) {
 	else if(INPUT == "0") {
 		unit.parseToBeginning();
 	}
+	else if(INPUT.size() == 2 && (INPUT[0] == 'f')){
+	  unit.jumpForward(INPUT[1]);
+	  INPUT="";
+	}
+	else if(INPUT.size() == 2 && (INPUT[0] == 'F')){
+	  unit.jumpBackward(INPUT[1]);
+	  INPUT="";
+	}
 	else if(INPUT == "gg" || INPUT == "1G") {
 		int i = 0;
 		while(!isInside(unit.getX(), BOTTOM+i, "omni")) {
@@ -152,10 +160,13 @@ void onKeystroke(avatar& unit, char key) {
 	// 1. #G [moves to line #]
 	// 2. 1G = same as gg
 	// 3. gg = beginning of file... it's weird bc it's two non-digit characters
+	// 4. fx = for any x character, jump forward to it, Fx for backward
 
-	// If INPUT != empty, and the user inputs a number, INPUT
-	// should reset.. EG: 3g3 dd = 1 dd, not 3 dd
-	if(key == 'g') { 
+	// if f or F was pressed, allow every character
+	if(INPUT.size() == 1 && (INPUT[0] == 'f' || INPUT[0] == 'F')) {
+	  INPUT += key;
+	}
+	else if(key == 'g') { 
 		// have 'g' (only) in buffer, or buffer is empty
 		if(INPUT.empty() || (INPUT.size() == 1 && INPUT[0] == 'g')) {	
 			
@@ -169,6 +180,8 @@ void onKeystroke(avatar& unit, char key) {
 			INPUT = "";
 		}
 	}
+	// If INPUT != empty, and the user inputs a number, INPUT
+	// should reset.. EG: 3g3 dd = 1 dd, not 3 dd
 	else if(!INPUT.empty() && isdigit(key) && !isFullDigits(INPUT)) {
 		// reset it.. can't enter a digit in the middle of input
 		INPUT = "";
@@ -215,6 +228,10 @@ void onKeystroke(avatar& unit, char key) {
 		// the first time we enter something
 		INPUT += key;
 
+		if(INPUT.size() == 2 && (INPUT[0] == 'f' || INPUT[0] == 'F')){
+			doKeystroke(unit);
+			INPUT = "";
+		}
 		// do keystroke if the first character is a letter,
 		//  except 0 (which immediately moves the player)
 		if(INPUT == "0" || !isFullDigits(INPUT)) {

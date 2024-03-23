@@ -25,6 +25,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 int stuff[] = {'#', static_cast<int>(ACS_ULCORNER), static_cast<int>(ACS_LLCORNER), static_cast<int>(ACS_URCORNER), static_cast<int>(ACS_LRCORNER),
 	static_cast<int>(ACS_LTEE), static_cast<int>(ACS_RTEE), static_cast<int>(ACS_BTEE), static_cast<int>(ACS_TTEE), static_cast<int>(ACS_HLINE), static_cast<int>(ACS_VLINE), static_cast<int>(ACS_PLUS)};
 std::set<int> WALLS(stuff, stuff + 12);
+
 // Return the character at x, y
 chtype charAt(int x, int y) {
 	//if(!mtx.try_lock())
@@ -45,6 +46,11 @@ chtype charAt(int x, int y) {
 	mvinch(curY, curX);
 	//mtx.unlock();
 	return value;
+}
+
+// Return the letter ignoring colour at x, y
+chtype letterAt(int x, int y) {
+  return charAt(x, y) & A_CHARTEXT;
 }
 
 bool writeAt(int x, int y, chtype letter) {
@@ -148,7 +154,9 @@ void loseGame() {
 }
 
 
-
+bool isWall(chtype character) {
+  return WALLS.find(character) != WALLS.end();
+}
 
 
 // check to see if the player can move there
@@ -166,7 +174,7 @@ bool isValid(int x, int y) {
 
 
 	// Now see if it's a valid spot
-	if(testPos >= 4000000 || WALLS.find(testPos) != WALLS.end())
+	if(testPos >= 4000000 || isWall(testPos))
 	{
 		return false;
 	}
