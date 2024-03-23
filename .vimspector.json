@@ -1,0 +1,21 @@
+{
+  "configurations": {
+    "Launch": {
+      "adapter": "vscode-cpptools",
+      "configuration": {
+        "request": "launch",
+        "program": "pacvim",
+        "externalConsole": true,
+        "MIMode": "gdb"
+      }
+    },
+    "Attach": {
+      "adapter": "vscode-cpptools",
+      "configuration": {
+        "request": "attach",
+        "program": "pacvim",
+        "MIMode": "gdb"
+      }
+    }
+  }
+}
